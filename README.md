@@ -2,6 +2,8 @@
 
 DukDig is friendly Airflow DAG generator for Data Engineer.
 
+This template will generate routing task.
+
 **File Structure**:
 
 ```text
@@ -21,10 +23,10 @@ dags/
 
 ## Installation
 
-| Airflow Version | Supported |
-|:---------------:|:---------:|
-|     `3.x.x`     |    :x:    |
-|     `2.x.x`     |    :x:    |
+| Airflow Version | Supported | Noted |
+|:---------------:|:---------:|-------|
+|     `2.7.1`     |    :x:    |       |
+|     `3.x.x`     |    :x:    |       |
 
 ## Examples
 
@@ -42,16 +44,41 @@ authors: ["de-team"]
 tasks:
   - name: start
 
-  - name: load_sales_master
+  - name: etl_sales_master
     upstream: start
     type: group
     tasks:
-      - name: extract_sales_master
+      - name: extract
         type: task
-        module: load
-        conn: gcs
-        file_type: csv
-        path: gcs://{{ var("PROJECT_ID") }}/sales/master/date/{ exec_date:%y }
+        op: python
+        uses: libs.gcs.csv@1.1.0
+        assets:
+          - name: schema-mapping.json
+            alias: schema
+            convertor: basic
+        params:
+          path: gcs://{{ var("PROJECT_ID") }}/sales/master/date/{ exec_date:%y }
+
+      - name: transform
+        upstream: extract
+        type: task
+        op: docker
+        uses: docker.rgt.co.th/image.transform:0.0.1
+        assets:
+          - name: transform-query.sql
+            alias: transform
+        params:
+          path: gcs://{{ var("PROJECT_ID") }}/landing/master/date/{ exec_date:%y }
+
+      - name: sink
+        type: task
+        op: python
+        run: |
+          import time
+          time.sleep(5)
+
+  - name: end
+    upstream: etl_sales_master
 ```
 
 ```python
