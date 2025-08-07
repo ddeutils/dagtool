@@ -12,7 +12,8 @@ dags/
 │     │     ├── dag.yml
 │     │     ├── variables.yml
 │     │     └── assets/
-│     │         └── some-sql.file
+│     │         ├── schema-mapping.json
+│     │         └── transform-query.sql
 │     │
 │     └── { module-dags }/
 │           ├── __init__.py
@@ -30,7 +31,7 @@ dags/
 This DAG generator engine need you define the `dag.yaml` file and set engine
 object to get the current path on `__init__.py` file.
 
-> [NOTE!]
+> [!NOTE]
 > If you want to dynamic environment config on `dag.yaml` file, you can use a
 > `variable.yaml` file for dynamic value that marking on config template.
 
