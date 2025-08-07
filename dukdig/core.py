@@ -1,5 +1,8 @@
+import json
 from pathlib import Path
 from typing import Any
+
+from .utils import clear_globals
 
 
 class DokDag:
@@ -13,8 +16,9 @@ class DokDag:
         path: str | Path,
         gb: dict[str, Any] | None = None,
     ) -> None:
-        self.name = name
-        self.path = Path(path)
-        self.gb = gb or globals()
+        self.name: str = name
+        self.path: Path = Path(path)
+        self.gb: dict[str, Any] = clear_globals(gb or globals())
+        print(json.dumps(self.gb, default=str, indent=1))
 
     def gen(self): ...

@@ -14,21 +14,42 @@ dags/
 │     │     ├── dag.yml
 │     │     ├── variables.yml
 │     │     └── assets/
-│     │         ├── schema-mapping.json
-│     │         └── transform-query.sql
+│     │         ├── dag-schema-mapping.json
+│     │         └── dag-transform-query.sql
 │     │
 │     └── { module-dags }/
 │           ├── __init__.py
 ```
 
-## Installation
+> [!NOTE]
+> I think this project should support project structure like:
+>
+> ```text
+> dags/
+> ├── { domain }/
+> │     ├── { module-dags }/
+> │     │     ├── __init__.py
+> │     │     ├── dag-case-1.yml
+> │     │     ├── dag-case-2.yml
+> │     │     ├── variables.yml
+> │     │     └── assets/
+> │     │         ├── dag-case-1-schema-mapping.json
+> │     │         ├── dag-case-1-transform-query.sql
+> │     │         ├── dag-case-2-schema-mapping.json
+> │     │         └── dag-case-2-transform-query.sql
+> │     │
+> │     └── { module-dags }/
+> │           ├── __init__.py
+> ```
+
+## 📦 Installation
 
 | Airflow Version | Supported | Noted |
 |:---------------:|:---------:|-------|
 |     `2.7.1`     |    :x:    |       |
 |     `3.x.x`     |    :x:    |       |
 
-## Examples
+## 🎯 Usage
 
 This DAG generator engine need you define the `dag.yaml` file and set engine
 object to get the current path on `__init__.py` file.
@@ -84,7 +105,7 @@ tasks:
 ```python
 from dukdig import DokDag
 
-doc = """
+doc: str = """
 # SALES DAG
 
 This DAG will extract data from Google Cloud Storage to Google BigQuery LakeHouse
@@ -96,3 +117,10 @@ dag = DokDag(
 )
 dag.gen()
 ```
+
+## 💬 Contribute
+
+I do not think this project will go around the world because it has specific propose,
+and you can create by your coding without this project dependency for long term
+solution. So, on this time, you can open [the GitHub issue on this project :raised_hands:](https://github.com/korawica/dukdig/issues)
+for fix bug or request new feature if you want it.

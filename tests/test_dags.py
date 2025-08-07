@@ -8,4 +8,5 @@ def test_create_dag():
     def mock_create_dag():
         pass
 
-    mock_create_dag()
+    d = mock_create_dag()
+    print(d)
