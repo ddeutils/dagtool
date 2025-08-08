@@ -1,0 +1,12 @@
+name: loss
+schedule: "@daily"
+authors: ["de-team"]
+tasks:
+  - name: start
+    type: task
+    op: empty
+
+  - name: end
+    upstream: start
+    type: task
+    op: empty

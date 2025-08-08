@@ -42,6 +42,11 @@ dags/
 > │           ├── __init__.py
 > ```
 
+**Feature Supported**:
+
+- Passing environment variable
+-
+
 ## 📦 Installation
 
 | Airflow Version | Supported | Noted |

@@ -97,6 +97,9 @@ class DokDagModel(BaseModel):
         default_factory=list,
         description="A list of tag.",
     )
+    start_date: str | None = Field(default=None)
+    end_date: str | None = Field(default=None)
+    params: dict[str, str] = Field(default_factory=dict)
     tasks: list[AnyTask] = Field(
         default_factory=list,
         description="A list of any task, pure task or group task",

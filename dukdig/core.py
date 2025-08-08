@@ -16,6 +16,13 @@ class DokDag:
         path: str | Path,
         gb: dict[str, Any] | None = None,
     ) -> None:
+        """Main construct method.
+
+        Args:
+            name (str): A prefix name of final DAG.
+            path (str | Path):
+            gb (dict[str, Any]): A global variables.
+        """
         self.name: str = name
         self.path: Path = Path(path)
         self.gb: dict[str, Any] = clear_globals(gb or globals())
