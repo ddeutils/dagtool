@@ -1,7 +1,7 @@
-name: dedag-local
+name: dedag
 services:
   airflow:
-    image: airflow-local
+    image: airflow-standalone-local
     container_name: airflow-dev
     build:
       context: ..
@@ -10,10 +10,9 @@ services:
       - "8080:8080"
     command: [ "airflow", "standalone" ]
     environment:
-      AIRFLOW_HOME: /root/airflow
-      AIRFLOW__CORE__LOAD_EXAMPLES: False
-      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.default
-      AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 1
-      AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: 1
+      AIRFLOW_HOME: /opt/airflow
+      AIRFLOW_CONFIG: '/opt/airflow/airflow.cfg'
     volumes:
-      - ${pwd}/dags/:/root/airflow/dags
+      - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
+      - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
+      - ${AIRFLOW_PROJ_DIR:-.}/airflow.standalone.cfg:/opt/airflow/airflow.cfg

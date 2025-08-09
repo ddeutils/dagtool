@@ -13,3 +13,15 @@ docker build --rm --build-arg AIRFLOW_VERSION="2.7.1" \
   -t airflow-local \
   .
 ```
+
+## Docker Compose
+
+### Standalone
+
+```shell
+docker compose -f ./.container/docker-compose-local.yml --env-file .env up -d
+```
+
+```shell
+docker compose -f ./.container/docker-compose-local.yml --env-file .env down --rmi all
+```
