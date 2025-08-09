@@ -91,6 +91,7 @@ AnyTask = Annotated[
 
 class DokDagModel(BaseModel):
     name: str
+    type: Literal["dag"]
     schedule: str
     authors: list[str]
     tags: list[str] = Field(

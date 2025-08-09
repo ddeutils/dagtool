@@ -1,4 +1,5 @@
 name: loss
+type: dag
 schedule: "@daily"
 authors: ["de-team"]
 tasks:

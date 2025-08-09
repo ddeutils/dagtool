@@ -2,6 +2,10 @@
 
 DukDig is friendly Airflow DAG generator for Data Engineer.
 
+> [!WARNING]
+> This project will reference the DAG generate code from the [Astronomer: DAG-Factory](https://github.com/astronomer/dag-factory).
+> But I replace some logic that fit with ETL propose for Data Engineer.
+
 This template will generate routing task.
 
 **File Structure**:
@@ -44,8 +48,8 @@ dags/
 
 **Feature Supported**:
 
-- Passing environment variable
--
+- Passing environment variable.
+- Allow Passing Airflow Template.
 
 ## 📦 Installation
 
