@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from dukdig import DokDag
+from dedag import DokDag
 
 doc: str = """
 # Test DAG

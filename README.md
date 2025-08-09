@@ -1,6 +1,6 @@
-# DukDig
+# DeDAG
 
-DukDig is friendly Airflow DAG generator for Data Engineer.
+DeDAG is friendly Airflow DAG generator for Data Engineer.
 
 > [!WARNING]
 > This project will reference the DAG generate code from the [Astronomer: DAG-Factory](https://github.com/astronomer/dag-factory).
@@ -112,7 +112,7 @@ tasks:
 ```
 
 ```python
-from dukdig import DokDag
+from dedag import DokDag
 
 doc: str = """
 # SALES DAG

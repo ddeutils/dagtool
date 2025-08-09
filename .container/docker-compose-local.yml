@@ -1,4 +1,4 @@
-name: dukdig-local
+name: dedag-local
 services:
   airflow:
     image: airflow-local
