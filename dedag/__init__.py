@@ -1,1 +1,1 @@
-from .core import DokDag
+from .core import DeDag

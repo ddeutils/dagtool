@@ -16,6 +16,8 @@ docker build --rm --build-arg AIRFLOW_VERSION="2.7.1" \
 
 ## Docker Compose
 
+Start provision Airflow application via Docker Compose file.
+
 ### Standalone
 
 ```shell

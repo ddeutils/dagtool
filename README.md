@@ -60,7 +60,7 @@ dags/
 
 ## 🎯 Usage
 
-This DAG generator engine need you define the `dag.yaml` file and set engine
+This DAG generator engine need you define the `dag.yml` file and set engine
 object to get the current path on `__init__.py` file.
 
 > [!NOTE]
@@ -73,6 +73,8 @@ schedule: "@daily"
 authors: ["de-team"]
 tasks:
   - name: start
+    type: task
+    op: empty
 
   - name: etl_sales_master
     upstream: start
@@ -109,19 +111,19 @@ tasks:
 
   - name: end
     upstream: etl_sales_master
+    type: task
+    op: empty
 ```
 
 ```python
-from dedag import DokDag
-
-doc: str = """
-# SALES DAG
+"""# SALES DAG
 
 This DAG will extract data from Google Cloud Storage to Google BigQuery LakeHouse
 via DuckDB engine.
 """
+from dedag import DeDag
 
-dag = DokDag(
+dag = DeDag(
     "sales_dag", path=__file__, gb=globals()
 )
 dag.gen()

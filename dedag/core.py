@@ -3,18 +3,19 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from airflow.models.dag import DAG
 from yaml import safe_load
 
 from .const import VARIABLE_FILENAME
 from .utils import clear_globals
 
 
-class DokDag:
-    """DokDag object that will use be main interface object for retrieve config
+class DeDag:
+    """DeDag object that will use be main interface object for retrieve config
     data from the current path.
 
-    DAG Processor --> DokDag -- file-change --> refresh --> generated --> update cache
-                             -- file-not-change --> return cache
+    DAG Processor --> DeDag --( file-change )--> refresh --> generated --> update cache
+                             --( file-not-change )--> return cache
     """
 
     def __init__(
@@ -27,16 +28,17 @@ class DokDag:
 
         Args:
             name (str): A prefix name of final DAG.
-            path (str | Path):
+            path (str | Path): A current filepath.
             gb (dict[str, Any]): A global variables.
         """
         self.name: str = name
-        self.path: Path = Path(path)
+        self.path: Path = p.parent if (p := Path(path)).is_file() else p
         self.gb: dict[str, Any] = clear_globals(gb or globals())
         print(json.dumps(self.gb, default=str, indent=1))
         self.conf = []
 
-    def read_conf(self):
+    def read_conf(self) -> None:
+        """Read config from the current path."""
         # NOTE: Reset previous if it exists.
         self.conf = []
         for file in self.path.rglob("*"):
@@ -60,6 +62,14 @@ class DokDag:
                 )
 
         if len(self.conf) == 0:
-            logging.warning("Read config file from this domain path does not exists")
+            logging.warning(
+                "Read config file from this domain path does not exists"
+            )
 
-    def gen(self): ...
+    def build(self): ...
+
+    def gen(self):
+        kwargs = {}
+        kwargs["dag_id"] = "demo"
+        dag: DAG = DAG(**kwargs)
+        print(dag)

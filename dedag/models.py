@@ -89,7 +89,7 @@ AnyTask = Annotated[
 ]
 
 
-class DokDagModel(BaseModel):
+class DeDagModel(BaseModel):
     name: str
     type: Literal["dag"]
     schedule: str
