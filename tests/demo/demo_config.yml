@@ -2,17 +2,17 @@ name: sales_dag
 type: dag
 schedule: "@daily"
 authors: ["de-team"]
+tags:
+  - sales
+  - p1
 tasks:
-  - name: start
-    type: task
+  - task: start
     op: empty
 
-  - name: etl_sales_master
+  - group: etl_sales_master
     upstream: start
-    type: group
     tasks:
-      - name: extract
-        type: task
+      - task: extract
         op: python
         uses: libs.gcs.csv@1.1.0
         assets:
@@ -22,9 +22,8 @@ tasks:
         params:
           path: gcs://{{ var("PROJECT_ID") }}/sales/master/date/{ exec_date:%y }
 
-      - name: transform
+      - task: transform
         upstream: extract
-        type: task
         op: docker
         uses: docker.rgt.co.th/image.transform:0.0.1
         assets:
@@ -33,26 +32,22 @@ tasks:
         params:
           path: gcs://{{ var("PROJECT_ID") }}/landing/master/date/{ exec_date:%y }
 
-      - name: sink
+      - group: sink
         upstream: transform
-        type: group
         tasks:
-          - name: sleep
-            type: task
+          - task: sleep
             op: python
             run: |
               import time
               time.sleep(5)
 
-          - name: upload
-            type: task
+          - task: upload
             op: docker
             uses: docker.rgt.co.th/image.sink:0.0.1
             params:
               mode: overwrite
               path: gcs://{{ var("PROJECT_ID") }}/serving/master/data/{ exec_date:%y }
 
-  - name: end
+  - task: end
     upstream: etl_sales_master
-    type: task
     op: empty

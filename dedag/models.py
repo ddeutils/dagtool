@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
+from pathlib import Path
 from typing import Annotated, Any, Literal, Union
 
 from pydantic import BaseModel, Field, field_validator
 
 
 class BaseTask(BaseModel, ABC):
-    name: str
-    type: str
     upstream: list[str] | None = Field(
         default=None,
         description="A list of upstream task name or only task name.",
@@ -26,36 +26,36 @@ class BaseTask(BaseModel, ABC):
     def action(self): ...
 
 
-class OpTask(BaseTask, ABC):
-    type: Literal["task"]
-    op: str
+class CoreTask(BaseTask, ABC):
+    task: str = Field(description="A task name.")
+    op: str = Field(description="An operator type of this task.")
 
 
-class EmptyTask(OpTask):
+class EmptyTask(CoreTask):
     op: Literal["empty"]
 
     def action(self): ...
 
 
-class PythonTask(OpTask):
+class PythonTask(CoreTask):
     op: Literal["python"]
 
     def action(self): ...
 
 
-class BashTask(OpTask):
+class BashTask(CoreTask):
     op: Literal["bash"]
 
     def action(self): ...
 
 
-class SparkTask(OpTask):
+class SparkTask(CoreTask):
     op: Literal["spark"]
 
     def action(self): ...
 
 
-class DockerTask(OpTask):
+class DockerTask(CoreTask):
     op: Literal["docker"]
 
     def action(self): ...
@@ -74,7 +74,7 @@ Task = Annotated[
 
 
 class GroupTask(BaseTask):
-    type: Literal["group"]
+    group: str = Field(description="A task group name.")
     tasks: list["AnyTask"] = Field(default_factory=list)
 
     def action(self): ...
@@ -82,26 +82,40 @@ class GroupTask(BaseTask):
 
 AnyTask = Annotated[
     Union[
-        GroupTask,
         Task,
+        GroupTask,
     ],
-    Field(discriminator="type"),
+    Field(union_mode="smart"),
 ]
 
 
-class DeDagModel(BaseModel):
-    name: str
-    type: Literal["dag"]
-    schedule: str
-    authors: list[str]
-    tags: list[str] = Field(
-        default_factory=list,
-        description="A list of tag.",
+class DagModel(BaseModel):
+    """Base DeDag Model for validate template config data."""
+
+    name: str = Field(description="A DAG name.")
+    type: Literal["dag"] = Field(description="A type of template config.")
+    docs: str | None = Field(default=None, description="A DAG document.")
+    authors: list[str] = Field(
+        default_factory=list, description="A list of authors"
     )
-    start_date: str | None = Field(default=None)
-    end_date: str | None = Field(default=None)
     params: dict[str, str] = Field(default_factory=dict)
     tasks: list[AnyTask] = Field(
         default_factory=list,
         description="A list of any task, pure task or group task",
     )
+
+    # NOTE: Runtime parameters.
+    filename: str | None = Field(default=None)
+    parent_dir: Path | None = Field(default=None, description="")
+    created_dt: datetime | None = Field(default=None, description="")
+    updated_dt: datetime | None = Field(default=None, description="")
+
+    # NOTE: Airflow DAG parameters.
+    owner: str = Field(default=None)
+    tags: list[str] = Field(default_factory=list, description="A list of tags.")
+    schedule: str
+    start_date: str | None = Field(default=None)
+    end_date: str | None = Field(default=None)
+    concurrency: int | None = Field(default=None)
+    max_active_runs: int = 1
+    dagrun_timeout_sec: int = 600

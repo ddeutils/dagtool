@@ -3,11 +3,11 @@ type: dag
 schedule: "@daily"
 authors: ["de-team"]
 tasks:
-  - name: start
-    type: task
-    op: empty
+  - group: first-group
+    tasks:
+      - task: start
+        op: empty
 
-  - name: end
-    upstream: start
-    type: task
-    op: empty
+      - task: end
+        upstream: start
+        op: empty
