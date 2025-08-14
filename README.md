@@ -1,12 +1,10 @@
 # DeDAG
 
-DeDAG is friendly Airflow DAG generator for Data Engineer.
+**Friendly Airflow DAG Generator** for Data Engineer with YAML Template.
 
 > [!WARNING]
 > This project will reference the DAG generate code from the [Astronomer: DAG-Factory](https://github.com/astronomer/dag-factory).
 > But I replace some logic that fit with ETL propose for Data Engineer.
-
-This template will generate routing task.
 
 **File Structure**:
 
@@ -48,8 +46,9 @@ dags/
 
 **Feature Supported**:
 
-- Passing environment variable.
-- Allow Passing Airflow Template.
+- JSON Schema validation
+- Passing environment variable
+- Allow Passing Airflow Template
 
 ## 📦 Installation
 
@@ -71,17 +70,15 @@ object to get the current path on `__init__.py` file.
 name: sales_dag
 schedule: "@daily"
 authors: ["de-team"]
+tags: ["sales", "tier-1", "daily"]
 tasks:
-  - name: start
-    type: task
+  - task: start
     op: empty
 
-  - name: etl_sales_master
+  - group: etl_sales_master
     upstream: start
-    type: group
     tasks:
-      - name: extract
-        type: task
+      - type: extract
         op: python
         uses: libs.gcs.csv@1.1.0
         assets:
@@ -91,9 +88,8 @@ tasks:
         params:
           path: gcs://{{ var("PROJECT_ID") }}/sales/master/date/{ exec_date:%y }
 
-      - name: transform
+      - task: transform
         upstream: extract
-        type: task
         op: docker
         uses: docker.rgt.co.th/image.transform:0.0.1
         assets:
@@ -102,16 +98,14 @@ tasks:
         params:
           path: gcs://{{ var("PROJECT_ID") }}/landing/master/date/{ exec_date:%y }
 
-      - name: sink
-        type: task
+      - task: sink
         op: python
         run: |
           import time
           time.sleep(5)
 
-  - name: end
+  - task: end
     upstream: etl_sales_master
-    type: task
     op: empty
 ```
 
@@ -120,6 +114,8 @@ tasks:
 
 This DAG will extract data from Google Cloud Storage to Google BigQuery LakeHouse
 via DuckDB engine.
+
+> This DAG is the temp DAG for ingest data to GCP.
 """
 from dedag import DeDag
 
