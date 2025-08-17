@@ -18,8 +18,11 @@ class YamlConf:
     def __init__(self, path: Path) -> None:
         self.path: Path = path
 
-    def variable(self, env: str) -> dict[str, Any]:
-        search_files: list[Path] = list(self.path.rglob(f"{VARIABLE_FILENAME}.*"))
+    def variable(self, stage: str) -> dict[str, Any]:
+        """Get Variables"""
+        search_files: list[Path] = list(
+            self.path.rglob(f"{VARIABLE_FILENAME}.*")
+        )
         if not search_files:
             return {}
-        return safe_load(search_files[0].open(mode="rt")).get(env, {})
+        return safe_load(search_files[0].open(mode="rt")).get(stage, {})

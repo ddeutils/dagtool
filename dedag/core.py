@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from airflow.models.dag import DAG
 from pydantic import ValidationError
@@ -25,12 +25,16 @@ class DeDag:
         name: str,
         path: str | Path,
         gb: dict[str, Any] | None = None,
+        *,
+        on_failure_callback: list[Any] | None = None,
+        user_defined_filters: dict[str, Callable] | None = None,
     ) -> None:
         """Main construct method.
 
         Args:
             name (str): A prefix name of final DAG.
-            path (str | Path): A current filepath.
+            path (str | Path): A current filepath that can receive with string
+                value or Path object.
             gb (dict[str, Any]): A global variables.
         """
         self.name: str = name
@@ -41,6 +45,10 @@ class DeDag:
         self.docs: str | None = self.extract_docs()
         self.conf: list[DagModel] = []
         self.read_conf()
+        self.override_conf: dict[str, Any] = {
+            "on_failure_callback": on_failure_callback,
+            "user_defined_filters": user_defined_filters,
+        }
 
     @property
     def dag_count(self) -> int:

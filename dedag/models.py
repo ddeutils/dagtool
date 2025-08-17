@@ -9,7 +9,9 @@ from pydantic import BaseModel, Field, field_validator
 class BaseTask(BaseModel, ABC):
     upstream: list[str] | None = Field(
         default=None,
-        description="A list of upstream task name or only task name.",
+        description=(
+            "A list of upstream task name or only task name of this task."
+        ),
     )
 
     @field_validator(
@@ -18,6 +20,9 @@ class BaseTask(BaseModel, ABC):
         json_schema_input_type=str | list[str] | None,
     )
     def __prepare_upstream(cls, data: Any) -> Any:
+        """Prepare upstream value that passing to validate with string value
+        instead of list of string. This function will create list of this value.
+        """
         if data and isinstance(data, str):
             return [data]
         return data
@@ -75,7 +80,10 @@ Task = Annotated[
 
 class GroupTask(BaseTask):
     group: str = Field(description="A task group name.")
-    tasks: list["AnyTask"] = Field(default_factory=list)
+    tasks: list["AnyTask"] = Field(
+        default_factory=list,
+        description="A list of Any Task model.",
+    )
 
     def action(self): ...
 
@@ -95,9 +103,9 @@ class DagModel(BaseModel):
     name: str = Field(description="A DAG name.")
     type: Literal["dag"] = Field(description="A type of template config.")
     docs: str | None = Field(default=None, description="A DAG document.")
-    authors: list[str] = Field(
-        default_factory=list, description="A list of authors"
-    )
+    # authors: list[str] = Field(
+    #     default_factory=list, description="A list of authors"
+    # )
     params: dict[str, str] = Field(default_factory=dict)
     tasks: list[AnyTask] = Field(
         default_factory=list,

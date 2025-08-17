@@ -44,6 +44,23 @@ dags/
 > │           ├── __init__.py
 > ```
 
+**Execution Flow**:
+
+The flow of this project provide the interface Pydantic Model before
+passing it to Airflow objects.
+
+```text
+S --> Template --> Pydantic Model --> DAG/Operator Objects --> Execute --> E
+```
+
+**CI Flow**:
+
+```text
+S --> DAGs      --> GitSync     --> Airflow K8s Pod
+  --> Variables --> API Sync    --> Airflow Variables
+  --> Assets    --> CI Merge
+```
+
 **Feature Supported**:
 
 - JSON Schema validation
