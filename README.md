@@ -29,7 +29,7 @@ dags/
 ```
 
 > [!NOTE]
-> I think this project should support project structure like:
+> I think this project should support multiple DAGs structure like:
 >
 > ```text
 > dags/
@@ -74,10 +74,15 @@ S --> DAGs      --> GitSync     --> Airflow K8s Pod
 
 ## 📦 Installation
 
-| Airflow Version | Supported | Noted |
-|:---------------:|:---------:|-------|
-|     `2.7.1`     |    :x:    |       |
-|    `>=3.x.x`    |    :x:    |       |
+```shell
+uv pip install -U dedag
+```
+
+| Airflow Version  | Supported | Noted                                                          |
+|:----------------:|:---------:|----------------------------------------------------------------|
+|     `2.7.1`      |     ✅     | This is the first Airflow version that this project supported. |
+| `>=2.7.1,<3.0.0` |     ❌     |                                                                |
+|    `>=3.x.x`     |     ❌     |                                                                |
 
 ## 🎯 Usage
 
@@ -85,8 +90,9 @@ This DAG generator engine need you define the `dag.yml` file and set engine
 object to get the current path on `__init__.py` file.
 
 > [!NOTE]
-> If you want to dynamic environment config on `dag.yaml` file, you can use a
-> `variable.yaml` file for dynamic value that marking on config template.
+> If you want to dynamic environment config on the `dag.yaml` file, you can use a
+> `variable.yaml` file for dynamic value that marking on config template via macro
+> function, `{{ var('keystore-on-dag-name') }}`.
 
 ```yaml
 name: sales_dag
