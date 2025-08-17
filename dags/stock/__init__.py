@@ -1,6 +1,6 @@
-"""# Store
+"""# Stock DAGs
 
-This is the stock domain dag
+This is the stock domain DAG.
 
 """
 
@@ -21,6 +21,9 @@ dag = DeDag(
             list(chain.from_iterable(x)) if x != [] else ["no_back_fill_blob"]
         )
     },
+    user_defined_macros={},
 )
 logger.info(f"Start Generate: {dag.name}")
-dag.gen()
+dag.gen(
+    default_args={},
+)

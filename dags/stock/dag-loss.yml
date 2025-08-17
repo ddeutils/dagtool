@@ -1,6 +1,6 @@
 name: loss
 type: dag
-schedule: "@daily"
+schedule_interval: "1 * * * *"
 start_date: "{{ var('start_date') }}"
 catchup: "{{ var('catchup') }}"
 template_search_path:
@@ -88,10 +88,10 @@ tasks:
         delimiter: "*.json"
 
   - task: check_blob_exist
-    op: airflow.providers.google.cloud.sensors.gcs.GCSObjectsWithPrefixExistenceSensor
     upstream:
       - copy_last_modified_blob
       - query_stock_loss_and_copy
+    op: airflow.providers.google.cloud.sensors.gcs.GCSObjectsWithPrefixExistenceSensor
     trigger_rule: all_done
     bucket: "{{ var('bucket_name') }}"
     prefix: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}"

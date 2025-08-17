@@ -1,6 +1,6 @@
 name: count
 type: dag
-schedule: "@daily"
+schedule_interval: "1 * * * *"
 authors: ["de-team"]
 template_search_path: ${ ROOT_PATH }/${ DAG_FOLDER }/includes/stock/stock_count
 max_active_runs: {{ var('max_active_runs') }}

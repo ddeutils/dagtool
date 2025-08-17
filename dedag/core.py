@@ -1,13 +1,12 @@
 import json
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from airflow.models.dag import DAG
-from pydantic import ValidationError
-from yaml import safe_load
 
-from .const import VARIABLE_FILENAME
+from .conf import YamlConf
 from .models import DagModel
 from .utils import clear_globals
 
@@ -28,6 +27,7 @@ class DeDag:
         *,
         on_failure_callback: list[Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
+        user_defined_macros: dict[str, Any] | None = None,
     ) -> None:
         """Main construct method.
 
@@ -44,10 +44,12 @@ class DeDag:
         print(json.dumps(self.gb, default=str, indent=1))
         self.docs: str | None = self.extract_docs()
         self.conf: list[DagModel] = []
-        self.read_conf()
+        self.yaml_loader = YamlConf(path=self.path)
+        self.refresh_conf()
         self.override_conf: dict[str, Any] = {
             "on_failure_callback": on_failure_callback,
             "user_defined_filters": user_defined_filters,
+            "user_defined_macros": user_defined_macros,
         }
 
     @property
@@ -63,57 +65,16 @@ class DeDag:
             return self.gb["docs"]
         return None
 
-    def read_conf(self) -> None:
+    def refresh_conf(self) -> None:
         """Read config from the path argument and reload to the conf."""
         # NOTE: Reset previous if it exists.
-        self.conf: list[DagModel] = []
-        for file in self.path.rglob("*"):
-            if (
-                file.is_file()
-                and file.stem != VARIABLE_FILENAME
-                and file.suffix in (".yml", ".yaml")
-            ):
-                data: dict[str, Any] | list[Any] = safe_load(
-                    file.open(mode="rt")
-                )
+        if self.conf:
+            self.conf: list[DagModel] = []
 
-                # VALIDATE: Does not support for list of template config.
-                if isinstance(data, list):
-                    continue
+        self.conf: list[DagModel] = self.yaml_loader.read_conf()
 
-                try:
-                    if data.get("type", "NOTSET") != "dag":
-                        continue
-                    file_stats = file.stat()
-                    model = DagModel.model_validate(
-                        {
-                            "filename": file.name,
-                            "parent_dir": file.parent,
-                            "created_dt": file_stats.st_ctime,
-                            "updated_dt": file_stats.st_mtime,
-                            **data,
-                        }
-                    )
-                    logging.info(f"Load DAG: {model.name!r}")
-                    self.conf.append(model)
-                except AttributeError:
-                    # NOTE: Except case data is not be `dict` type.
-                    continue
-                except ValidationError as e:
-                    # NOTE: Raise because model cannot validate with model.
-                    logging.error(
-                        f"Template data cannot pass to DeDag model:\n{e}"
-                    )
-                    continue
-
-        if len(self.conf) == 0:
-            logging.warning(
-                "Read config file from this domain path does not exists"
-            )
-
-    def build(self): ...
-
-    def gen(self, default_args: dict[str, Any] | None = None):
+    def gen(self, default_args: dict[str, Any] | None = None) -> list[DAG]:
+        """Generated DAGs."""
         dags: list[DAG] = []
         for i, data in enumerate(self.conf, start=1):
             kwargs: dict[str, Any] = {

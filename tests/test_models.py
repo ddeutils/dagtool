@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from yaml import safe_load
 
-from dedag.models import DeDagModel
+from dedag.models import DagModel
 
 
 @pytest.fixture(scope="module")
@@ -13,5 +13,5 @@ def demo_data(test_path: Path):
 
 def test_dokdag_model(demo_data):
     print(demo_data)
-    model = DeDagModel.model_validate(demo_data)
+    model = DagModel.model_validate(demo_data)
     print(model)

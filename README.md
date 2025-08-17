@@ -6,6 +6,11 @@
 > This project will reference the DAG generate code from the [Astronomer: DAG-Factory](https://github.com/astronomer/dag-factory).
 > But I replace some logic that fit with ETL propose for Data Engineer.
 
+> [!NOTE]
+> Disclaimer: This project will override all necessary parameters that should
+> pass to Airflow object with Data Engineer context. So, if you want to use this
+> project concept, you can enhance it with your idea.
+
 **File Structure**:
 
 ```text
@@ -137,7 +142,9 @@ via DuckDB engine.
 from dedag import DeDag
 
 dag = DeDag(
-    "sales_dag", path=__file__, gb=globals()
+    "sales_dag",
+    path=__file__,
+    gb=globals(),
 )
 dag.gen()
 ```

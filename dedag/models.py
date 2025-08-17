@@ -1,100 +1,11 @@
-from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Annotated, Any, Literal, Union
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from airflow.models import DAG
+from pydantic import BaseModel, Field
 
-
-class BaseTask(BaseModel, ABC):
-    upstream: list[str] | None = Field(
-        default=None,
-        description=(
-            "A list of upstream task name or only task name of this task."
-        ),
-    )
-
-    @field_validator(
-        "upstream",
-        mode="before",
-        json_schema_input_type=str | list[str] | None,
-    )
-    def __prepare_upstream(cls, data: Any) -> Any:
-        """Prepare upstream value that passing to validate with string value
-        instead of list of string. This function will create list of this value.
-        """
-        if data and isinstance(data, str):
-            return [data]
-        return data
-
-    @abstractmethod
-    def action(self): ...
-
-
-class CoreTask(BaseTask, ABC):
-    task: str = Field(description="A task name.")
-    op: str = Field(description="An operator type of this task.")
-
-
-class EmptyTask(CoreTask):
-    op: Literal["empty"]
-
-    def action(self): ...
-
-
-class PythonTask(CoreTask):
-    op: Literal["python"]
-
-    def action(self): ...
-
-
-class BashTask(CoreTask):
-    op: Literal["bash"]
-
-    def action(self): ...
-
-
-class SparkTask(CoreTask):
-    op: Literal["spark"]
-
-    def action(self): ...
-
-
-class DockerTask(CoreTask):
-    op: Literal["docker"]
-
-    def action(self): ...
-
-
-Task = Annotated[
-    Union[
-        EmptyTask,
-        PythonTask,
-        BashTask,
-        SparkTask,
-        DockerTask,
-    ],
-    Field(discriminator="op"),
-]
-
-
-class GroupTask(BaseTask):
-    group: str = Field(description="A task group name.")
-    tasks: list["AnyTask"] = Field(
-        default_factory=list,
-        description="A list of Any Task model.",
-    )
-
-    def action(self): ...
-
-
-AnyTask = Annotated[
-    Union[
-        Task,
-        GroupTask,
-    ],
-    Field(union_mode="smart"),
-]
+from .operators import AnyTask
 
 
 class DagModel(BaseModel):
@@ -103,9 +14,6 @@ class DagModel(BaseModel):
     name: str = Field(description="A DAG name.")
     type: Literal["dag"] = Field(description="A type of template config.")
     docs: str | None = Field(default=None, description="A DAG document.")
-    # authors: list[str] = Field(
-    #     default_factory=list, description="A list of authors"
-    # )
     params: dict[str, str] = Field(default_factory=dict)
     tasks: list[AnyTask] = Field(
         default_factory=list,
@@ -127,3 +35,21 @@ class DagModel(BaseModel):
     concurrency: int | None = Field(default=None)
     max_active_runs: int = 1
     dagrun_timeout_sec: int = 600
+
+    def build(
+        self, prefix: str | None, default_args: dict[str, Any] | None = None
+    ) -> DAG:
+        """Build Airflow DAG object."""
+        name: str = f"{prefix}_{self.name}" if prefix else self.name
+        dag = DAG(
+            dag_id=name,
+            tags=self.tags,
+            schedule=self.schedule,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            concurrency=self.concurrency,
+            max_active_runs=self.max_active_runs,
+            dagrun_timeout=timedelta(seconds=self.dagrun_timeout_sec),
+            default_args={"owner": self.owner, **(default_args or {})},
+        )
+        return dag
