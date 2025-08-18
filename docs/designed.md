@@ -1,8 +1,10 @@
 # Designed
 
+A designed document of this project.
+
 ## DAG File Structure:
 
-Objective:
+**Objective**:
 
 - Easy to maintain and develop
 - Grouping business logic together
@@ -32,14 +34,14 @@ dags/
 ├── { domain }/
 │     ├── { module-dags }/
 │     │     ├── __init__.py                             <--- ⚙️ DAG Factory
-│     │     ├── dag-case-1.yml
-│     │     ├── dag-case-2.yml
+│     │     ├── dag-{ name-1 }.yml
+│     │     ├── dag-{ name-2 }.yml
 │     │     ├── variables.yml
 │     │     └── assets/
-│     │         ├── dag-case-1-schema-mapping.json
-│     │         ├── dag-case-1-transform-query.sql
-│     │         ├── dag-case-2-schema-mapping.json
-│     │         └── dag-case-2-transform-query.sql
+│     │         ├── dag-{ name-1 }-schema-mapping.json
+│     │         ├── dag-{ name-1 }-transform-query.sql
+│     │         ├── dag-{ name-2 }-schema-mapping.json
+│     │         └── dag-{ name-2 }-transform-query.sql
 │     │
 │     └── { module-dags }/
 │           ├── __init__.py
@@ -48,6 +50,6 @@ dags/
 The DAG name will generate with:
 
 ```text
-{module-dags}-case-1
-{module-dags}-case-2
+DAG: {module-dags}-{ name-1 }
+DAG: {module-dags}-{ name-2 }
 ```

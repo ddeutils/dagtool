@@ -22,7 +22,7 @@ class YamlConf:
         self.path: Path = path
 
     def variable(self, stage: str) -> dict[str, Any]:
-        """Get Variables"""
+        """Get Variable value with an input stage name."""
         search_files: list[Path] = list(
             self.path.rglob(f"{VARIABLE_FILENAME}.*")
         )

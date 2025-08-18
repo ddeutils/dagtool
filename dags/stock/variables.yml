@@ -20,7 +20,7 @@ variables:
         max_active_runs: 1
         batch_size: 10000
         dp_pyspark_version: "v4.20.0"
-  - key: campaign_discount_request
+  - key: "campaign_discount_request"
     stages:
       dev:
         project_id: ...

@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Union
 
 from airflow.models import DAG
 from pydantic import BaseModel, Field
 
-from .operators import AnyTask
+from .plugins.operators import AnyTask
 
 
 class DefaultArgs(BaseModel):
@@ -50,7 +50,12 @@ class DagModel(BaseModel):
         prefix: str | None,
         default_args: dict[str, Any] | None = None,
     ) -> DAG:
-        """Build Airflow DAG object."""
+        """Build Airflow DAG object.
+
+        Args:
+            prefix (str | None): A prefix of DAG name.
+            default_args: (dict[str, Any]):
+        """
         name: str = f"{prefix}_{self.name}" if prefix else self.name
         dag = DAG(
             dag_id=name,
@@ -64,3 +69,20 @@ class DagModel(BaseModel):
             default_args={"owner": self.owner, **(default_args or {})},
         )
         return dag
+
+
+Primitive = Union[str, int, float, bool]
+ValueType = Union[Primitive, list[Primitive], dict[Union[str, int], Primitive]]
+
+
+class Key(BaseModel):
+    key: str
+    stages: dict[str, dict[str, ValueType]] = Field(
+        default=dict,
+        description="A stage mapping with environment and its pair of variable",
+    )
+
+
+class Variable(BaseModel):
+    type: Literal["variable"]
+    variables: list[Key] = Field(description="A list of Key model.")

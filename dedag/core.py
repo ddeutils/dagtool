@@ -95,3 +95,9 @@ class DeDag:
         """
         for dag in self.gen(default_args=default_args):
             gb[dag.dag_id] = dag
+
+
+class TemplateDag:
+    """Template DAG object that will use template DAG file to be the template
+    of any DAG instead.
+    """

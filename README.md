@@ -1,6 +1,6 @@
 # DeDAG
 
-**Friendly Airflow DAG Generator** for Data Engineer with YAML Template.
+A **Friendly Airflow DAG Generator** for Data Engineer with YAML Template.
 
 > [!WARNING]
 > This project will reference the DAG generate code from the [Astronomer: DAG-Factory](https://github.com/astronomer/dag-factory).
@@ -36,8 +36,8 @@ dags/
 > ├── { domain }/
 > │     ├── { module-dags }/
 > │     │     ├── __init__.py
-> │     │     ├── dag-case-1.yml
-> │     │     ├── dag-case-2.yml
+> │     │     ├── dag-{ name-1 }.yml
+> │     │     ├── dag-{ name-2 }.yml
 > │     │     ├── variables.yml
 > │     │     └── assets/
 > │     │         ├── dag-case-1-schema-mapping.json
@@ -81,8 +81,8 @@ uv pip install -U dedag
 | Airflow Version  | Supported | Noted                                                          |
 |:----------------:|:---------:|----------------------------------------------------------------|
 |     `2.7.1`      |     ✅     | This is the first Airflow version that this project supported. |
-| `>=2.7.1,<3.0.0` |     ❌     |                                                                |
-|    `>=3.x.x`     |     ❌     |                                                                |
+| `>=2.7.1,<3.0.0` |     ❌     | Common version support for Airflow version `2.x.x`             |
+|    `>=3.x.x`     |     ❌     | Common version support for Airflow version `3.x.x`             |
 
 ## 🎯 Usage
 
@@ -97,6 +97,7 @@ object to get the current path on `__init__.py` file.
 ```yaml
 name: transaction
 schedule: "@daily"
+owner: "de-oncall@email.com,de@email.com"
 authors: ["de-team"]
 tags: ["sales", "tier-1", "daily"]
 tasks:
