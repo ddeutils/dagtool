@@ -8,12 +8,21 @@ from pydantic import BaseModel, Field
 from .operators import AnyTask
 
 
+class DefaultArgs(BaseModel):
+    """Default Args Model that will use with the `default_args` field."""
+
+    owner: str | None = None
+
+
 class DagModel(BaseModel):
     """Base DeDag Model for validate template config data."""
 
     name: str = Field(description="A DAG name.")
     type: Literal["dag"] = Field(description="A type of template config.")
-    docs: str | None = Field(default=None, description="A DAG document.")
+    docs: str | None = Field(
+        default=None,
+        description="A DAG document that allow to pass with markdown syntax.",
+    )
     params: dict[str, str] = Field(default_factory=dict)
     tasks: list[AnyTask] = Field(
         default_factory=list,
@@ -37,7 +46,9 @@ class DagModel(BaseModel):
     dagrun_timeout_sec: int = 600
 
     def build(
-        self, prefix: str | None, default_args: dict[str, Any] | None = None
+        self,
+        prefix: str | None,
+        default_args: dict[str, Any] | None = None,
     ) -> DAG:
         """Build Airflow DAG object."""
         name: str = f"{prefix}_{self.name}" if prefix else self.name

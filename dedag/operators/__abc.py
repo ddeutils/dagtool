@@ -29,7 +29,8 @@ class BaseTask(BaseModel, ABC):
         return data
 
     @abstractmethod
-    def build(self, **kwargs) -> Any: ...
+    def build(self, **kwargs) -> Any:
+        """Build"""
 
 
 class OperatorTask(BaseTask, ABC):
@@ -37,4 +38,5 @@ class OperatorTask(BaseTask, ABC):
     op: str = Field(description="An operator type of this task.")
 
     @abstractmethod
-    def build(self, **kwargs) -> Operator: ...
+    def build(self, **kwargs) -> Operator:
+        """Build the Airflow Operator object from this model fields."""

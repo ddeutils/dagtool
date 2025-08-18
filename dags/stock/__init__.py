@@ -15,7 +15,7 @@ logger = logging.getLogger("dedag.dag.stock")
 dag = DeDag(
     name="stock",
     path=__file__,
-    gb=globals(),
+    docs=__doc__,
     user_defined_filters={
         "unnested_list": lambda x: (
             list(chain.from_iterable(x)) if x != [] else ["no_back_fill_blob"]
@@ -24,6 +24,7 @@ dag = DeDag(
     user_defined_macros={},
 )
 logger.info(f"Start Generate: {dag.name}")
-dag.gen(
+dag.build_to_globals(
+    gb=globals(),
     default_args={},
 )

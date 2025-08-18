@@ -3,6 +3,7 @@ from typing import Literal
 from airflow.models import DAG, Operator
 from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
+from pydantic import Field
 
 from .__abc import OperatorTask
 
@@ -23,10 +24,10 @@ class PythonTask(OperatorTask):
 
 
 class BashTask(OperatorTask):
-    """Bash Task."""
+    """Bash Task model that will represent to Airflow BashOperator object."""
 
-    op: Literal["bash"]
-    bash_command: str
+    op: Literal["bash"] = Field(description="An operator type for bash model.")
+    bash_command: str = Field(description="A bash command or bash file")
     env: dict[str, str] | None = None
     append_env: bool = False
     output_encoding: str = "utf-8"

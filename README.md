@@ -95,7 +95,7 @@ object to get the current path on `__init__.py` file.
 > function, `{{ var('keystore-on-dag-name') }}`.
 
 ```yaml
-name: sales_dag
+name: transaction
 schedule: "@daily"
 authors: ["de-team"]
 tags: ["sales", "tier-1", "daily"]
@@ -147,13 +147,13 @@ via DuckDB engine.
 """
 from dedag import DeDag
 
-dag = DeDag(
-    "sales_dag",
-    path=__file__,
-    gb=globals(),
-)
-dag.gen()
+dag = DeDag("sales", path=__file__, docs=__doc__)
+dag.build_to_globals(gb=globals())
 ```
+
+**Output**:
+
+The DAG that was built from this package will have the name is, `sales_transaction`.
 
 ## 💬 Contribute
 

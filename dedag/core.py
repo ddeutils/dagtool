@@ -1,4 +1,3 @@
-import json
 import logging
 from collections.abc import Callable
 from pathlib import Path
@@ -8,7 +7,6 @@ from airflow.models.dag import DAG
 
 from .conf import YamlConf
 from .models import DagModel
-from .utils import clear_globals
 
 
 class DeDag:
@@ -23,7 +21,7 @@ class DeDag:
         self,
         name: str,
         path: str | Path,
-        gb: dict[str, Any] | None = None,
+        docs: str | None = None,
         *,
         on_failure_callback: list[Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
@@ -35,14 +33,15 @@ class DeDag:
             name (str): A prefix name of final DAG.
             path (str | Path): A current filepath that can receive with string
                 value or Path object.
-            gb (dict[str, Any]): A global variables.
+            docs (dict[str, Any]): A docs string for this DeDag will use to
+                be the header of full docs.
         """
         self.name: str = name
         self.path: Path = p.parent if (p := Path(path)).is_file() else p
-        self.gb: dict[str, Any] = clear_globals(gb or globals())
-
-        print(json.dumps(self.gb, default=str, indent=1))
-        self.docs: str | None = self.extract_docs()
+        # self.gb: dict[str, Any] = clear_globals(gb or globals())
+        # print(json.dumps(self.gb, default=str, indent=1))
+        # self.docs: str | None = self.extract_docs()
+        self.docs: str | None = docs
         self.conf: list[DagModel] = []
         self.yaml_loader = YamlConf(path=self.path)
         self.refresh_conf()
@@ -56,14 +55,14 @@ class DeDag:
     def dag_count(self) -> int:
         return len(self.conf)
 
-    def extract_docs(self):
-        if "__doc__" in self.gb:
-            return self.gb["__doc__"]
-        elif "docs" in self.gb and (
-            self.gb["__annotations__"].get("docs") is str
-        ):
-            return self.gb["docs"]
-        return None
+    # def extract_docs(self):
+    #     if "__doc__" in self.gb:
+    #         return self.gb["__doc__"]
+    #     elif "docs" in self.gb and (
+    #         self.gb["__annotations__"].get("docs") is str
+    #     ):
+    #         return self.gb["docs"]
+    #     return None
 
     def refresh_conf(self) -> None:
         """Read config from the path argument and reload to the conf."""
@@ -85,3 +84,14 @@ class DeDag:
             logging.info(f"({i}) Building DAG: {dag}")
             dags.append(dag)
         return dags
+
+    def build_to_globals(
+        self,
+        gb: dict[str, Any],
+        default_args: dict[str, Any] | None = None,
+    ) -> None:
+        """Build Airflow DAG object and set to the globals for Airflow Dag Processor
+        can discover them.
+        """
+        for dag in self.gen(default_args=default_args):
+            gb[dag.dag_id] = dag
