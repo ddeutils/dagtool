@@ -20,6 +20,7 @@ tasks:
 
   - task: copy_last_modified_blob
     upstream: start
+    # TODO: Change this operator value, `op: gcs_copy_files_time_range_operator`.
     op: dags.service_utils.custom_operator.GCSCopyFilesTimeRangeOperator
     source_bucket: "cjnext-pos-admin"
     source_prefix: "stock-loss/"
@@ -227,5 +228,7 @@ tasks:
       - ...
 
   - task: end
-    upstream: stock_loss
+    upstream:
+      - stock_loss
+      - stock_loss_sku_list
     op: empty

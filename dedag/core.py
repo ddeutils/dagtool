@@ -23,9 +23,12 @@ class DeDag:
         path: str | Path,
         docs: str | None = None,
         *,
+        # NOTE: Airflow params.
         on_failure_callback: list[Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Any] | None = None,
+        # NOTE: DeDag params.
+        operators: dict[str, Any] | None = None,
     ) -> None:
         """Main construct method.
 
@@ -50,6 +53,8 @@ class DeDag:
             "user_defined_filters": user_defined_filters,
             "user_defined_macros": user_defined_macros,
         }
+
+        self.operators: dict[str, Any] = operators or {}
 
     @property
     def dag_count(self) -> int:

@@ -15,6 +15,7 @@ dag = DeDag(
     name="stock",
     path=__file__,
     docs=__doc__,
+    operators={},
     user_defined_filters={"unnested_list": unnested_list},
     user_defined_macros={},
 )
