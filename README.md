@@ -1,13 +1,13 @@
-# FastDag
+# Fast DAG Factory
 
-A **Friendly Airflow DAG Generator** for Data Engineer with YAML Template.
+A **Fast & Friendly Airflow DAG Factory** for Data Engineer with YAML Template.
 
 > [!WARNING]
 > This project will reference the DAG generate code from the [Astronomer: DAG-Factory](https://github.com/astronomer/dag-factory).
 > But I replace some logic that fit with ETL propose for Data Engineer.
 
 > [!NOTE]
-> Disclaimer: This project will override all necessary parameters that should
+> **Disclaimer**: This project will override all necessary parameters that should
 > pass to Airflow object with Data Engineer context. So, if you want to use this
 > project concept, you can enhance it with your idea.
 
@@ -73,6 +73,9 @@ S --> DAGs      --> GitSync     --> Airflow K8s Pod
 - Allow Passing Airflow Template
 
 ## 📦 Installation
+
+> [!WARNING]
+> This package does not publish to PyPI yet.
 
 ```shell
 uv pip install -U fastdag
