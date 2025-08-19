@@ -15,7 +15,7 @@ class DefaultArgs(BaseModel):
 
 
 class DagModel(BaseModel):
-    """Base DeDag Model for validate template config data."""
+    """Base FastDag Model for validate template config data."""
 
     name: str = Field(description="A DAG name.")
     type: Literal["dag"] = Field(description="A type of template config.")

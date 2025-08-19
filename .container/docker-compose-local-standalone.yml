@@ -1,4 +1,4 @@
-name: dedag
+name: fastdag
 services:
   airflow:
     image: airflow-standalone-local

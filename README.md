@@ -1,4 +1,4 @@
-# DeDAG
+# FastDag
 
 A **Friendly Airflow DAG Generator** for Data Engineer with YAML Template.
 
@@ -75,7 +75,7 @@ S --> DAGs      --> GitSync     --> Airflow K8s Pod
 ## 📦 Installation
 
 ```shell
-uv pip install -U dedag
+uv pip install -U fastdag
 ```
 
 | Airflow Version  | Supported | Noted                                                          |
@@ -146,9 +146,9 @@ via DuckDB engine.
 
 > This DAG is the temp DAG for ingest data to GCP.
 """
-from dedag import DeDag
+from fastdag import FastDag
 
-dag = DeDag("sales", path=__file__, docs=__doc__)
+dag = FastDag("sales", path=__file__, docs=__doc__)
 dag.build_to_globals(gb=globals())
 ```
 
@@ -160,5 +160,5 @@ The DAG that was built from this package will have the name is, `sales_transacti
 
 I do not think this project will go around the world because it has specific propose,
 and you can create by your coding without this project dependency for long term
-solution. So, on this time, you can open [the GitHub issue on this project :raised_hands:](https://github.com/ddeutils/dedag/issues)
+solution. So, on this time, you can open [the GitHub issue on this project :raised_hands:](https://github.com/ddeutils/FastDag/issues)
 for fix bug or request new feature if you want it.

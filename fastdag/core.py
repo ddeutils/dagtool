@@ -9,11 +9,11 @@ from .conf import YamlConf
 from .models import DagModel
 
 
-class DeDag:
-    """DeDag object that will use be main interface object for retrieve config
+class FastDag:
+    """FastDag object that will use be main interface object for retrieve config
     data from the current path.
 
-    DAG Processor --> DeDag --( file-change )--> refresh --> generated --> update cache
+    DAG Processor --> FastDag --( file-change )--> refresh --> generated --> update cache
                             --( file-not-change )--> return cache
     """
 
@@ -27,7 +27,7 @@ class DeDag:
         on_failure_callback: list[Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Any] | None = None,
-        # NOTE: DeDag params.
+        # NOTE: FastDag params.
         operators: dict[str, Any] | None = None,
     ) -> None:
         """Main construct method.
@@ -36,7 +36,7 @@ class DeDag:
             name (str): A prefix name of final DAG.
             path (str | Path): A current filepath that can receive with string
                 value or Path object.
-            docs (dict[str, Any]): A docs string for this DeDag will use to
+            docs (dict[str, Any]): A docs string for this FastDag will use to
                 be the header of full docs.
         """
         self.name: str = name
