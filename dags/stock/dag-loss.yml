@@ -21,7 +21,8 @@ tasks:
   - task: copy_last_modified_blob
     upstream: start
     # TODO: Change this operator value, `op: gcs_copy_files_time_range_operator`.
-    op: dags.service_utils.custom_operator.GCSCopyFilesTimeRangeOperator
+#    op: dags.service_utils.custom_operator.GCSCopyFilesTimeRangeOperator
+    op: gcs_copy_files_time_range_operator
     source_bucket: "cjnext-pos-admin"
     source_prefix: "stock-loss/"
     destination_bucket: "{{ var('bucket_name') }}"
@@ -52,11 +53,11 @@ tasks:
         configuration:
           query:
             query: "bigquery_sql/check_backfill_stock_loss.sql"
-            useLegacySql: False
+            useLegacySql: false
             queryParameters:
-              - "name": "start_interval"
-                "parameterType": { "type": "STRING" }
-                "parameterValue":
+              - name: "start_interval"
+                parameterType: { "type": "STRING" }
+                parameterValue:
                   value: "{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('%Y-%m-%d %H:00:00%z') }}"
               - name: "end_interval"
                 parameterType: { "type": "STRING" }

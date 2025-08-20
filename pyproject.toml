@@ -1,3 +1,95 @@
+[build-system]
+requires = [ "hatchling>=1.8.0" ]
+build-backend = "hatchling.build"
+
+[project]
+name = "fastdag"
+description = "a fast & friendly airflow dag factory"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pendulum<3.0.0",
+    "apache-airflow>=2.7.1,<2.8.0",
+    "jinja2==3.1.6",
+    "PyYAML==6.0.2",
+    "pydantic",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+google = [ "apache-airflow-providers-google" ]
+dev = [
+    "clishelf>=0.2.22",
+    "pre-commit>=4.0.0",
+    "pytest>=8.4.0",
+    "coverage>=7.10.0",
+]
+
+[project.scripts]
+fastdag = "fastdag.__main__:cli"
+
+[tool.hatch.version]
+scheme = "standard"
+source = "code"
+path = "fastdag/__about__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.github",
+    "/.pre-commit-config.yaml",
+    "/docs",
+    "/tests",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [ "fastdag" ]
+
+[tool.shelf.version]
+version = "./fastdag/__about__.py"
+changelog = "./docs/changelog.md"
+commit_subject_format = "{emoji} {subject}"
+commit_msg_format = "- {subject}"
+
+[tool.shelf.git]
+commit_prefix_force_fix = true
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+concurrency = [ "thread", "multiprocessing" ]
+source = [ "fastdag" ]
+omit = [
+    "fastdag/__about__.py",
+    "fastdag/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "raise NotImplementedError",
+    "pragma: no cov",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [ "fastdag" ]
+console_output_style = "count"
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+]
+log_cli = true
+log_cli_level = "DEBUG"
+log_cli_format = "%(asctime)s [%(levelname)-7s] %(message)-120s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y%m%d %H:%M:%S"
+
+[project.urls]
+Homepage = "https://github.com/ddeutils/fastdag/"
+"Source Code" = "https://github.com/ddeutils/fastdag/"
+
 [tool.black]
 line-length = 80
 target-version = [ 'py310' ]
