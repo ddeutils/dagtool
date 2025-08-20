@@ -5,13 +5,13 @@ This is the stock domain DAG.
 
 import logging
 
-from fastdag import FastDag
-from fastdag.plugins.templates.filters import unnested_list
+from dagtool import DagTool
+from dagtool.plugins.templates.filters import unnested_list
 
-logger = logging.getLogger("fastdag.dag.stock")
+logger = logging.getLogger("dagtool.dag.stock")
 
 
-dag = FastDag(
+dag = DagTool(
     name="stock",
     path=__file__,
     docs=__doc__,

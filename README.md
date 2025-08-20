@@ -1,6 +1,6 @@
-# Fast DAG Factory
+# DAG Tool
 
-A **Fast & Friendly Airflow DAG Factory** for Data Engineer with YAML Template.
+A **Friendly Airflow DAG Build Tool** for Data Engineer with YAML file template.
 
 > [!WARNING]
 > This project will reference the DAG generate code from the [Astronomer: DAG-Factory](https://github.com/astronomer/dag-factory).
@@ -78,7 +78,7 @@ S --> DAGs      --> GitSync     --> Airflow K8s Pod
 > This package does not publish to PyPI yet.
 
 ```shell
-uv pip install -U fastdag
+uv pip install -U dagtool
 ```
 
 | Airflow Version  | Supported | Noted                                                          |
@@ -149,9 +149,9 @@ via DuckDB engine.
 
 > This DAG is the temp DAG for ingest data to GCP.
 """
-from fastdag import FastDag
+from dagtool import DagTool
 
-dag = FastDag("sales", path=__file__, docs=__doc__)
+dag = DagTool("sales", path=__file__, docs=__doc__)
 dag.build_to_globals(gb=globals())
 ```
 
@@ -163,5 +163,5 @@ The DAG that was built from this package will have the name is, `sales_transacti
 
 I do not think this project will go around the world because it has specific propose,
 and you can create by your coding without this project dependency for long term
-solution. So, on this time, you can open [the GitHub issue on this project :raised_hands:](https://github.com/ddeutils/FastDag/issues)
+solution. So, on this time, you can open [the GitHub issue on this project :raised_hands:](https://github.com/ddeutils/dagtool/issues)
 for fix bug or request new feature if you want it.

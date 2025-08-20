@@ -68,7 +68,7 @@ class YamlConf:
                 except ValidationError as e:
                     # NOTE: Raise because model cannot validate with model.
                     logging.error(
-                        f"Template data cannot pass to FastDag model:\n{e}"
+                        f"Template data cannot pass to DagTool model:\n{e}"
                     )
                     continue
 

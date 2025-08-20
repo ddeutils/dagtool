@@ -1,4 +1,4 @@
-name: fastdag
+name: dagtool
 services:
   airflow:
     image: airflow-standalone-local

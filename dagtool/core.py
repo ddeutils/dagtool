@@ -9,11 +9,11 @@ from .conf import YamlConf
 from .models import DagModel
 
 
-class FastDag:
+class DagTool:
     """FastDag object that will use be main interface object for retrieve config
     data from the current path.
 
-    DAG Processor --> FastDag --( file-change )--> refresh --> generated --> update cache
+    DAG Processor --> DagTool --( file-change )--> refresh --> generated --> update cache
                             --( file-not-change )--> return cache
     """
 

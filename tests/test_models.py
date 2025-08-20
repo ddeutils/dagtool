@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from yaml import safe_load
 
-from fastdag.models import DagModel
+from dagtool.models import DagModel
 
 
 @pytest.fixture(scope="module")
