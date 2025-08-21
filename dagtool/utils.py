@@ -20,8 +20,11 @@ class FreeOperator(BaseOperator):
     The task is evaluated by the scheduler but never processed by the executor.
     """
 
-    ui_color = "#e8f7e4"
+    ui_color = "#fcf5a2"
     inherits_from_empty_operator = True
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
 
     def execute(self, context: Context):
         pass

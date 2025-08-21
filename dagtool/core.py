@@ -54,20 +54,12 @@ class DagTool:
             "user_defined_macros": user_defined_macros,
         }
 
+        # NOTE: Define operators that able map to template.
         self.operators: dict[str, Any] = operators or {}
 
     @property
     def dag_count(self) -> int:
         return len(self.conf)
-
-    # def extract_docs(self):
-    #     if "__doc__" in self.gb:
-    #         return self.gb["__doc__"]
-    #     elif "docs" in self.gb and (
-    #         self.gb["__annotations__"].get("docs") is str
-    #     ):
-    #         return self.gb["docs"]
-    #     return None
 
     def refresh_conf(self) -> None:
         """Read config from the path argument and reload to the conf."""
@@ -97,6 +89,10 @@ class DagTool:
     ) -> None:
         """Build Airflow DAG object and set to the globals for Airflow Dag Processor
         can discover them.
+
+        Args:
+            gb (dict[str, Any]):
+            default_args (dict[str, Any]): An override default args value.
         """
         for dag in self.gen(default_args=default_args):
             gb[dag.dag_id] = dag

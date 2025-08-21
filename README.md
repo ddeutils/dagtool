@@ -11,6 +11,17 @@ A **Friendly Airflow DAG Build Tool** for Data Engineer with YAML file template.
 > pass to Airflow object with Data Engineer context. So, if you want to use this
 > project concept, you can enhance it with your idea.
 
+**Feature Supported**:
+
+- ✅ JSON Schema validation
+- 🔐 Passing environment variable
+- 💚 Allow Passing Airflow Template
+
+From my opinion, a data Engineer should focus on the data requirement instead of
+focusing Python coding when he wants to create new pipeline in our platform.
+So, this project create for it to make sure that all DAG can readable and easy to
+maintain when we want to scale up and out the platform.
+
 **File Structure**:
 
 ```text
@@ -65,12 +76,6 @@ S --> DAGs      --> GitSync     --> Airflow K8s Pod
   --> Variables --> API Sync    --> Airflow Variables
   --> Assets    --> CI Merge
 ```
-
-**Feature Supported**:
-
-- JSON Schema validation
-- Passing environment variable
-- Allow Passing Airflow Template
 
 ## 📦 Installation
 
@@ -153,7 +158,7 @@ via DuckDB engine.
 """
 from dagtool import DagTool
 
-dag = DagTool("sales", path=__file__, docs=__doc__)
+dag = DagTool(name="sales", path=__file__, docs=__doc__)
 dag.build_to_globals(gb=globals())
 ```
 
