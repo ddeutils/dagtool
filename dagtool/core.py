@@ -10,8 +10,8 @@ from .models import DagModel
 
 
 class DagTool:
-    """FastDag object that will use be main interface object for retrieve config
-    data from the current path.
+    """DAG Tool Object that is the main interface for retrieve config data from
+    the current path and generate Airflow DAG object to global.
 
     DAG Processor --> DagTool --( file-change )--> refresh --> generated --> update cache
                             --( file-not-change )--> return cache
@@ -27,7 +27,7 @@ class DagTool:
         on_failure_callback: list[Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Any] | None = None,
-        # NOTE: FastDag params.
+        # NOTE: DagTool params.
         operators: dict[str, Any] | None = None,
     ) -> None:
         """Main construct method.
@@ -36,7 +36,7 @@ class DagTool:
             name (str): A prefix name of final DAG.
             path (str | Path): A current filepath that can receive with string
                 value or Path object.
-            docs (dict[str, Any]): A docs string for this FastDag will use to
+            docs (dict[str, Any]): A docs string for this DagTool will use to
                 be the header of full docs.
         """
         self.name: str = name

@@ -10,6 +10,8 @@ variables:
         start_date: "2022-06-16 00:00:00 Asia/Bangkok"
         max_active_runs: 1
         batch_size: 10000
+        transform_driver_request: 200m
+        transform_driver_limit: 600m
         dp_pyspark_version: "v4.20.0-dev"
       prod:
         project_id: "stock-data-prod"
@@ -19,8 +21,10 @@ variables:
         start_date: "2025-01-16 00:00:00 Asia/Bangkok"
         max_active_runs: 1
         batch_size: 10000
+        transform_driver_request: 200m
+        transform_driver_limit: 600m
         dp_pyspark_version: "v4.20.0"
   - key: "campaign_discount_request"
     stages:
       dev:
-        project_id: ...
+        project_id: 'stock-data-dev-399709'

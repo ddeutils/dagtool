@@ -92,6 +92,8 @@ uv pip install -U dagtool
 This DAG generator engine need you define the `dag.yml` file and set engine
 object to get the current path on `__init__.py` file.
 
+### DAG Template
+
 > [!NOTE]
 > If you want to dynamic environment config on the `dag.yaml` file, you can use a
 > `variable.yaml` file for dynamic value that marking on config template via macro
@@ -158,6 +160,14 @@ dag.build_to_globals(gb=globals())
 **Output**:
 
 The DAG that was built from this package will have the name is, `sales_transaction`.
+
+### Variable Sync
+
+I will give the way to sync it:
+
+1. Sync to Airflow Variable
+
+2. Sync to Storage Object like GCS, ADLS, S3, etc.
 
 ## 💬 Contribute
 

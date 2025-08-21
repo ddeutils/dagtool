@@ -20,34 +20,29 @@ tasks:
 
   - task: copy_last_modified_blob
     upstream: start
-    # TODO: Change this operator value, `op: gcs_copy_files_time_range_operator`.
-#    op: dags.service_utils.custom_operator.GCSCopyFilesTimeRangeOperator
     op: gcs_copy_files_time_range_operator
     source_bucket: "cjnext-pos-admin"
     source_prefix: "stock-loss/"
     destination_bucket: "{{ var('bucket_name') }}"
-    destination_prefix: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}"
-    timespan_start: "{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('%Y-%m-%d %H:00:00') }}"
-    timespan_end: "{{ data_interval_end.in_timezone('Asia/Bangkok').strftime('%Y-%m-%d %H:00:00') }}"
+    destination_prefix: "pre-landing/stock_loss/{{ data_interval_start | tz('Asia/Bangkok') | fmt('year=%Y/month=%m/day=%d/hour=%H') }}"
+    timespan_start: "{{ data_interval_start | tz('Asia/Bangkok') | fmt('%Y-%m-%d %H:00:00') }}"
+    timespan_end: "{{ data_interval_end | tz('Asia/Bangkok') | fmt('%Y-%m-%d %H:00:00') }}"
     timezone: "Asia/Bangkok"
     soft_fail: true
     replace: false
-    match_glob: "*/*/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('%Y/%m/%d') }}/*?"
+    match_glob: "*/*/{{ data_interval_start | tz('Asia/Bangkok') | fmt('%Y/%m/%d') }}/*?"
     inlets:
       - platform: gcs
         name: "cjnext-pos-admin/stock-loss/"
-        env: {{ env("AIRFLOW_ENV") }}
     outlets:
       - platform: gcs
         name: "{{ var('bucket_name') }}/pre-landing"
-        env: {{ env("AIRFLOW_ENV") }}
-
 
   - group: query_stock_loss_and_copy
     upstream: start
     tasks:
       - task: check_backfill_bq
-        op: airflow.providers.google.cloud.operators.bigquery.BigQueryInsertJobOperator
+        op: bigquery_insert_job_operator
         location: "asia-southeast1"
         gcp_conn_id: "google_cloud_default"
         configuration:
@@ -70,7 +65,7 @@ tasks:
 
       - task: get_backfill_full_path
         upstream: check_backfill_bq
-        op: "airflow.providers.google.cloud.operators.bigquery.BigQueryGetDataOperator"
+        op: bigquery_get_data_operator
         table_project_id: "{{ task_instance.xcom_pull(task_ids='check_backfill_bq', key='bigquery_table')['project_id'] }}"
         dataset_id: "{{ task_instance.xcom_pull(task_ids='check_backfill_bq', key='bigquery_table')['dataset_id'] }}"
         table_id: "{{ task_instance.xcom_pull(task_ids='check_backfill_bq', key='bigquery_table')['table_id'] }}"
@@ -82,7 +77,7 @@ tasks:
 
       - task: copy_backfill_blob_to_gcs
         upstream: get_backfill_full_path
-        op: "airflow.providers.google.cloud.transfers.gcs_to_gcs.GCSToGCSOperator"
+        op: gcs_to_gcs
         source_bucket: "cjnext-pos-admin"
         source_objects: "{{ task_instance.xcom_pull(task_ids='get_backfill_full_path') | unnested_list }}"
         destination_bucket: "{{ var('bucket_name') }}"
@@ -101,29 +96,12 @@ tasks:
     timeout: 5
     poke_interval: 5
 
-  # TODO: This Group will change to custom Task Operator.
-  - group: concat_file_into_landing
+  - task: concat_file_into_landing
     upstream: check_blob_exist
-    tasks:
-      - task: generate_uris
-        op: ...
-        bucket: "{{ var('bucket_name') }}"
-        prefix: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}"
-        all_uris_path: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}/all_uris.txt"
-
-      - task: make_slices
-        upstream: generate_uris
-        op: ...
-        bucket: "{{ var('bucket_name') }}"
-        all_uris_path: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}/all_uris.txt"
-        batch_size: {{ var('batch_size') }}
-
-      - task: concat_slice
-        upstream: make_slices
-        op: ...
-        expand: true
-        expand_params:
-          batch: "{{ task_instance.xcom_pull(task_ids='make_slices') | unnested_list }}"
+    bucket: "{{ var('bucket_name') }}"
+    prefix: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}"
+    all_uris_path: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}/all_uris.txt"
+    batch_size: {{ var('batch_size') }}
 
   - group: stock_loss
     upstream: concat_file_into_landing
@@ -142,8 +120,8 @@ tasks:
               task_macro_timezone: "Asia/Bangkok"
               dp_pyspark_version: "{{ var('dp_pyspark_version') }}"
               driver_core: 1
-              driver_core_request: "200m"
-              driver_core_limit: "600m"
+              driver_core_request: "{{ var('transform_driver_request') }}"
+              driver_core_limit: "{{ var('transform_driver_limit') }}"
               driver_memory: "1536m"
               executor_core: 2
               executor_core_request: "200m"
@@ -166,11 +144,9 @@ tasks:
             inlets:
               - platform: gcs
                 name: "{{ var('bucket_name') }}/pre-landing/stock-loss"
-                env: { { env("AIRFLOW_ENV") } }
             outlets:
               - platform: gcs
                 name: "{{ var('bucket_name') }}/transforming/stock-loss"
-                env: { { env("AIRFLOW_ENV") } }
 
       - group: validating
         upstream: transforming
@@ -212,7 +188,6 @@ tasks:
             inlets:
               - platform: gcs
                 name: "{{ var('bucket_name') }}/transforming/stock-loss"
-                env: { { env("AIRFLOW_ENV") } }
 
       - task: sync_transforming_table_to_bigquery
         upstream: validating
@@ -223,13 +198,6 @@ tasks:
         bq_location: "asia-southeast1"
         schema_json_file_path: "schema/stock_loss.json"
 
-  - group: stock_loss_sku_list
-    upstream: concat_file_into_landing
-    tasks:
-      - ...
-
   - task: end
-    upstream:
-      - stock_loss
-      - stock_loss_sku_list
+    upstream: stock_loss
     op: empty
