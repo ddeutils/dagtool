@@ -35,9 +35,11 @@ class BashTask(OperatorTask):
     cwd: str | None = None
 
     def build(self, dag: DAG | None = None, **kwargs) -> Operator:
+        """Build."""
         return BashOperator(
             task_id=self.task,
             bash_command=self.bash_command,
+            env=self.env,
             dag=dag,
         )
 

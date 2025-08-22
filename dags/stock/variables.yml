@@ -28,3 +28,5 @@ variables:
     stages:
       dev:
         project_id: 'stock-data-dev-399709'
+      prod:
+        project_id: "stock-data-prod"

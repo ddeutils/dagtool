@@ -2,10 +2,10 @@ name: campaign_discount_request
 type: dag
 schedule_interval: "40 0,12 * * *"
 start_date: "2024-05-01 00:00:00 Asia/Bangkok"
-catchup: true
+catchup: false
 tags:
-  - campaign-discount-request
-  - pos-admin
+  - "campaign-discount-request"
+  - "pos-admin"
 max_active_runs: 1
 tasks:
   - task: start
@@ -25,13 +25,27 @@ tasks:
         upstream: copy_latest_blobs_bucket_to_bucket
         op: empty
 
-  - task: process_check_source_data
+  - task: check_blob_exist
     upstream: copy_latest_blob
     op: airflow.providers.google.cloud.sensors.gcs.GCSObjectsWithPrefixExistenceSensor
     bucket: ...
     prefix: ...
     deferrable: true
 
+  - task: concat_file_into_landing
+    upstream: check_blob_exist
+
+  - group: spark_trans_and_validate_group
+    upstream: concat_file_into_landing
+    tasks:
+      - task: transform
+
+      - task: validate
+        upstream: transform
+
+      - task: sync_biglake
+        upstream: validate
 
   - task: end
+    upstream: spark_trans_and_validate_group
     op: empty

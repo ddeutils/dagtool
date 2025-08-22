@@ -7,6 +7,13 @@ template_search_path:
   - "${ ROOT_PATH }/${ DAG_FOLDER }/includes/stock/stock_loss"
 max_active_runs: "{{ var('max_active_runs') }}"
 render_template_as_native_obj: true
+tags:
+  - "dom:stock"
+  - "src-type:json"
+  - "src-sys:pos-admin"
+  - "stor-type:iceberg"
+  - "sched-type:hourly"
+  - "proc:spark"
 default_args:
   owner:
     - "de@mail.com"
@@ -21,16 +28,17 @@ tasks:
   - task: copy_last_modified_blob
     upstream: start
     op: gcs_copy_files_time_range_operator
-    source_bucket: "cjnext-pos-admin"
-    source_prefix: "stock-loss/"
-    destination_bucket: "{{ var('bucket_name') }}"
-    destination_prefix: "pre-landing/stock_loss/{{ data_interval_start | tz('Asia/Bangkok') | fmt('year=%Y/month=%m/day=%d/hour=%H') }}"
-    timespan_start: "{{ data_interval_start | tz('Asia/Bangkok') | fmt('%Y-%m-%d %H:00:00') }}"
-    timespan_end: "{{ data_interval_end | tz('Asia/Bangkok') | fmt('%Y-%m-%d %H:00:00') }}"
-    timezone: "Asia/Bangkok"
-    soft_fail: true
-    replace: false
-    match_glob: "*/*/{{ data_interval_start | tz('Asia/Bangkok') | fmt('%Y/%m/%d') }}/*?"
+    params:
+      source_bucket: "cjnext-pos-admin"
+      source_prefix: "stock-loss/"
+      destination_bucket: "{{ var('bucket_name') }}"
+      destination_prefix: "pre-landing/stock_loss/{{ data_interval_start | tz('Asia/Bangkok') | fmt('year=%Y/month=%m/day=%d/hour=%H') }}"
+      timespan_start: "{{ data_interval_start | tz('Asia/Bangkok') | fmt('%Y-%m-%d %H:00:00') }}"
+      timespan_end: "{{ data_interval_end | tz('Asia/Bangkok') | fmt('%Y-%m-%d %H:00:00') }}"
+      timezone: "Asia/Bangkok"
+      soft_fail: true
+      replace: false
+      match_glob: "*/*/{{ data_interval_start | tz('Asia/Bangkok') | fmt('%Y/%m/%d') }}/*?"
     inlets:
       - platform: gcs
         name: "cjnext-pos-admin/stock-loss/"
@@ -98,6 +106,7 @@ tasks:
 
   - task: concat_file_into_landing
     upstream: check_blob_exist
+    op: concat_file_into_landing
     bucket: "{{ var('bucket_name') }}"
     prefix: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}"
     all_uris_path: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}/all_uris.txt"

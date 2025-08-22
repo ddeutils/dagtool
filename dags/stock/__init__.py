@@ -27,7 +27,7 @@ dag = DagTool(
         "gcs_to_gcs": GCSToGCSOperator,
     },
     user_defined_filters={"unnested_list": unnested_list},
-    user_defined_macros={},
+    user_defined_macros={"var": ...},
 )
 logger.info(f"Start Generate: {dag.name}")
 dag.build_to_globals(
