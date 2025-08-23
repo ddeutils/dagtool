@@ -1,6 +1,9 @@
+.container/
 .git/
 .github/
 docs/
+dags/
+logs/
 tests/
 .gitattributes
 .gitignore

@@ -10,14 +10,14 @@ requires-python = ">=3.10"
 dependencies = [
     "pendulum<3.0.0",
     "apache-airflow>=2.7.1,<2.8.0",
-    "jinja2==3.1.6",
-    "PyYAML==6.0.2",
-    "pydantic==2.11.7",
+    "jinja2>=3.1.2",
+    "PyYAML>=6.0.1",
+    "pydantic>=2.3.0",
 ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-google = [ "apache-airflow-providers-google" ]
+google = [ "apache-airflow-providers-googlee==10.7.0" ]
 dev = [
     "clishelf>=0.2.22",
     "pre-commit>=4.0.0",
