@@ -1,6 +1,7 @@
 """# Stock DAGs
 
-This is the stock domain DAG.
+This is the stock domain DAG main document for any DAGs that config inside this
+domain and mapping with its `desc` field.
 """
 
 import logging
@@ -27,7 +28,10 @@ dag = DagTool(
         "gcs_to_gcs": GCSToGCSOperator,
     },
     user_defined_filters={"unnested_list": unnested_list},
-    user_defined_macros={"var": ...},
+    user_defined_macros={
+        "var": ...,  # NOTE: Get Airflow variable.
+        "env": ...,  # NOTE: Get Environment variable.
+    },
 )
 logger.info(f"Start Generate: {dag.name}")
 dag.build_to_globals(

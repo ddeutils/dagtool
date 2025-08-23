@@ -1,0 +1,8 @@
+.git/
+.github/
+docs/
+tests/
+.gitattributes
+.gitignore
+.pre-commit-config.yaml
+Makefile

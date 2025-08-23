@@ -4,6 +4,8 @@ This is a building document for local testing when I want to develop features.
 
 ## Docker Image
 
+Build only Docker image.
+
 ```shell
 echo -e "AIRFLOW_UID=50000" > .env
 ```
