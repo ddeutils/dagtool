@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dagtool"
-description = "a fast & friendly airflow dag factory"
+description = "a friendly airflow dag build tool"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -12,7 +12,7 @@ dependencies = [
     "apache-airflow>=2.7.1,<2.8.0",
     "jinja2==3.1.6",
     "PyYAML==6.0.2",
-    "pydantic",
+    "pydantic==2.11.7",
 ]
 dynamic = ["version"]
 

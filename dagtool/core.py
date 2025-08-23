@@ -76,6 +76,7 @@ class DagTool:
             kwargs: dict[str, Any] = {
                 "dag_id": data.name,
                 "default_args": default_args or {},
+                "template_search_path": [self.path / "assets"],
             }
             dag: DAG = DAG(**kwargs)
             logging.info(f"({i}) Building DAG: {dag}")
@@ -98,7 +99,13 @@ class DagTool:
             gb[dag.dag_id] = dag
 
 
-class TemplateDag:
+class DagTemplate:
     """Template DAG object that will use template DAG file to be the template
     of any DAG instead.
+
+        If the DAG template can move all value to variable. It can make template
+    of DAG template for make scale DAG factory.
     """
+
+    def __init__(self, name: str) -> None:
+        self.name: str = name

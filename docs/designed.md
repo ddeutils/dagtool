@@ -4,11 +4,18 @@ A designed document of this project.
 
 ## DAG File Structure:
 
-**Objective**:
+I start design folder structure base on these objectives:
 
 - Easy to maintain and develop
 - Grouping business logic together
 - Dynamic deploy with different environment
+
+**The Core Components**:
+
+1. DAG Factory Code will store at `__init__.py`
+2. DAG template will store at `dag-{ name }.yml`
+3. Business logic asset of each DAG will store at `assets/`
+4. Dynamic environment and resource variables will store at `variables.yml`
 
 ### Type 01: Standalone DAG
 
@@ -50,6 +57,12 @@ dags/
 The DAG name will generate with:
 
 ```text
-DAG: {module-dags}-{ name-1 }
-DAG: {module-dags}-{ name-2 }
+DAG: { module-dags }-{ name-1 }
+DAG: { module-dags }-{ name-2 }
 ```
+
+## Variables Sync
+
+1. (Best Practice) Keep it on the Airflow variables
+2. Keep it on Object Storage
+3. Keep it on the Current DAG folder

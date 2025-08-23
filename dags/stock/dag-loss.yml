@@ -1,10 +1,19 @@
 name: loss
 type: dag
+desc: |
+  This is the Sock Loss data source from POS Admin system.
+
+  ## Input
+
+  - POS Admin: loss
+
+  ## Output
+
+  - GBQ Stock: loss
+  - GBQ Stock: loss_sku
 schedule_interval: "1 * * * *"
 start_date: "{{ var('start_date') }}"
 catchup: "{{ var('catchup') }}"
-template_search_path:
-  - "${ ROOT_PATH }/${ DAG_FOLDER }/includes/stock/stock_loss"
 max_active_runs: "{{ var('max_active_runs') }}"
 render_template_as_native_obj: true
 tags:

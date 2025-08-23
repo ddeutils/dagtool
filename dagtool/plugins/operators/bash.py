@@ -2,25 +2,9 @@ from typing import Literal
 
 from airflow.models import DAG, Operator
 from airflow.operators.bash import BashOperator
-from airflow.operators.empty import EmptyOperator
 from pydantic import Field
 
 from .__abc import OperatorTask
-
-
-class EmptyTask(OperatorTask):
-    """Empty Task model."""
-
-    op: Literal["empty"]
-
-    def build(self, dag: DAG | None = None, **kwargs) -> Operator:
-        return EmptyOperator(task_id=self.task, dag=dag)
-
-
-class PythonTask(OperatorTask):
-    op: Literal["python"]
-
-    def build(self, **kwargs): ...
 
 
 class BashTask(OperatorTask):
@@ -42,15 +26,3 @@ class BashTask(OperatorTask):
             env=self.env,
             dag=dag,
         )
-
-
-class SparkTask(OperatorTask):
-    op: Literal["spark"]
-
-    def build(self, **kwargs): ...
-
-
-class DockerTask(OperatorTask):
-    op: Literal["docker"]
-
-    def build(self, **kwargs): ...

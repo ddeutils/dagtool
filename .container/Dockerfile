@@ -19,4 +19,11 @@ ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN uv pip install  \
-    "apache-airflow==${AIRFLOW_VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
+    "pendulum<3.0.0" \
+    "apache-airflow==${AIRFLOW_VERSION}" \
+      --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt" \
+    && uv pip install  \
+      "PyYAML==6.0.2" \
+      "pydantic==2.11.7" \
+      "jinja2==3.1.6" \
+      "apache-airflow-providers-google==10.21.1"

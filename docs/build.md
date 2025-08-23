@@ -6,9 +6,14 @@ This is a building document for local testing when I want to develop features.
 
 Build only Docker image.
 
+Set `.env` file:
+
 ```shell
-echo -e "AIRFLOW_UID=50000" > .env
+echo -e "AIRFLOW_PROJ_DIR=$(pwd)" > .env
+echo -e "AIRFLOW_UID=50000" >> .env
 ```
+
+Start build Docker image:
 
 ```shell
 docker build --rm \

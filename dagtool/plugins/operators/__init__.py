@@ -4,21 +4,17 @@ from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
 from .__abc import BaseTask
-from .base import (
-    BashTask,
-    DockerTask,
-    EmptyTask,
-    PythonTask,
-    SparkTask,
-)
+from .bash import BashTask
+from .empty import EmptyTask, FreeTask
 
 Task = Annotated[
     Union[
         EmptyTask,
-        PythonTask,
+        FreeTask,
+        # PythonTask,
         BashTask,
-        SparkTask,
-        DockerTask,
+        # SparkTask,
+        # DockerTask,
     ],
     Field(discriminator="op"),
 ]
