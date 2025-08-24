@@ -1,3 +1,7 @@
 name: 01_start
 type: dag
+docs: |
+  ## Start 01 DAG
+
+  This is the demo dag for passing template data to DAG object.
 tags: ["demo"]

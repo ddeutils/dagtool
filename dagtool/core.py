@@ -24,6 +24,7 @@ class DagTool:
         docs: str | None = None,
         *,
         # NOTE: Airflow params.
+        template_searchpath: list[str | Path] | None = None,
         on_failure_callback: list[Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Any] | None = None,
@@ -41,9 +42,6 @@ class DagTool:
         """
         self.name: str = name
         self.path: Path = p.parent if (p := Path(path)).is_file() else p
-        # self.gb: dict[str, Any] = clear_globals(gb or globals())
-        # print(json.dumps(self.gb, default=str, indent=1))
-        # self.docs: str | None = self.extract_docs()
         self.docs: str | None = docs
         self.conf: list[DagModel] = []
         self.yaml_loader = YamlConf(path=self.path)
@@ -52,6 +50,7 @@ class DagTool:
             "on_failure_callback": on_failure_callback,
             "user_defined_filters": user_defined_filters,
             "user_defined_macros": user_defined_macros,
+            "template_searchpath": template_searchpath,
         }
 
         # NOTE: Define tasks that able map to template.
@@ -59,6 +58,7 @@ class DagTool:
 
     @property
     def dag_count(self) -> int:
+        """Return number of DAG config data that read from template file."""
         return len(self.conf)
 
     def refresh_conf(self) -> None:
@@ -75,6 +75,8 @@ class DagTool:
         for i, data in enumerate(self.conf, start=1):
             kwargs: dict[str, Any] = {
                 "dag_id": f"{self.name}_{data.name}",
+                "tags": data.tags,
+                "doc_md": data.docs,
                 "default_args": default_args or {},
                 "template_searchpath": [self.path / "assets"],
             }
@@ -86,13 +88,14 @@ class DagTool:
     def build_to_globals(
         self,
         gb: dict[str, Any],
+        *,
         default_args: dict[str, Any] | None = None,
     ) -> None:
         """Build Airflow DAG object and set to the globals for Airflow Dag Processor
         can discover them.
 
         Args:
-            gb (dict[str, Any]):
+            gb (dict[str, Any]): A globals object.
             default_args (dict[str, Any]): An override default args value.
         """
         for dag in self.gen(default_args=default_args):
