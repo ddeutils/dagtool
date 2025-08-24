@@ -1,6 +1,7 @@
+import os
 from typing import Any, TypedDict
 
-from airflow.models import Operator
+from airflow.models import Operator, Variable
 from airflow.models.baseoperator import BaseOperator
 from airflow.utils.task_group import TaskGroup
 
@@ -25,3 +26,12 @@ def set_upstream(tasks: dict[str, TaskMapped]):
         if upstream := task_mapped["upstream"]:
             for t in upstream:
                 task_mapped["task"].set_upstream(tasks[t]["task"])
+
+
+def get_var(key: str) -> str | None:
+    """Get Airflow Variable."""
+    return Variable.get(key)
+
+
+def get_env(key: str) -> str | None:
+    return os.getenv(key, None)

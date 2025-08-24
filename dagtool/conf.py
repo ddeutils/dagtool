@@ -7,7 +7,7 @@ from yaml import safe_load
 from yaml.parser import ParserError
 
 from .const import ASSET_DIR, DAG_FILENAME_PREFIX, VARIABLE_FILENAME
-from .models import DagModel, Variable
+from .models import DagModel
 
 
 class YamlConf:
@@ -19,23 +19,6 @@ class YamlConf:
 
     def __init__(self, path: Path | str) -> None:
         self.path: Path = Path(path)
-
-    def read_variable(self, key: str, stage: str) -> dict[str, Any]:
-        """Get Variable value with an input stage name."""
-        search_files: list[Path] = list(
-            self.path.rglob(f"{VARIABLE_FILENAME}.y*ml")
-        )
-        if not search_files:
-            return {}
-        try:
-            var = Variable.model_validate(
-                safe_load(search_files[0].open(mode="rt"))
-            )
-            return var.get_key(key).stages.get(stage, {})
-        except ParserError:
-            return {}
-        except ValidationError:
-            return {}
 
     def read_conf(self) -> list[DagModel]:
         """Read DAG template config from the path argument and reload to the

@@ -1,0 +1,21 @@
+name: 03_template
+type: dag
+docs: |
+  ## Template DAG
+
+  This is the demo dag for passing template data to DAG object.
+tags:
+  - "group:demo"
+  - "tool:true"
+  - "domain:demo"
+tasks:
+  - task: start
+    op: debug
+    params:
+      custom_macros: "{{ custom_macros }}"
+
+  - task: end
+    upstream: start
+    op: debug
+    params:
+      env: "{{ env('AIRFLOW_ENV') }}"

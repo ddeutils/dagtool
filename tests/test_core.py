@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from airflow.models import DAG
@@ -24,8 +25,12 @@ def test_dagtool_build_to_globals(test_path: Path):
         name="demo",
         docs="# Demo DAGS\n\nThe demo DAGS\n",
         path=test_path.parent / "dags/demo/__init__.py",
+        user_defined_macros={"env": os.getenv},
     )
-    tool.build_airflow_dags_to_globals(gb=globals())
-    dag: DAG = globals().get("demo_01_start")
+    tool.build_airflow_dags_to_globals(
+        gb=globals(),
+        default_args={"start_date": "2025-01-01 00:00:00"},
+    )
+    dag: DAG = globals().get("demo_03_template")
     print(dag)
-    print(dag.get_doc_md(dag.doc_md))
+    print(dag.doc_md)

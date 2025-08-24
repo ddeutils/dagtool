@@ -16,7 +16,6 @@ from airflow.providers.google.cloud.operators.bigquery import (
 from airflow.providers.google.cloud.transfers.gcs_to_gcs import GCSToGCSOperator
 
 from dagtool import DagTool
-from dagtool.plugins.templates.filters import unnested_list
 
 logger = logging.getLogger("dagtool.dag.stock")
 
@@ -30,7 +29,6 @@ tool = DagTool(
         "bigquery_get_data_operator": BigQueryGetDataOperator,
         "gcs_to_gcs": GCSToGCSOperator,
     },
-    user_defined_filters={"unnested_list": unnested_list},
     # user_defined_macros={
     #     "var": ...,  # NOTE: Get Airflow variable.
     #     "env": ...,  # NOTE: Get Environment variable.

@@ -13,6 +13,7 @@ services:
       AIRFLOW_HOME: "/opt/airflow"
       PYTHONPATH: "/opt/airflow/:/opt/airflow/plugins/dagtool/:/opt/airflow/plugins/"
       AIRFLOW_CONFIG: "/opt/airflow/airflow.cfg"
+      AIRFLOW_ENV: "${AIRFLOW_ENV:-dev}"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
       - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs

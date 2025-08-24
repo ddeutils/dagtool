@@ -37,7 +37,7 @@ class DebugOperator(BaseOperator):
     """
 
     ui_color: str = "#fcf5a2"
-    inherits_from_empty_operator: bool = True
+    inherits_from_empty_operator: bool = False
     template_fields: Sequence[str] = ("debug",)
 
     def __init__(self, debug: dict[str, Any], **kwargs) -> None:
@@ -45,10 +45,14 @@ class DebugOperator(BaseOperator):
         self.debug = debug
 
     def execute(self, context: Context) -> None:
+        """Debug Operator execute method that only show parameters that passing
+        from the template config.
+        """
+        self.log.info("Start DEBUG Parameters:")
         for k, v in self.debug.items():
             self.log.info(f"> {k}: {v}")
         self.log.info("Start DEBUG Context:")
-        self.log.info(json.dumps(context, indent=1))
+        self.log.info(json.dumps(context, indent=2, default=str))
 
 
 class DebugTask(OperatorTask):

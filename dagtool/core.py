@@ -80,7 +80,11 @@ class DagTool:
 
         self.conf: list[DagModel] = self.yaml_loader.read_conf()
 
-    def build(self, default_args: dict[str, Any] | None = None) -> list[DAG]:
+    def build(
+        self,
+        default_args: dict[str, Any] | None = None,
+        user_defined_macros: dict[str, Any] | None = None,
+    ) -> list[DAG]:
         """Build Airflow DAGs from template files.
 
         Returns:
@@ -92,6 +96,7 @@ class DagTool:
                 prefix=self.name,
                 docs=self.docs,
                 default_args=default_args,
+                user_defined_macros=user_defined_macros,
             )
             logging.info(f"({i}) Building DAG: {dag}")
             dags.append(dag)
@@ -102,6 +107,7 @@ class DagTool:
         gb: dict[str, Any],
         *,
         default_args: dict[str, Any] | None = None,
+        user_defined_macros: dict[str, Any] | None = None,
     ) -> None:
         """Build Airflow DAG object and set to the globals for Airflow Dag Processor
         can discover them.
@@ -113,8 +119,12 @@ class DagTool:
         Args:
             gb (dict[str, Any]): A globals object.
             default_args (dict[str, Any]): An override default args value.
+            user_defined_macros:
         """
-        for dag in self.build(default_args=default_args):
+        for dag in self.build(
+            default_args=default_args,
+            user_defined_macros=user_defined_macros,
+        ):
             gb[dag.dag_id] = dag
 
 
