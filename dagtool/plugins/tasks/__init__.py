@@ -5,12 +5,12 @@ from pydantic import Field
 
 from .__abc import BaseTask
 from .bash import BashTask
-from .empty import EmptyTask, FreeTask
+from .empty import DebugTask, EmptyTask
 
 Task = Annotated[
     Union[
         EmptyTask,
-        FreeTask,
+        DebugTask,
         # PythonTask,
         BashTask,
         # SparkTask,
@@ -21,7 +21,7 @@ Task = Annotated[
 
 
 class GroupTask(BaseTask):
-    """Group of Task model that will represent Airflow Group Task object."""
+    """Group of Task model that will represent Airflow Task Group object."""
 
     group: str = Field(description="A task group name.")
     tasks: list["AnyTask"] = Field(
@@ -30,10 +30,15 @@ class GroupTask(BaseTask):
     )
 
     def build(self) -> TaskGroup:
+        """Build Task Group object."""
         with TaskGroup(group_id=self.group) as tg:
             pass
 
         return tg
+
+    @property
+    def iden(self) -> str:
+        return self.group
 
 
 AnyTask = Annotated[

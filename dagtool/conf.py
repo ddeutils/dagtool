@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from yaml import safe_load
 from yaml.parser import ParserError
 
-from .const import VARIABLE_FILENAME
+from .const import ASSET_DIR, DAG_FILENAME_PREFIX, VARIABLE_FILENAME
 from .models import DagModel, Variable
 
 
@@ -31,23 +31,30 @@ class YamlConf:
             var = Variable.model_validate(
                 safe_load(search_files[0].open(mode="rt"))
             )
-            return var.get_key(key).stages.get(stage)
+            return var.get_key(key).stages.get(stage, {})
         except ParserError:
+            return {}
+        except ValidationError:
             return {}
 
     def read_conf(self) -> list[DagModel]:
-        """Read config from the path argument and reload to the conf."""
+        """Read DAG template config from the path argument and reload to the
+        conf.
+
+        Returns:
+            list[DagModel]: A list of DagModel.
+        """
         conf: list[DagModel] = []
         for file in self.path.rglob("*"):
             if (
                 file.is_file()
                 and file.stem != VARIABLE_FILENAME
+                and file.stem.startswith(DAG_FILENAME_PREFIX)
                 and file.suffix in (".yml", ".yaml")
             ):
                 try:
-                    data: dict[str, Any] | list[Any] = safe_load(
-                        file.open(mode="rt")
-                    )
+                    raw_data: str = file.read_text(encoding="utf-8")
+                    data: dict[str, Any] | list[Any] = safe_load(raw_data)
                 except ParserError:
                     logging.error(f"YAML file does not parsing, {file}.")
                     continue
@@ -69,6 +76,7 @@ class YamlConf:
                             "parent_dir": file.parent,
                             "created_dt": file_stats.st_ctime,
                             "updated_dt": file_stats.st_mtime,
+                            "raw_data": raw_data,
                             **data,
                         }
                     )
@@ -89,3 +97,11 @@ class YamlConf:
                 "Read config file from this domain path does not exists"
             )
         return conf
+
+    def read_assets(self, filename: str) -> str:
+        search_files: list[Path] = list(
+            self.path.rglob(f"{ASSET_DIR}{filename}")
+        )
+        if not search_files:
+            raise FileNotFoundError(f"Asset file: {filename} does not found.")
+        return search_files[0].read_text(encoding="utf-8")

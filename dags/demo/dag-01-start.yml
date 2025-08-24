@@ -8,3 +8,10 @@ tags:
   - "group:demo"
   - "tool:true"
   - "domain:demo"
+tasks:
+  - task: start
+    op: empty
+
+  - task: end
+    upstream: start
+    op: empty

@@ -1,4 +1,4 @@
-name: 02_step
+name: 02_group
 type: dag
 docs: |
   ## 02 DEMO DAG

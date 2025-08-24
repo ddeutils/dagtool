@@ -162,7 +162,7 @@ via DuckDB engine.
 from dagtool import DagTool
 
 dag = DagTool(name="sales", path=__file__, docs=__doc__)
-dag.build_to_globals(gb=globals())
+dag.build_airflow_dags_to_globals(gb=globals())
 ```
 
 **Output**:

@@ -14,10 +14,11 @@ class EmptyTask(OperatorTask):
     op: Literal["empty"]
 
     def build(self, dag: DAG | None = None, **kwargs) -> Operator:
+        print(f"Start building Empty Task from DAG: {dag}")
         return EmptyOperator(task_id=self.task, dag=dag)
 
 
-class FreeOperator(BaseOperator):
+class DebugOperator(BaseOperator):
     """Operator that does literally nothing.
 
     It can be used to group tasks in a DAG.
@@ -29,15 +30,17 @@ class FreeOperator(BaseOperator):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        for k, v in kwargs:
+            self.log.info(f"> {k}: {v}")
 
     def execute(self, context: Context):
         pass
 
 
-class FreeTask(OperatorTask):
+class DebugTask(OperatorTask):
     """Free Task model."""
 
-    op: Literal["free"]
+    op: Literal["debug"]
 
     def build(self, dag: DAG | None = None, **kwargs) -> Operator:
-        return FreeOperator(task_id=self.task, dag=dag)
+        return DebugOperator(task_id=self.task, dag=dag)

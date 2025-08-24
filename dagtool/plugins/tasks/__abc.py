@@ -32,11 +32,22 @@ class BaseTask(BaseModel, ABC):
     def build(self, **kwargs) -> Any:
         """Build"""
 
+    @property
+    @abstractmethod
+    def iden(self) -> str:
+        """Task identity."""
+
 
 class OperatorTask(BaseTask, ABC):
+    """Operator Task Model."""
+
     task: str = Field(description="A task name.")
     op: str = Field(description="An operator type of this task.")
 
     @abstractmethod
     def build(self, **kwargs) -> Operator:
         """Build the Airflow Operator object from this model fields."""
+
+    @property
+    def iden(self) -> str:
+        return self.task

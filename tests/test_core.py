@@ -25,7 +25,7 @@ def test_dagtool_build_to_globals(test_path: Path):
         docs="# Demo DAGS\n\nThe demo DAGS\n",
         path=test_path.parent / "dags/demo/__init__.py",
     )
-    tool.build_to_globals(gb=globals())
+    tool.build_airflow_dags_to_globals(gb=globals())
     dag: DAG = globals().get("demo_01_start")
     print(dag)
     print(dag.get_doc_md(dag.doc_md))
