@@ -7,29 +7,33 @@ from yaml import safe_load
 from yaml.parser import ParserError
 
 from .const import VARIABLE_FILENAME
-from .models import DagModel
+from .models import DagModel, Variable
 
 
 class YamlConf:
     """Core Config object that use to find and map data from the current path.
 
-    ClassAttributes:
-        config_filename (str):
-        variable_filename (str):
-        assert_dir (str):
+    Attributes:
+        path (Path): A filepath.
     """
 
-    def __init__(self, path: Path) -> None:
-        self.path: Path = path
+    def __init__(self, path: Path | str) -> None:
+        self.path: Path = Path(path)
 
-    def variable(self, stage: str) -> dict[str, Any]:
+    def read_variable(self, key: str, stage: str) -> dict[str, Any]:
         """Get Variable value with an input stage name."""
         search_files: list[Path] = list(
-            self.path.rglob(f"{VARIABLE_FILENAME}.*")
+            self.path.rglob(f"{VARIABLE_FILENAME}.y*ml")
         )
         if not search_files:
             return {}
-        return safe_load(search_files[0].open(mode="rt")).get(stage, {})
+        try:
+            var = Variable.model_validate(
+                safe_load(search_files[0].open(mode="rt"))
+            )
+            return var.get_key(key).stages.get(stage)
+        except ParserError:
+            return {}
 
     def read_conf(self) -> list[DagModel]:
         """Read config from the path argument and reload to the conf."""

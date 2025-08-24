@@ -82,7 +82,13 @@ ValueType = Union[Primitive, list[Primitive], dict[Union[str, int], Primitive]]
 
 
 class Key(BaseModel):
-    key: str
+    """Key Model."""
+
+    key: str = Field(description="A key name.")
+    desc: str | None = Field(
+        default=None,
+        description="A description of this variable.",
+    )
     stages: dict[str, dict[str, ValueType]] = Field(
         default=dict,
         description="A stage mapping with environment and its pair of variable",
@@ -90,5 +96,21 @@ class Key(BaseModel):
 
 
 class Variable(BaseModel):
-    type: Literal["variable"]
+    """Variable Model."""
+
+    type: Literal["variable"] = Field(description="A type of variable model.")
     variables: list[Key] = Field(description="A list of Key model.")
+
+    def get_key(self, name: str) -> Key:
+        """Get the Key model with an input specific key name.
+
+        Args:
+            name (str): A key name.
+
+        Returns:
+            Key: A Key model.
+        """
+        for k in self.variables:
+            if name == k.key:
+                return k
+        raise ValueError(f"A key: {name} does not set on this variables.")

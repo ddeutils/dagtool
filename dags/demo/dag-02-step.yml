@@ -1,7 +1,7 @@
-name: 01_start
+name: 02_step
 type: dag
 docs: |
-  ## 01 DEMO DAG
+  ## 02 DEMO DAG
 
   This is the demo dag for passing template data to DAG object.
 tags:

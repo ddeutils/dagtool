@@ -8,19 +8,22 @@ A **Friendly Airflow DAG Build Tool** for Data Engineer with YAML file template.
 
 > [!NOTE]
 > **Disclaimer**: This project will override all necessary parameters that should
-> pass to Airflow object with Data Engineer context. So, if you want to use this
-> project concept, you can enhance it with your idea.
+> pass to Airflow object with ETL context for Data Engineer use-case. So, if you
+> want to use and enhance this project, you can fork this project anytime without
+> notice me.
 
 **Feature Supported**:
 
-- ✅ JSON Schema validation
+- ✅ JSON Schema Validation
 - 🔐 Passing environment variable
 - 💚 Allow Passing Airflow Template
 
-From my opinion, a data Engineer should focus on the data requirement instead of
-focusing Python coding when he wants to create new pipeline in our platform.
-So, this project create for it to make sure that all DAG can readable and easy to
-maintain when we want to scale up and out the platform.
+From my opinion, a data Engineer should focus on the user requirement instead of
+focusing on the Python code when it need creates a new DAG in our Airflow application.
+
+So, this project focus for this plain to make sure that all DAG can readable and easy to
+maintain with the same standard when we want to scale up and out the Airflow application
+support 10 to 1000 DAGs.
 
 **File Structure**:
 

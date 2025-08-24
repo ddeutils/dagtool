@@ -6,6 +6,9 @@ domain and mapping with its `desc` field.
 
 import logging
 
+# WARNING: The following import is here so Airflow parses this file. It follows
+#   rule of `dag_discovery_safe_mode`.
+# from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import (
     BigQueryGetDataOperator,
     BigQueryInsertJobOperator,
@@ -18,7 +21,7 @@ from dagtool.plugins.templates.filters import unnested_list
 logger = logging.getLogger("dagtool.dag.stock")
 
 
-dag = DagTool(
+tool = DagTool(
     name="stock",
     path=__file__,
     docs=__doc__,
@@ -33,8 +36,8 @@ dag = DagTool(
     #     "env": ...,  # NOTE: Get Environment variable.
     # },
 )
-logger.info(f"Start Generate: {dag.name}")
-dag.build_to_globals(
+logger.info(f"Start Generate: {tool.name}")
+tool.build_airflow_dags_to_globals(
     gb=globals(),
     default_args={},
 )

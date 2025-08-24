@@ -18,16 +18,18 @@ RUN uv venv /opt/venv --python=${PYTHON_VERSION}
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# NOTE: Install pendulum first because airflow version 2.7 does not compatible if
-#   it more than 3.0.0
+# NOTE: Install pendulum first because airflow version 2.7 does not compatible
+#   if it more than 3.0.0
 RUN uv pip install "pendulum<3.0.0" && \
     uv pip install "apache-airflow[google]==${AIRFLOW_VERSION}" \
       --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
-
-COPY . .
 
 # NOTE: Force change version of necessary version of deps package for DAG Tool.
 RUN uv pip install \
       "PyYAML==6.0.2" \
       "pydantic==2.11.7" \
-    && uv pip install -e .
+      "jinja2>=3.1.2"
+
+COPY ./dagtool /opt/airflow/plugins/dagtool
+
+WORKDIR /opt/airflow
