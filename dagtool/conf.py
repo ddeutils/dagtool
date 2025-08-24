@@ -4,6 +4,7 @@ from typing import Any
 
 from pydantic import ValidationError
 from yaml import safe_load
+from yaml.parser import ParserError
 
 from .const import VARIABLE_FILENAME
 from .models import DagModel
@@ -39,9 +40,16 @@ class YamlConf:
                 and file.stem != VARIABLE_FILENAME
                 and file.suffix in (".yml", ".yaml")
             ):
-                data: dict[str, Any] | list[Any] = safe_load(
-                    file.open(mode="rt")
-                )
+                try:
+                    data: dict[str, Any] | list[Any] = safe_load(
+                        file.open(mode="rt")
+                    )
+                except ParserError:
+                    logging.error(f"YAML file does not parsing, {file}.")
+                    continue
+                except Exception as e:
+                    logging.error(f"YAML file got error, {e}, {file}.")
+                    continue
 
                 # VALIDATE: Does not support for list of template config.
                 if isinstance(data, list):

@@ -119,7 +119,7 @@ tasks:
     bucket: "{{ var('bucket_name') }}"
     prefix: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}"
     all_uris_path: "pre-landing/stock_loss/{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('year=%Y/month=%m/day=%d/hour=%H') }}/all_uris.txt"
-    batch_size: {{ var('batch_size') }}
+    batch_size: "{{ var('batch_size') }}"
 
   - group: stock_loss
     upstream: concat_file_into_landing
@@ -127,7 +127,7 @@ tasks:
       - group: transforming
         tasks:
           - task: "dp_pyspark_job"
-            op: airflow.providers.cncf.kubernetes.operators.spark_kubernetes.SparkKubernetesOperator
+            op: airflow.providers.cncf.kubernetes.tasks.spark_kubernetes.SparkKubernetesOperator
             application_file: "assets/stock_loss_spark_job.yml"
             params:
               spark_app_name: "stock_loss-tf"
@@ -170,7 +170,7 @@ tasks:
         upstream: transforming
         tasks:
           - task: "dp_pyspark_job"
-            op: airflow.providers.cncf.kubernetes.operators.spark_kubernetes.SparkKubernetesOperator
+            op: airflow.providers.cncf.kubernetes.tasks.spark_kubernetes.SparkKubernetesOperator
             application_file: "assets/stock_loss_spark_job.yml"
             params:
               spark_app_name: "stock_loss-val"

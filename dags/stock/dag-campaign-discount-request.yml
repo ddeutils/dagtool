@@ -19,7 +19,7 @@ tasks:
 
       - task: copy_latest_blobs_bucket_to_bucket
         upstream: start
-        op: ...
+        op: empty
 
       - task: end
         upstream: copy_latest_blobs_bucket_to_bucket
@@ -28,8 +28,8 @@ tasks:
   - task: check_blob_exist
     upstream: copy_latest_blob
     op: airflow.providers.google.cloud.sensors.gcs.GCSObjectsWithPrefixExistenceSensor
-    bucket: ...
-    prefix: ...
+    bucket: "{{ var('bucket_name') }}"
+    prefix: some-prefix
     deferrable: true
 
   - task: concat_file_into_landing

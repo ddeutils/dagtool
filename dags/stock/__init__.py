@@ -28,10 +28,10 @@ dag = DagTool(
         "gcs_to_gcs": GCSToGCSOperator,
     },
     user_defined_filters={"unnested_list": unnested_list},
-    user_defined_macros={
-        "var": ...,  # NOTE: Get Airflow variable.
-        "env": ...,  # NOTE: Get Environment variable.
-    },
+    # user_defined_macros={
+    #     "var": ...,  # NOTE: Get Airflow variable.
+    #     "env": ...,  # NOTE: Get Environment variable.
+    # },
 )
 logger.info(f"Start Generate: {dag.name}")
 dag.build_to_globals(

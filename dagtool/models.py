@@ -5,7 +5,7 @@ from typing import Any, Literal, Union
 from airflow.models import DAG
 from pydantic import BaseModel, Field
 
-from .plugins.operators import AnyTask
+from .plugins.tasks import AnyTask
 
 
 class DefaultArgs(BaseModel):
@@ -15,7 +15,10 @@ class DefaultArgs(BaseModel):
 
 
 class DagModel(BaseModel):
-    """Base DagTool Model for validate template config data."""
+    """Base Dag Model for validate template config data support DagTool object.
+    This model will include necessary field for Airflow DAG object and custom
+    field for DagTool object together.
+    """
 
     name: str = Field(description="A DAG name.")
     type: Literal["dag"] = Field(description="A type of template config.")
@@ -26,11 +29,14 @@ class DagModel(BaseModel):
     params: dict[str, str] = Field(default_factory=dict)
     tasks: list[AnyTask] = Field(
         default_factory=list,
-        description="A list of any task, pure task or group task",
+        description="A list of any task, origin task or group task",
     )
 
-    # NOTE: Runtime parameters.
-    filename: str | None = Field(default=None)
+    # NOTE: Runtime parameters that extract from YAML loader step.
+    filename: str | None = Field(
+        default=None,
+        description="A filename of the current position.",
+    )
     parent_dir: Path | None = Field(default=None, description="")
     created_dt: datetime | None = Field(default=None, description="")
     updated_dt: datetime | None = Field(default=None, description="")
@@ -38,7 +44,7 @@ class DagModel(BaseModel):
     # NOTE: Airflow DAG parameters.
     owner: str = Field(default=None)
     tags: list[str] = Field(default_factory=list, description="A list of tags.")
-    schedule: str
+    schedule: str | None = Field(default=None)
     start_date: str | None = Field(default=None)
     end_date: str | None = Field(default=None)
     concurrency: int | None = Field(default=None)

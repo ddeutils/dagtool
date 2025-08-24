@@ -54,7 +54,7 @@ class DagTool:
             "user_defined_macros": user_defined_macros,
         }
 
-        # NOTE: Define operators that able map to template.
+        # NOTE: Define tasks that able map to template.
         self.operators: dict[str, Any] = operators or {}
 
     @property
@@ -74,9 +74,9 @@ class DagTool:
         dags: list[DAG] = []
         for i, data in enumerate(self.conf, start=1):
             kwargs: dict[str, Any] = {
-                "dag_id": data.name,
+                "dag_id": f"{self.name}_{data.name}",
                 "default_args": default_args or {},
-                "template_search_path": [self.path / "assets"],
+                "template_searchpath": [self.path / "assets"],
             }
             dag: DAG = DAG(**kwargs)
             logging.info(f"({i}) Building DAG: {dag}")
