@@ -1,8 +1,10 @@
 from typing import Annotated, Union
 
+from airflow.models import DAG, Operator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
+from ...utils import TaskMapped, set_upstream
 from .__abc import BaseTask
 from .bash import BashTask
 from .empty import DebugTask, EmptyTask
@@ -11,12 +13,12 @@ Task = Annotated[
     Union[
         EmptyTask,
         DebugTask,
-        # PythonTask,
         BashTask,
-        # SparkTask,
-        # DockerTask,
     ],
-    Field(discriminator="op"),
+    Field(
+        discriminator="op",
+        description="All supported Operator Tasks.",
+    ),
 ]
 
 
@@ -29,15 +31,31 @@ class GroupTask(BaseTask):
         description="A list of Any Task model.",
     )
 
-    def build(self) -> TaskGroup:
-        """Build Task Group object."""
-        with TaskGroup(group_id=self.group) as tg:
-            pass
-
-        return tg
+    def build(
+        self,
+        dag: DAG | None = None,
+        task_group: TaskGroup | None = None,
+        **kwargs,
+    ) -> TaskGroup:
+        """Build Airflow Task Group object."""
+        task_group = TaskGroup(
+            group_id=self.group, parent_group=task_group, dag=dag
+        )
+        tasks: dict[str, TaskMapped] = {}
+        for task in self.tasks:
+            task_object: Operator | TaskGroup = task.build(
+                dag=dag, task_group=task_group, **kwargs
+            )
+            tasks[task.iden] = {
+                "upstream": task.upstream,
+                "task": task_object,
+            }
+        set_upstream(tasks)
+        return task_group
 
     @property
     def iden(self) -> str:
+        """Return Task Group Identity with it group name."""
         return self.group
 
 

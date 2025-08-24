@@ -1,15 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from airflow.models import Operator
+from airflow.models import DAG, Operator
+from airflow.utils.task_group import TaskGroup
 from pydantic import BaseModel, Field, field_validator
 
 
 class BaseTask(BaseModel, ABC):
     """Base Task model that represent Airflow Task object."""
 
-    upstream: list[str] | None = Field(
-        default=None,
+    upstream: list[str] = Field(
+        default_factory=list,
+        validate_default=True,
         description=(
             "A list of upstream task name or only task name of this task."
         ),
@@ -24,13 +26,20 @@ class BaseTask(BaseModel, ABC):
         """Prepare upstream value that passing to validate with string value
         instead of list of string. This function will create list of this value.
         """
-        if data and isinstance(data, str):
+        if data is None:
+            return []
+        elif data and isinstance(data, str):
             return [data]
         return data
 
     @abstractmethod
-    def build(self, **kwargs) -> Any:
-        """Build"""
+    def build(
+        self,
+        dag: DAG | None = None,
+        task_group: TaskGroup | None = None,
+        **kwargs,
+    ) -> Operator | TaskGroup:
+        """Build Any Airflow Task object."""
 
     @property
     @abstractmethod
@@ -45,7 +54,12 @@ class OperatorTask(BaseTask, ABC):
     op: str = Field(description="An operator type of this task.")
 
     @abstractmethod
-    def build(self, **kwargs) -> Operator:
+    def build(
+        self,
+        dag: DAG | None = None,
+        task_group: TaskGroup | None = None,
+        **kwargs,
+    ) -> Operator:
         """Build the Airflow Operator object from this model fields."""
 
     @property

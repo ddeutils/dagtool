@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Literal, TypedDict, Union
+from typing import Any, Literal, Union
 
-from airflow.models import DAG, Operator
-from airflow.utils.task_group import TaskGroup
+from airflow.models import DAG
 from pydantic import BaseModel, Field
 
 from .const import ASSET_DIR
 from .plugins.tasks import AnyTask
+from .utils import TaskMapped, set_upstream
 
 
 class DefaultArgs(BaseModel):
@@ -16,10 +16,8 @@ class DefaultArgs(BaseModel):
     owner: str | None = None
     depends_on_past: bool = False
 
-
-class TaskMapped(TypedDict):
-    upstream: list[str]
-    task: Operator | TaskGroup
+    def to_dict(self) -> dict[str, Any]:
+        return self.model_dump(exclude_defaults=True)
 
 
 class DagModel(BaseModel):
@@ -60,6 +58,7 @@ class DagModel(BaseModel):
     owner: str = Field(default="dagtool")
     tags: list[str] = Field(default_factory=list, description="A list of tags.")
     schedule: str | None = Field(default=None)
+    schedule_interval: str | None = Field(default=None)
     start_date: str | None = Field(default=None)
     end_date: str | None = Field(default=None)
     concurrency: int | None = Field(default=None)
@@ -83,14 +82,6 @@ class DagModel(BaseModel):
         else:
             docs += f"## YAML Template\n\n```yaml\n{self.raw_data}\n```"
         return docs
-
-    @staticmethod
-    def set_upstream(tasks: dict[str, TaskMapped]):
-        for task in tasks:
-            task_mapped: TaskMapped = tasks[task]
-            if upstream := task_mapped["upstream"]:
-                for t in upstream:
-                    task_mapped["task"].set_upstream(tasks[t]["task"])
 
     def build(
         self,
@@ -132,7 +123,8 @@ class DagModel(BaseModel):
                 "task": task.build(dag=dag),
             }
 
-        self.set_upstream(tasks)
+        # NOTE: Set upstream for each task.
+        set_upstream(tasks)
 
         return dag
 

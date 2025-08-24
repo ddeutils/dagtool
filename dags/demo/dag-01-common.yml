@@ -1,7 +1,7 @@
-name: 01_start
+name: 01_common
 type: dag
 docs: |
-  ## 01 DEMO DAG
+  ## Common DAG
 
   This is the demo dag for passing template data to DAG object.
 tags:
@@ -12,6 +12,12 @@ tasks:
   - task: start
     op: empty
 
-  - task: end
+  - task: debug
     upstream: start
+    op: debug
+    params:
+      foo: bar
+
+  - task: end
+    upstream: debug
     op: empty
