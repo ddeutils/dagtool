@@ -21,5 +21,10 @@ def sync_airflow_variable():
     sys.exit(1)
 
 
+@cli.command("json-schema")
+def build_json_schema():
+    click.echo("Start generate JSON Schema file for DAG Template.")
+
+
 if __name__ == "__main__":
     cli()

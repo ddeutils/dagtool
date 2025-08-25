@@ -129,6 +129,7 @@ class DagModel(BaseModel):
         user_defined_macros: dict[str, Any] | None = None,
         user_defined_filters: dict[str, Any] | None = None,
         template_searchpath: list[str] | None = None,
+        context: dict[str, Any] | None = None,
     ) -> DAG:
         """Build Airflow DAG object from the current model field values that
         passing from template and render via Jinja with variables.
@@ -144,6 +145,7 @@ class DagModel(BaseModel):
                 filters in Jinja template.
             template_searchpath (list[str], default None): An extended Jinja
                 template search path.
+            context:
 
         Returns:
             DAG: An Airflow DAG object.
@@ -179,6 +181,7 @@ class DagModel(BaseModel):
             }
             | (user_defined_filters or {}),
             default_view="graph",
+            render_template_as_native_obj=True,
         )
 
         # NOTE: Build Tasks.
@@ -186,7 +189,7 @@ class DagModel(BaseModel):
         for task in self.tasks:
             tasks[task.iden] = {
                 "upstream": task.upstream,
-                "task": task.build(task_group=None, dag=dag),
+                "task": task.build(task_group=None, dag=dag, context=context),
             }
 
         # NOTE: Set upstream for each task.

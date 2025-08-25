@@ -32,3 +32,9 @@ tasks:
         tasks:
           - task: deep
             op: empty
+
+          - group: nested_group
+            upstream: deep
+            tasks:
+              - task: deep_deep
+                op: empty

@@ -174,7 +174,6 @@ The DAG that was built from this package will have the name is, `sales_transacti
 I will give the way to sync it:
 
 1. Sync to Airflow Variable
-
 2. Sync to Storage Object like GCS, ADLS, S3, etc.
 
 ## 💬 Contribute

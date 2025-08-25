@@ -55,6 +55,7 @@ class DebugTask(OperatorTask):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
+        context: dict[str, Any] | None = None,
         **kwargs,
     ) -> Operator:
         """Build Airflow Debug Operator object."""

@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from airflow.models import DAG, Operator
 from airflow.operators.bash import BashOperator
@@ -15,7 +15,9 @@ class BashTask(OperatorTask):
     bash_command: str = Field(description="A bash command or bash file")
     env: dict[str, str] | None = None
     append_env: bool = False
-    output_encoding: str = "utf-8"
+    output_encoding: str = Field(
+        default="utf-8", description="Output encoding of bash command."
+    )
     skip_on_exit_code: int | list[int] | None = Field(default=99)
     cwd: str | None = None
 
@@ -23,6 +25,7 @@ class BashTask(OperatorTask):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
+        context: dict[str, Any] | None = None,
         **kwargs,
     ) -> Operator:
         """Build Airflow Bash Operator object."""

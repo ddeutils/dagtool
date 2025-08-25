@@ -1,4 +1,4 @@
-from typing import Annotated, Union
+from typing import Annotated, Any, Union
 
 from airflow.models import DAG, Operator
 from airflow.utils.task_group import TaskGroup
@@ -41,6 +41,7 @@ class GroupTask(BaseTask):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
+        context: dict[str, Any] | None = None,
         **kwargs,
     ) -> TaskGroup:
         """Build Airflow Task Group object."""

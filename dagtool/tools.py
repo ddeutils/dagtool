@@ -52,6 +52,7 @@ class DagTool:
         user_defined_macros: dict[str, Any] | None = None,
         # NOTE: DagTool params.
         operators: dict[str, Any] | None = None,
+        python_callers: dict[str, Any] | None = None,
     ) -> None:
         """Main construct method.
 
@@ -75,6 +76,7 @@ class DagTool:
 
         # NOTE: Define tasks that able map to template.
         self.operators: dict[str, Any] = operators or {}
+        self.python_callers: dict[str, Any] = python_callers or {}
 
         # NOTE: Start fetch config data.
         self.refresh_conf()
@@ -105,6 +107,12 @@ class DagTool:
                 self.conf.append(model)
             except ValidationError:
                 continue
+
+    def get_context(self):
+        return {
+            "operators": self.operators,
+            "python_callers": self.python_callers,
+        }
 
     def render_template(self, data: Any, env: Environment) -> Any:
         """Render template."""
@@ -180,12 +188,14 @@ class DagTool:
             list[DAG]: A list of Airflow DAG object.
         """
         dags: list[DAG] = []
+        context = self.get_context()
         for i, model in enumerate(self.conf, start=1):
             dag: DAG = model.build(
                 prefix=self.name,
                 docs=self.docs,
                 default_args=default_args,
                 user_defined_macros=user_defined_macros,
+                context=context,
             )
             logging.info(f"({i}) Building DAG: {dag}")
             dags.append(dag)
@@ -215,15 +225,3 @@ class DagTool:
             user_defined_macros=user_defined_macros,
         ):
             gb[dag.dag_id] = dag
-
-
-class DagTemplate:
-    """Template DAG object that will use template DAG file to be the template
-    of any DAG instead.
-
-        If the DAG template can move all value to variable. It can make template
-    of DAG template for make scale DAG factory.
-    """
-
-    def __init__(self, name: str) -> None:
-        self.name: str = name

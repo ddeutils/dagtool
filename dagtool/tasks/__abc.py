@@ -38,6 +38,7 @@ class BaseTask(BaseModel, ABC):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
+        context: dict[str, Any] | None = None,
         **kwargs,
     ) -> Operator | TaskGroup:
         """Build Any Airflow Task object."""
@@ -59,6 +60,7 @@ class OperatorTask(BaseTask, ABC):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
+        context: dict[str, Any] | None = None,
         **kwargs,
     ) -> Operator:
         """Build the Airflow Operator object from this model fields."""
