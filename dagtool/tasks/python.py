@@ -12,6 +12,7 @@ from .__abc import OperatorTask
 class PythonTask(OperatorTask):
     op: Literal["python"]
     func: str = Field(description="A Python function name.")
+    params: dict[str, Any] = Field(default_factory=dict)
 
     def build(
         self,
@@ -33,6 +34,7 @@ class PythonTask(OperatorTask):
             doc=self.desc,
             task_group=task_group,
             dag=dag,
-            python_callers=python_callers,
+            python_callable=python_callers[self.func],
+            op_kwargs=self.params,
             **kwargs,
         )

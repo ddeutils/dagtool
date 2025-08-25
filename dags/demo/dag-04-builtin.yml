@@ -1,0 +1,31 @@
+name: 04_builtin
+type: dag
+desc: |
+  ## Builtin DAG
+owner: "de-oncall@email.com"
+tags:
+  - "group:demo"
+  - "tool:true"
+  - "domain:demo"
+tasks:
+  - task: start
+    op: empty
+
+  - task: call_bash
+    upstream: start
+    op: bash
+    command: "echo $AIRFLOW_ENV"
+
+  - task: call_python
+    upstream: start
+    op: python
+    func: say_hi
+    params:
+      name: "World"
+
+  - task: call_custom
+    upstream: start
+    op: custom
+    uses: demo_task
+    params:
+      name: "Jerry"

@@ -12,7 +12,7 @@ class BashTask(OperatorTask):
     """Bash Task model that will represent to Airflow BashOperator object."""
 
     op: Literal["bash"] = Field(description="An operator type for bash model.")
-    bash_command: str = Field(description="A bash command or bash file")
+    command: str = Field(description="A bash command or bash file")
     env: dict[str, str] | None = None
     append_env: bool = False
     output_encoding: str = Field(
@@ -31,7 +31,7 @@ class BashTask(OperatorTask):
         """Build Airflow Bash Operator object."""
         return BashOperator(
             task_id=self.task,
-            bash_command=self.bash_command,
+            bash_command=self.command,
             env=self.env,
             append_env=self.append_env,
             output_encoding=self.output_encoding,

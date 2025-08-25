@@ -24,9 +24,7 @@ tags:
   - "sched-type:hourly"
   - "proc:spark"
 default_args:
-  owner:
-    - "de@mail.com"
-    - "de-on-call@mail.com"
+  owner: "de@mail.com,de-on-call@mail.com"
   depends_on_past: false
   retries: 1
   retry_delay: { "minutes": 1 }

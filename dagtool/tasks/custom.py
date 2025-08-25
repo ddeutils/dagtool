@@ -29,7 +29,9 @@ class CustomTask(OperatorTask):
             raise ValueError(
                 f"Custom task need to pass custom operator, {self.uses}, first."
             )
-        return custom_operators[self.uses](
+        op = custom_operators[self.uses]
+        model = op.model_validate(self.params)
+        return model.build(
             dag=dag,
             task_group=task_group,
             context=context | self.params,

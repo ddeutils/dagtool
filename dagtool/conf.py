@@ -61,8 +61,9 @@ class YamlConf:
                     logging.error(f"YAML file got error, {e}, {file}.")
                     continue
 
-                # VALIDATE: Does not support for list of template config.
-                if isinstance(data, list):
+                # VALIDATE: Does not support for empty data or list of template
+                #   config.
+                if not data or isinstance(data, list):
                     continue
 
                 try:

@@ -1,8 +1,10 @@
 import os
 from datetime import datetime, timedelta
+from functools import partial
 from pathlib import Path
 from typing import Any, Literal, Union
 
+from airflow.configuration import conf as airflow_conf
 from airflow.models import DAG
 from airflow.models import Variable as AirflowVariable
 from pendulum import parse, timezone
@@ -21,8 +23,10 @@ from .utils import TaskMapped, change_tz, format_dt, set_upstream
 class DefaultArgs(BaseModel):
     """Default Args Model that will use with the `default_args` field."""
 
-    owner: str | None = None
+    owner: str | None = Field(default="DagTool")
     depends_on_past: bool = False
+    retries: int = Field(default=1, description="A retry count.")
+    retry_delay: dict[str, int] | None = Field(default=None)
 
     def to_dict(self) -> dict[str, Any]:
         return self.model_dump(exclude_defaults=True)
@@ -73,13 +77,22 @@ class DagModel(BaseModel):
     owner: str = Field(default="dagtool")
     tags: list[str] = Field(default_factory=list, description="A list of tags.")
     schedule: str | None = Field(default=None)
-    schedule_interval: str | None = Field(default=None)
     start_date: datetime | None = Field(default=None)
     end_date: str | None = Field(default=None)
     concurrency: int | None = Field(default=None)
-    max_active_runs: int = Field(default=1)
-    dagrun_timeout_sec: int = Field(
-        default=600,
+    is_paused_upon_creation: bool = Field(default=True)
+    max_active_tasks: int = Field(
+        default_factory=partial(
+            airflow_conf.getint, "core", "max_active_tasks_per_dag"
+        )
+    )
+    max_active_runs: int = Field(
+        default_factory=partial(
+            airflow_conf.getint, "core", "max_active_runs_per_dag"
+        )
+    )
+    dagrun_timeout_sec: int | None = Field(
+        default=None,
         description="A DagRun timeout in second value.",
     )
     default_args: DefaultArgs = Field(default_factory=DefaultArgs)
@@ -129,6 +142,8 @@ class DagModel(BaseModel):
         user_defined_macros: dict[str, Any] | None = None,
         user_defined_filters: dict[str, Any] | None = None,
         template_searchpath: list[str] | None = None,
+        on_success_callback: list[Any] | Any | None = None,
+        on_failure_callback: list[Any] | Any | None = None,
         context: dict[str, Any] | None = None,
     ) -> DAG:
         """Build Airflow DAG object from the current model field values that
@@ -145,6 +160,8 @@ class DagModel(BaseModel):
                 filters in Jinja template.
             template_searchpath (list[str], default None): An extended Jinja
                 template search path.
+            on_success_callback:
+            on_failure_callback:
             context:
 
         Returns:
@@ -163,7 +180,12 @@ class DagModel(BaseModel):
             end_date=self.end_date,
             concurrency=self.concurrency,
             max_active_runs=self.max_active_runs,
-            dagrun_timeout=timedelta(seconds=self.dagrun_timeout_sec),
+            max_active_tasks=self.max_active_tasks,
+            dagrun_timeout=(
+                timedelta(seconds=self.dagrun_timeout_sec)
+                if self.dagrun_timeout_sec
+                else None
+            ),
             default_args={
                 "owner": self.owner,
                 **(default_args or {}),
@@ -182,6 +204,9 @@ class DagModel(BaseModel):
             | (user_defined_filters or {}),
             default_view="graph",
             render_template_as_native_obj=True,
+            is_paused_upon_creation=self.is_paused_upon_creation,
+            on_success_callback=on_success_callback,
+            on_failure_callback=on_failure_callback,
         )
 
         # NOTE: Build Tasks.
@@ -269,6 +294,8 @@ def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
         var: dict[str, Any] = get_variable_stage(path, name=name)
         return var
     except ParserError:
+        return {}
+    except ValidationError:
         return {}
 
 

@@ -50,6 +50,8 @@ class DagTool:
         template_searchpath: list[str | Path] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Any] | None = None,
+        on_success_callback: list[Any] | Any | None = None,
+        on_failure_callback: list[Any] | Any | None = None,
         # NOTE: DagTool params.
         operators: dict[str, Any] | None = None,
         python_callers: dict[str, Any] | None = None,
@@ -66,13 +68,15 @@ class DagTool:
         self.name: str = name
         self.path: Path = p.parent if (p := Path(path)).is_file() else p
         self.docs: str | None = docs
-        self.conf: list[DagModel] = []
+        self.conf: dict[str, DagModel] = {}
         self.yaml_loader = YamlConf(path=self.path)
 
         # NOTE: Airflow params.
         self.template_searchpath = template_searchpath or []
         self.user_defined_filters = user_defined_filters or {}
         self.user_defined_macros = user_defined_macros or {}
+        self.on_success_callback = on_success_callback
+        self.on_failure_callback = on_failure_callback
 
         # NOTE: Define tasks that able map to template.
         self.operators: dict[str, Any] = operators or {}
@@ -81,16 +85,11 @@ class DagTool:
         # NOTE: Start fetch config data.
         self.refresh_conf()
 
-    @property
-    def dag_count(self) -> int:
-        """Return number of DAG config data that read from template file."""
-        return len(self.conf)
-
     def refresh_conf(self) -> None:
         """Read config from the path argument and reload to the conf."""
         # NOTE: Reset previous if it exists.
         if self.conf:
-            self.conf: list[DagModel] = []
+            self.conf: dict[str, DagModel] = {}
 
         # NOTE: For loop DAG config that store inside this template path.
         for c in self.yaml_loader.read_conf():
@@ -100,22 +99,27 @@ class DagTool:
                     "vars": pull_vars(name, self.path, prefix=self.name).get,
                     "env": os.getenv,
                 }
+                | self.user_defined_macros,
+                user_defined_filters=self.user_defined_filters,
             )
             self.render_template(c, env=env)
             try:
                 model = DagModel.model_validate(c)
-                self.conf.append(model)
+                self.conf[name] = model
             except ValidationError:
                 continue
 
-    def get_context(self):
+    def set_context(self) -> dict[str, Any]:
+        """Set context data that bypass to the build method."""
         return {
             "operators": self.operators,
             "python_callers": self.python_callers,
         }
 
     def render_template(self, data: Any, env: Environment) -> Any:
-        """Render template."""
+        """Render template to the value of key that exists in the
+        `template_fields` class variable.
+        """
         for key in data:
             if key == "default_args":
                 data[key] = self.render_template(data[key], env=env)
@@ -177,27 +181,26 @@ class DagTool:
             env.filters.update(udf_macros)
         return env
 
-    def build(
-        self,
-        default_args: dict[str, Any] | None = None,
-        user_defined_macros: dict[str, Any] | None = None,
-    ) -> list[DAG]:
+    def build(self, default_args: dict[str, Any] | None = None) -> list[DAG]:
         """Build Airflow DAGs from template files.
 
         Returns:
             list[DAG]: A list of Airflow DAG object.
         """
         dags: list[DAG] = []
-        context = self.get_context()
-        for i, model in enumerate(self.conf, start=1):
+        context = self.set_context()
+        for name, model in self.conf.items():
             dag: DAG = model.build(
                 prefix=self.name,
                 docs=self.docs,
                 default_args=default_args,
-                user_defined_macros=user_defined_macros,
+                user_defined_macros=self.user_defined_macros,
+                user_defined_filters=self.user_defined_filters,
+                on_success_callback=self.on_success_callback,
+                on_failure_callback=self.on_failure_callback,
                 context=context,
             )
-            logging.info(f"({i}) Building DAG: {dag}")
+            logging.info(f"({name}) Building DAG: {dag}")
             dags.append(dag)
         return dags
 
@@ -206,7 +209,6 @@ class DagTool:
         gb: dict[str, Any],
         *,
         default_args: dict[str, Any] | None = None,
-        user_defined_macros: dict[str, Any] | None = None,
     ) -> None:
         """Build Airflow DAG object and set to the globals for Airflow Dag Processor
         can discover them.
@@ -218,10 +220,6 @@ class DagTool:
         Args:
             gb (dict[str, Any]): A globals object.
             default_args (dict[str, Any]): An override default args value.
-            user_defined_macros:
         """
-        for dag in self.build(
-            default_args=default_args,
-            user_defined_macros=user_defined_macros,
-        ):
+        for dag in self.build(default_args=default_args):
             gb[dag.dag_id] = dag

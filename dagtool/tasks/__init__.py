@@ -6,7 +6,7 @@ from pydantic import Field
 
 from dagtool.utils import TaskMapped, set_upstream
 
-from .__abc import BaseTask
+from .__abc import BaseTask, BaseTaskModel, OperatorTask
 from .bash import BashTask
 from .custom import CustomTask
 from .debug import DebugTask

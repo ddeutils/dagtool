@@ -10,7 +10,12 @@ Set `.env` file:
 
 ```shell
 echo -e "AIRFLOW_PROJ_DIR=$(pwd)" > .env
-echo -e "AIRFLOW_UID=50000" >> .env
+```
+
+```dotenv
+AIRFLOW_UID=50000
+AIRFLOW__CORE__UNIT_TEST_MODE=true
+AIRFLOW_ENV=dev
 ```
 
 Start build Docker image:

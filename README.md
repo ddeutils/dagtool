@@ -111,18 +111,21 @@ object to get the current path on `__init__.py` file.
 name: transaction
 schedule: "@daily"
 owner: "de-oncall@email.com,de@email.com"
-authors: ["de-team"]
-tags: ["sales", "tier-1", "daily"]
+catchup: "{{ vars('catchup') }}"
+tags:
+  - "domain:sales"
+  - "tier:1"
+  - "schedule:daily"
 tasks:
   - task: start
     op: empty
 
-  - group: etl_sales_master
+  - group: etl_master
     upstream: start
     tasks:
       - type: extract
         op: python
-        uses: libs.gcs.csv@1.1.0
+        func: libs.gcs.csv@1.1.0
         assets:
           - name: schema-mapping.json
             alias: schema
@@ -141,13 +144,14 @@ tasks:
           path: gcs://{{ vars("PROJECT_ID") }}/landing/master/date/{ exec_date:%y }
 
       - task: sink
-        op: python
-        run: |
-          import time
-          time.sleep(5)
+        upstream: transform
+        op: custom
+        uses: write_iceberg
+        params:
+          path: gcs://{{ vars("PROJECT_ID") }}
 
   - task: end
-    upstream: etl_sales_master
+    upstream: etl_master
     op: empty
 ```
 

@@ -6,7 +6,23 @@ from airflow.utils.task_group import TaskGroup
 from pydantic import BaseModel, Field, field_validator
 
 
-class BaseTask(BaseModel, ABC):
+class TaskMixin(ABC):
+
+    @abstractmethod
+    def build(
+        self,
+        dag: DAG | None = None,
+        task_group: TaskGroup | None = None,
+        context: dict[str, Any] | None = None,
+        **kwargs,
+    ) -> Operator | TaskGroup:
+        """Build Any Airflow Task object."""
+
+
+class BaseTaskModel(BaseModel, TaskMixin, ABC): ...
+
+
+class BaseTask(BaseTaskModel, ABC):
     """Base Task model that represent Airflow Task object."""
 
     desc: str | None = Field(default=None)
@@ -32,16 +48,6 @@ class BaseTask(BaseModel, ABC):
         elif data and isinstance(data, str):
             return [data]
         return data
-
-    @abstractmethod
-    def build(
-        self,
-        dag: DAG | None = None,
-        task_group: TaskGroup | None = None,
-        context: dict[str, Any] | None = None,
-        **kwargs,
-    ) -> Operator | TaskGroup:
-        """Build Any Airflow Task object."""
 
     @property
     @abstractmethod

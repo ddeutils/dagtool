@@ -40,8 +40,7 @@ def format_dt(
 
 
 def hash_sha256(data: str | bytes) -> str:
-    """
-    Calculates the SHA-256 hash of the given data.
+    """Calculates the SHA-256 hash of the given data.
 
     Args:
         data (str or bytes): The input data to be hashed.
