@@ -95,7 +95,7 @@ class DagTool:
             name: str = c["name"]
             env: Environment = self.get_template_env(
                 user_defined_macros={
-                    "var": pull_vars(name, self.path, prefix=self.name).get,
+                    "vars": pull_vars(name, self.path, prefix=self.name).get,
                     "env": os.getenv,
                 }
             )

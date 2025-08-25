@@ -1,16 +1,17 @@
 from typing import Literal
 
-from airflow.models import DAG, Operator
-from airflow.operators.empty import EmptyOperator
+from airflow import DAG
+from airflow.models import Operator
+from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
+from pydantic import Field
 
 from .__abc import OperatorTask
 
 
-class EmptyTask(OperatorTask):
-    """Empty Task model."""
-
-    op: Literal["empty"]
+class PythonTask(OperatorTask):
+    op: Literal["python"]
+    func: str = Field(description="A Python function name.")
 
     def build(
         self,
@@ -18,8 +19,7 @@ class EmptyTask(OperatorTask):
         task_group: TaskGroup | None = None,
         **kwargs,
     ) -> Operator:
-        """Build Airflow Empty Operator object."""
-        return EmptyOperator(
+        return PythonOperator(
             task_id=self.task,
             doc=self.desc,
             task_group=task_group,

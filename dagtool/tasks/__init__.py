@@ -8,14 +8,18 @@ from dagtool.utils import TaskMapped, set_upstream
 
 from .__abc import BaseTask
 from .bash import BashTask
+from .custom import CustomTask
 from .debug import DebugTask
 from .empty import EmptyTask
+from .python import PythonTask
 
 Task = Annotated[
     Union[
         EmptyTask,
         DebugTask,
         BashTask,
+        PythonTask,
+        CustomTask,
     ],
     Field(
         discriminator="op",
@@ -66,5 +70,8 @@ AnyTask = Annotated[
         Task,
         GroupTask,
     ],
-    Field(union_mode="smart"),
+    Field(
+        union_mode="smart",
+        description="An any task type that able operator task or group task.",
+    ),
 ]

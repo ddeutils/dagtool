@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, field_validator
 class BaseTask(BaseModel, ABC):
     """Base Task model that represent Airflow Task object."""
 
+    desc: str | None = Field(default=None)
     upstream: list[str] = Field(
         default_factory=list,
         validate_default=True,
@@ -44,7 +45,7 @@ class BaseTask(BaseModel, ABC):
     @property
     @abstractmethod
     def iden(self) -> str:
-        """Task identity."""
+        """Task identity Abstract method."""
 
 
 class OperatorTask(BaseTask, ABC):

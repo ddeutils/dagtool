@@ -1,3 +1,4 @@
+import hashlib
 import os
 from datetime import datetime
 from typing import Any, TypedDict
@@ -50,3 +51,21 @@ def change_tz(dt: datetime | DateTime, tz: str = "UTC") -> datetime | DateTime:
 
 def format_dt(dt: datetime | DateTime, fmt: str = "%Y-%m-%d %H:00:00%z") -> str:
     return dt.strftime(fmt)
+
+
+def hash_sha256(data: str | bytes) -> str:
+    """
+    Calculates the SHA-256 hash of the given data.
+
+    Args:
+        data (str or bytes): The input data to be hashed.
+
+    Returns:
+        str: The hexadecimal representation of the SHA-256 hash.
+    """
+    if isinstance(data, str):
+        data = data.encode("utf-8")  # Encode string to bytes
+
+    sha256_hash = hashlib.sha256()
+    sha256_hash.update(data)
+    return sha256_hash.hexdigest()

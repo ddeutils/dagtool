@@ -12,7 +12,7 @@ class CustomTask(OperatorTask):
     """Custom Task."""
 
     op: Literal["custom"]
-    uses: str
+    uses: str = Field(description="A custom building function name.")
     params: dict[str, Any] = Field(default_factory=dict)
 
     def build(

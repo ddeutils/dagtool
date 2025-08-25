@@ -18,6 +18,7 @@ tags:
   - "domain:demo"
 tasks:
   - task: start
+    desc: This is the first task for group DAG.
     op: empty
 
   - group: first_group

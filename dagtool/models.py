@@ -64,6 +64,10 @@ class DagModel(BaseModel):
         default=None,
         description="A raw data that load from template config path.",
     )
+    raw_data_hash: str | None = Field(
+        default=None,
+        description="A hashed raw data with SHA256.",
+    )
 
     # NOTE: Airflow DAG parameters.
     owner: str = Field(default="dagtool")
@@ -174,6 +178,7 @@ class DagModel(BaseModel):
                 "fmt": format_dt,
             }
             | (user_defined_filters or {}),
+            default_view="graph",
         )
 
         # NOTE: Build Tasks.

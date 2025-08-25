@@ -6,6 +6,7 @@ from yaml import safe_load
 from yaml.parser import ParserError
 
 from .const import ASSET_DIR, DAG_FILENAME_PREFIX, VARIABLE_FILENAME
+from .utils import hash_sha256
 
 
 class YamlConf:
@@ -78,6 +79,7 @@ class YamlConf:
                         "created_dt": file_stats.st_ctime,
                         "updated_dt": file_stats.st_mtime,
                         "raw_data": raw_data,
+                        "raw_data_hash": hash_sha256(raw_data),
                         **data,
                     }
                     logging.info(f"Load DAG: {model['name']!r}")

@@ -105,7 +105,7 @@ object to get the current path on `__init__.py` file.
 > [!NOTE]
 > If you want to dynamic environment config on the `dag.yaml` file, you can use a
 > `variable.yaml` file for dynamic value that marking on config template via macro
-> function, `{{ var('keystore-on-dag-name') }}`.
+> function, `{{ vars('keystore-on-dag-name') }}`.
 
 ```yaml
 name: transaction
@@ -128,7 +128,7 @@ tasks:
             alias: schema
             convertor: basic
         params:
-          path: gcs://{{ var("PROJECT_ID") }}/sales/master/date/{ exec_date:%y }
+          path: gcs://{{ vars("PROJECT_ID") }}/sales/master/date/{ exec_date:%y }
 
       - task: transform
         upstream: extract
@@ -138,7 +138,7 @@ tasks:
           - name: transform-query.sql
             alias: transform
         params:
-          path: gcs://{{ var("PROJECT_ID") }}/landing/master/date/{ exec_date:%y }
+          path: gcs://{{ vars("PROJECT_ID") }}/landing/master/date/{ exec_date:%y }
 
       - task: sink
         op: python
