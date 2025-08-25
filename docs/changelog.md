@@ -2,6 +2,44 @@
 
 ## Latest Changes
 
+## 0.0.2
+
+### :stars: Highlight Features
+
+- :star: update template on dag variable before validate model.
+- :star: add build task group nested.
+
+### :sparkles: Features
+
+- :dart: add context bypass for custom task and python task.
+- :dart: add build task from dag.
+- :dart: add script to set airflow variables.
+
+### :bug: Bug fixes
+
+- :gear: change macros name from var to vars.
+- :gear: add exclude for template on docs jinja.
+- :gear: change dockerfile for support dynamic module change.
+
+### :black_nib: Code Changes
+
+- :art: revise code support productionize.
+- :construction: change project structure support scale-out.
+
+### :broom: Deprecate & Clean
+
+- :recycle: remove unuse config.
+
+### :package: Build & Workflow
+
+- :toolbox: upgrate docker file for build airflow standalone version.
+- :toolbox: update docker ignore.
+
+### :book: Documentations
+
+- :page_facing_up: add more testing dags.
+- :page_facing_up: update readme file.
+
 ## 0.0.1
 
 ### :stars: Highlight Features
