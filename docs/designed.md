@@ -14,7 +14,7 @@ I start design folder structure base on these objectives:
 
 1. DAG Factory Code will store at `__init__.py`
 2. DAG template will store at `dag-{ name }.yml`
-3. Business logic asset of each DAG will store at `assets/`
+3. Business logic store in assets store of each DAG at `assets/`
 4. Dynamic environment and resource variables will store at `variables.yml`
 
 ### Type 01: Standalone DAG

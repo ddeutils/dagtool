@@ -4,10 +4,12 @@ from airflow.models import DAG, Operator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from ...utils import TaskMapped, set_upstream
+from dagtool.utils import TaskMapped, set_upstream
+
 from .__abc import BaseTask
 from .bash import BashTask
-from .empty import DebugTask, EmptyTask
+from .debug import DebugTask
+from .empty import EmptyTask
 
 Task = Annotated[
     Union[

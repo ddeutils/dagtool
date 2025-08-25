@@ -2,12 +2,10 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from pydantic import ValidationError
 from yaml import safe_load
 from yaml.parser import ParserError
 
 from .const import ASSET_DIR, DAG_FILENAME_PREFIX, VARIABLE_FILENAME
-from .models import DagModel
 
 
 class YamlConf:
@@ -20,14 +18,31 @@ class YamlConf:
     def __init__(self, path: Path | str) -> None:
         self.path: Path = Path(path)
 
-    def read_conf(self) -> list[DagModel]:
+    def read_vars(self):
+        """Get Variable value with an input stage name."""
+        search_files: list[Path] = list(
+            self.path.rglob(f"{VARIABLE_FILENAME}.y*ml")
+        )
+        if not search_files:
+            raise FileNotFoundError("Does not found variables file.")
+        try:
+            return safe_load(
+                min(
+                    search_files,
+                    key=lambda f: len(str(f.absolute())),
+                ).open(mode="rt", encoding="utf-8")
+            )
+        except ParserError:
+            raise
+
+    def read_conf(self) -> list[dict[str, Any]]:
         """Read DAG template config from the path argument and reload to the
         conf.
 
         Returns:
-            list[DagModel]: A list of DagModel.
+            list[dict[str, Any]]: A list of model data before validate step.
         """
-        conf: list[DagModel] = []
+        conf: list[dict[str, Any]] = []
         for file in self.path.rglob("*"):
             if (
                 file.is_file()
@@ -50,29 +65,25 @@ class YamlConf:
                     continue
 
                 try:
-                    if data.get("type", "NOTSET") != "dag":
+                    if (
+                        "name" not in data
+                        or data.get("type", "NOTSET") != "dag"
+                    ):
                         continue
+
                     file_stats = file.stat()
-                    model = DagModel.model_validate(
-                        {
-                            "filename": file.name,
-                            "parent_dir": file.parent,
-                            "created_dt": file_stats.st_ctime,
-                            "updated_dt": file_stats.st_mtime,
-                            "raw_data": raw_data,
-                            **data,
-                        }
-                    )
-                    logging.info(f"Load DAG: {model.name!r}")
+                    model: dict[str, Any] = {
+                        "filename": file.name,
+                        "parent_dir": file.parent,
+                        "created_dt": file_stats.st_ctime,
+                        "updated_dt": file_stats.st_mtime,
+                        "raw_data": raw_data,
+                        **data,
+                    }
+                    logging.info(f"Load DAG: {model['name']!r}")
                     conf.append(model)
                 except AttributeError:
                     # NOTE: Except case data is not be `dict` type.
-                    continue
-                except ValidationError as e:
-                    # NOTE: Raise because model cannot validate with model.
-                    logging.error(
-                        f"Template data cannot pass to DagTool model:\n{e}"
-                    )
                     continue
 
         if len(conf) == 0:

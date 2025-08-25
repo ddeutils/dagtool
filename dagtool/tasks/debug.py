@@ -1,32 +1,14 @@
 import json
 from collections.abc import Sequence
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from airflow.models import DAG, Operator
 from airflow.models.baseoperator import BaseOperator
-from airflow.operators.empty import EmptyOperator
 from airflow.utils.context import Context
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
 from .__abc import OperatorTask
-
-
-class EmptyTask(OperatorTask):
-    """Empty Task model."""
-
-    op: Literal["empty"]
-
-    def build(
-        self,
-        dag: DAG | None = None,
-        task_group: TaskGroup | None = None,
-        **kwargs,
-    ) -> Operator:
-        """Build Airflow Empty Operator object."""
-        return EmptyOperator(
-            task_id=self.task, task_group=task_group, dag=dag, **kwargs
-        )
 
 
 class DebugOperator(BaseOperator):
@@ -42,24 +24,32 @@ class DebugOperator(BaseOperator):
 
     def __init__(self, debug: dict[str, Any], **kwargs) -> None:
         super().__init__(**kwargs)
-        self.debug = debug
+        self.debug: dict[str, Any] = debug
 
     def execute(self, context: Context) -> None:
         """Debug Operator execute method that only show parameters that passing
         from the template config.
+
+        Args:
+            context (Context): An Airflow Context object.
         """
         self.log.info("Start DEBUG Parameters:")
         for k, v in self.debug.items():
             self.log.info(f"> {k}: {v}")
+
         self.log.info("Start DEBUG Context:")
-        self.log.info(json.dumps(context, indent=2, default=str))
+        ctx: Context = cast(Context, dict(context))
+        self.log.info(json.dumps(ctx, indent=2, default=str))
 
 
 class DebugTask(OperatorTask):
-    """Free Task model."""
+    """Debug Task model that inherit from Operator task."""
 
     op: Literal["debug"]
-    params: dict[str, Any] = Field(default_factory=dict)
+    params: dict[str, Any] = Field(
+        default_factory=dict,
+        description="A parameters that want to logging.",
+    )
 
     def build(
         self,

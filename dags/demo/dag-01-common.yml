@@ -17,6 +17,9 @@ tasks:
     op: debug
     params:
       foo: bar
+      custom: "{{ custom_macros }}"
+      environment: "{{ env('AIRFLOW_ENV') }}"
+      variable: "{{ vars('test') }}"
 
   - task: end
     upstream: debug

@@ -1,12 +1,16 @@
 import logging
-from collections.abc import Callable
+import os
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
 from airflow.models.dag import DAG
+from airflow.templates import NativeEnvironment
+from jinja2 import Environment, Template
+from pydantic import ValidationError
 
 from .conf import YamlConf
-from .models import DagModel
+from .models import DagModel, pull_vars
 
 
 class DagTool:
@@ -25,7 +29,16 @@ class DagTool:
 
     Attributes:
         name (str): A prefix name that will use for making DAG inside this dir.
+        path (Path): A parent path for searching tempalate config files.
     """
+
+    # NOTE: Template fields for DAG parameters that will use on different
+    #   stages like `catchup` parameter that should disable when deploy to dev.
+    template_fields: Sequence[str] = (
+        "start_date",
+        "catchup",
+        "max_active_runs",
+    )
 
     def __init__(
         self,
@@ -35,7 +48,6 @@ class DagTool:
         docs: str | None = None,
         # NOTE: Airflow params.
         template_searchpath: list[str | Path] | None = None,
-        on_failure_callback: list[Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Any] | None = None,
         # NOTE: DagTool params.
@@ -55,17 +67,17 @@ class DagTool:
         self.docs: str | None = docs
         self.conf: list[DagModel] = []
         self.yaml_loader = YamlConf(path=self.path)
-        self.refresh_conf()
-        self.override_conf: dict[str, Any] = {
-            "on_failure_callback": on_failure_callback,
-            "user_defined_filters": user_defined_filters,
-            "user_defined_macros": user_defined_macros,
-            "template_searchpath": template_searchpath,
-        }
-        self.extended_conf: dict[str, Any] = {}
+
+        # NOTE: Airflow params.
+        self.template_searchpath = template_searchpath or []
+        self.user_defined_filters = user_defined_filters or {}
+        self.user_defined_macros = user_defined_macros or {}
 
         # NOTE: Define tasks that able map to template.
         self.operators: dict[str, Any] = operators or {}
+
+        # NOTE: Start fetch config data.
+        self.refresh_conf()
 
     @property
     def dag_count(self) -> int:
@@ -78,7 +90,84 @@ class DagTool:
         if self.conf:
             self.conf: list[DagModel] = []
 
-        self.conf: list[DagModel] = self.yaml_loader.read_conf()
+        # NOTE: For loop DAG config that store inside this template path.
+        for c in self.yaml_loader.read_conf():
+            name: str = c["name"]
+            env: Environment = self.get_template_env(
+                user_defined_macros={
+                    "var": pull_vars(name, self.path, prefix=self.name).get,
+                    "env": os.getenv,
+                }
+            )
+            self.render_template(c, env=env)
+            try:
+                model = DagModel.model_validate(c)
+                self.conf.append(model)
+            except ValidationError:
+                continue
+
+    def render_template(self, data: Any, env: Environment) -> Any:
+        """Render template."""
+        for key in data:
+            if key == "default_args":
+                data[key] = self.render_template(data[key], env=env)
+                continue
+
+            if key in ("tasks", "raw_data") or key not in self.template_fields:
+                continue
+
+            value: Any = data[key]
+            data[key] = self._render(value, env=env)
+        return data
+
+    def _render(self, value: Any, env: Environment) -> Any:
+        """Render Jinja template to value.
+
+        Args:
+            value (Any): An any value.
+            env (Environment): A Jinja environment object.
+        """
+        if isinstance(value, str):
+            template: Template = env.from_string(value)
+            return template.render()
+
+        if value.__class__ is tuple:
+            return tuple(self._render(element, env) for element in value)
+        elif isinstance(value, tuple):
+            return value.__class__(*(self._render(el, env) for el in value))
+        elif isinstance(value, list):
+            return [self._render(element, env) for element in value]
+        elif isinstance(value, dict):
+            return {k: self._render(v, env) for k, v in value.items()}
+        elif isinstance(value, set):
+            return {self._render(element, env) for element in value}
+
+        return value
+
+    def get_template_env(
+        self,
+        *,
+        user_defined_macros: dict[str, Any] | None = None,
+        user_defined_filters: dict[str, Any] | None = None,
+    ) -> Environment:
+        """Return Jinja Template Native Environment object.
+
+        Args:
+            user_defined_filters:
+            user_defined_macros:
+        """
+        env: Environment = NativeEnvironment()
+        udf_macros: dict[str, Any] = self.user_defined_macros | (
+            user_defined_macros or {}
+        )
+        if udf_macros:
+            env.globals.update(udf_macros)
+        udf_filters: dict[str, Any] = self.user_defined_filters | (
+            user_defined_filters or {}
+        )
+        if udf_filters:
+            env.filters.update(udf_macros)
+        return env
 
     def build(
         self,

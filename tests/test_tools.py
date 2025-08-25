@@ -3,14 +3,14 @@ from pathlib import Path
 
 from airflow.models import DAG
 
-from dagtool import DagTool
+from dagtool.tools import DagTool
 
 
-def test_dagtool(test_path: Path):
+def test_tools_dagtool(test_path: Path):
     dag = DagTool("sales_dag", path=test_path / "demo")
     print(dag)
 
-    assert dag.dag_count == 1
+    assert dag.dag_count == 3
     print(dag.conf)
 
 

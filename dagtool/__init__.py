@@ -1,1 +1,1 @@
-from .core import DagTool
+from .tools import DagTool

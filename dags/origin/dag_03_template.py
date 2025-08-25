@@ -1,12 +1,11 @@
-from functools import partial
 from pathlib import Path
 
 from airflow.models import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 
-from dagtool.models import read_variable
-from dagtool.plugins.tasks.empty import DebugOperator
+from dagtool.models import get_variable_stage
+from dagtool.tasks.debug import DebugOperator
 
 dag = DAG(
     dag_id="origin_template",
@@ -16,9 +15,7 @@ dag = DAG(
     doc_md="doc.md",
     user_defined_macros={
         "custom_macros": "foo",
-        "vars": partial(
-            read_variable, path=Path(__file__).parent, name="template"
-        ),
+        "vars": get_variable_stage(Path(__file__).parent, name="template").get,
     },
 )
 task = EmptyOperator(task_id="test", dag=dag)

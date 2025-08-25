@@ -4,6 +4,8 @@ docs: |
   ## Template DAG
 
   This is the demo dag for passing template data to DAG object.
+start_date: "{{ vars('start_date') }}"
+catchup: "{{ vars('catchup') }}"
 tags:
   - "group:demo"
   - "tool:true"
@@ -18,4 +20,20 @@ tasks:
     upstream: start
     op: debug
     params:
-      env: "{{ env('AIRFLOW_ENV') }}"
+      variable_00: "{{ vars('project_id') }}"
+      variable_01: "{{ vars('bucket_name') }}"
+      variable_02: "{{ vars('catchup') }}"
+      variable_03: "{{ vars('schedule_interval') }}"
+      variable_04: "{{ vars('start_date') }}"
+      variable_05: "{{ vars('max_active_runs') }}"
+      variable_06: "{{ vars('batch_size') }}"
+      variable_07: "{{ vars('transform_driver_request') }}"
+      variable_08: "{{ vars('dp_pyspark_version') }}"
+      variable_not_exists_01: "{{ vars('foo') }}"
+      variable_not_exists_02: "{{ vars('foo', 'default') }}"
+      env_01: "{{ env('AIRFLOW_ENV') }}"
+      env_02: "{{ env('AIRFLOW_HOME') }}"
+      env_not_exists_01: "{{ env('FOO') }}"
+      env_not_exists_02: "{{ env('FOO', 'default') }}"
+      convert_dt: "{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('%Y-%m-%d %H:00:00%z') }}"
+      convert_dt_filter: "{{ data_interval_start | tz(tz='Asia/Bangkok') | fmt(fmt='%Y-%m-%d %H:00:00%z') }}"
