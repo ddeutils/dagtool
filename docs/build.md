@@ -2,23 +2,25 @@
 
 This is a building document for local testing when I want to develop features.
 
+**Set `.env` file**:
+
+1. Create project dir value:
+
+    ```shell
+    echo -e "AIRFLOW_PROJ_DIR=$(pwd)" > .env
+    ```
+
+2. Add other values:
+
+    ```dotenv
+    AIRFLOW_UID=50000
+    AIRFLOW__CORE__UNIT_TEST_MODE=true
+    AIRFLOW_ENV=dev
+    ```
+
 ## Docker Image
 
-Build only Docker image.
-
-Set `.env` file:
-
-```shell
-echo -e "AIRFLOW_PROJ_DIR=$(pwd)" > .env
-```
-
-```dotenv
-AIRFLOW_UID=50000
-AIRFLOW__CORE__UNIT_TEST_MODE=true
-AIRFLOW_ENV=dev
-```
-
-Start build Docker image:
+Build only Docker image (Optional):
 
 ```shell
 docker build --rm \
@@ -35,13 +37,19 @@ Start provision Airflow application via Docker Compose file.
 
 ### Standalone
 
-```shell
-docker compose -f ./.container/docker-compose-local-standalone.yml --env-file .env up -d
-```
+1. Start provision Airflow Standalone:
 
-```shell
-docker compose -f ./.container/docker-compose-local-standalone.yml --env-file .env down --rmi all
-```
+    ```shell
+    docker compose -f ./.container/docker-compose-local-standalone.yml --env-file .env up -d
+    ```
+
+2. User & Password will show on the Docker Container console.
+
+3. After finish, Down Airflow Standalone:
+
+    ```shell
+    docker compose -f ./.container/docker-compose-local-standalone.yml --env-file .env down --rmi all
+    ```
 
 ### LocalExecutor
 
