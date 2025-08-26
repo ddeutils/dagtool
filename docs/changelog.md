@@ -2,6 +2,21 @@
 
 ## Latest Changes
 
+## 0.0.4
+
+### :sparkles: Features
+
+- :dart: add raise task for debug trigger rule.
+
+### :broom: Deprecate & Clean
+
+- :recycle: remove sensitive value.
+
+### :book: Documentations
+
+- :page_facing_up: update build docs.
+- :page_facing_up: update readme file.
+
 ## 0.0.3
 
 ### :stars: Highlight Features
