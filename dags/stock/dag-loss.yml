@@ -78,7 +78,7 @@ tasks:
                     value: "{{ data_interval_end | tz('Asia/Bangkok') | fmt('%Y-%m-%d %H:00:00%z') }}"
           params:
             bucket_prefix: "stock-loss/"
-            full_table_name: "cj-next-prod.pos_admin.stock-loss-prd"
+            full_table_name: "pos-prod.pos_admin.stock-loss-prd"
             stock_temp_table_name: "{{ vars('project_id') }}.pos_admin_tmp.stock-loss-prd"
 
       - task: get_backfill_full_path

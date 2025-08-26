@@ -14,7 +14,7 @@
   },
   "hadoop-conf": {
     "fs.gs.project.id": "stock-data-prod",
-    "google.cloud.auth.service.account.json.keyfile": "/cred/data-platform-prod-330913-448b2b06fa5a.json",
+    "google.cloud.auth.service.account.json.keyfile": "/cred/data-platform-xxxx-xxxx.json",
     "google.cloud.auth.type": "SERVICE_ACCOUNT_JSON_KEYFILE"
   },
   "iceberg-options": {
