@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Any, TypedDict
+from typing import Any, Literal, TypedDict
 
 from airflow.models import DAG, Operator
 from airflow.utils.task_group import TaskGroup
@@ -21,7 +21,6 @@ class TaskMixin(ABC):
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-        **kwargs,
     ) -> Operator | TaskGroup:
         """Build Any Airflow Task object. This method can return Operator or
         TaskGroup object.
@@ -63,14 +62,19 @@ class BaseAirflowTask(BaseTask, ABC):
     @property
     @abstractmethod
     def iden(self) -> str:
-        """Task identity Abstract method."""
+        """Task identity Abstract method for making represent task_id or group_id
+        for Airflow object.
+        """
 
 
 class OperatorTask(BaseAirflowTask, ABC):
     """Operator Task Model."""
 
     task: str = Field(description="A task name.")
+    type: Literal["task"] = Field(default="task")
     op: str = Field(description="An operator type of this task.")
+    inlets: list[str] = Field(default=list)
+    outlets: list[str] = Field(default=list)
 
     @abstractmethod
     def build(
@@ -78,10 +82,21 @@ class OperatorTask(BaseAirflowTask, ABC):
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-        **kwargs,
     ) -> Operator:
         """Build the Airflow Operator object from this model fields."""
 
     @property
     def iden(self) -> str:
+        """Return the task field value for represent task_id in Airflow Task
+        Instance.
+        """
         return self.task
+
+    def task_kwargs(self) -> dict[str, Any]:
+        """Prepare Airflow BaseOperator kwargs from OperatorTask model field."""
+        kws: dict[str, Any] = {"task_id": self.iden}
+        if self.inlets:
+            kws.update({"inlets": self.inlets})
+        if self.outlets:
+            kws.update({"outlets": self.outlets})
+        return kws

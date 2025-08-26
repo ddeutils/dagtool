@@ -56,13 +56,11 @@ class DebugTask(OperatorTask):
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-        **kwargs,
     ) -> Operator:
         """Build Airflow Debug Operator object."""
         return DebugOperator(
-            task_id=self.task,
             task_group=task_group,
             dag=dag,
             debug=self.params,
-            **kwargs,
+            **self.task_kwargs(),
         )

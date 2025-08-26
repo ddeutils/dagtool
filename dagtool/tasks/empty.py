@@ -17,13 +17,11 @@ class EmptyTask(OperatorTask):
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-        **kwargs,
     ) -> Operator:
         """Build Airflow Empty Operator object."""
         return EmptyOperator(
-            task_id=self.task,
             doc=self.desc,
             task_group=task_group,
             dag=dag,
-            **kwargs,
+            **self.task_kwargs(),
         )

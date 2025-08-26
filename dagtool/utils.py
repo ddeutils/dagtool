@@ -17,7 +17,11 @@ class TaskMapped(TypedDict):
 
 
 def set_upstream(tasks: dict[str, TaskMapped]) -> None:
-    """Set Upstream Task for each tasks in mapping."""
+    """Set Upstream Task for each tasks in mapping.
+
+    Args:
+        tasks: A mapping of task_id and TaskMapped dict object.
+    """
     for task in tasks:
         task_mapped: TaskMapped = tasks[task]
         if upstream := task_mapped["upstream"]:

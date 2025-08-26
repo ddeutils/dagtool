@@ -11,7 +11,7 @@ from pydantic import ValidationError
 
 from .conf import YamlConf
 from .models import DagModel, pull_vars
-from .tasks import Context
+from .tasks import BaseTask, Context
 
 
 class DagTool:
@@ -41,6 +41,7 @@ class DagTool:
         "end_date",
         "catchup",
         "max_active_runs",
+        "vars",
     )
 
     def __init__(
@@ -49,15 +50,15 @@ class DagTool:
         path: str | Path,
         *,
         docs: str | None = None,
-        # NOTE: Airflow params.
+        operators: dict[str, type[BaseTask]] | None = None,
+        python_callers: dict[str, Any] | None = None,
+        # NOTE: Extended Airflow params.
+        # ---
         template_searchpath: list[str | Path] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Any] | None = None,
         on_success_callback: list[Any] | Any | None = None,
         on_failure_callback: list[Any] | Any | None = None,
-        # NOTE: DagTool params.
-        operators: dict[str, Any] | None = None,
-        python_callers: dict[str, Any] | None = None,
     ) -> None:
         """Main construct method.
 
@@ -67,6 +68,14 @@ class DagTool:
                 value or Path object.
             docs (dict[str, Any]): A docs string for this DagTool will use to
                 be the header of full docs.
+            operators (dict[str, type[BaseTask]]): A mapping of name and sub-model
+                of BaseTask model.
+            python_callers:
+            template_searchpath:
+            user_defined_filters:
+            user_defined_macros:
+            on_success_callback:
+            on_failure_callback:
         """
         self.name: str = name
         self.path: Path = p.parent if (p := Path(path)).is_file() else p
@@ -74,7 +83,7 @@ class DagTool:
         self.conf: dict[str, DagModel] = {}
         self.yaml_loader = YamlConf(path=self.path)
 
-        # NOTE: Airflow params.
+        # NOTE: Set Extended Airflow params.
         self.template_searchpath = template_searchpath or []
         self.user_defined_filters = user_defined_filters or {}
         self.user_defined_macros = user_defined_macros or {}
@@ -85,7 +94,7 @@ class DagTool:
         self.operators: dict[str, Any] = operators or {}
         self.python_callers: dict[str, Any] = python_callers or {}
 
-        # NOTE: Start fetch config data.
+        # NOTE: Fetching config data from template path.
         self.refresh_conf()
 
     def refresh_conf(self) -> None:
@@ -131,12 +140,14 @@ class DagTool:
             if key in ("tasks", "raw_data") or key not in self.template_fields:
                 continue
 
-            value: Any = data[key]
-            data[key] = self._render(value, env=env)
+            data[key] = self._render(data[key], env=env)
         return data
 
     def _render(self, value: Any, env: Environment) -> Any:
-        """Render Jinja template to value.
+        """Render Jinja template to any value with the current Jinja environment.
+
+            This private method will check the type of value before make Jinja
+        template and render it before returning.
 
         Args:
             value (Any): An any value.
@@ -197,7 +208,7 @@ class DagTool:
                 prefix=self.name,
                 docs=self.docs,
                 default_args=default_args,
-                user_defined_macros=self.user_defined_macros,
+                user_defined_macros=self.user_defined_macros | model.vars,
                 user_defined_filters=self.user_defined_filters,
                 on_success_callback=self.on_success_callback,
                 on_failure_callback=self.on_failure_callback,

@@ -10,6 +10,8 @@ tags:
   - "group:demo"
   - "tool:true"
   - "domain:demo"
+vars:
+  gcs_path: "gcs://{{ vars('project_id') }}/{{ vars('bucket_name') }}/data"
 tasks:
   - task: start
     op: debug
@@ -35,6 +37,12 @@ tasks:
       env_02: "{{ env('AIRFLOW_HOME') }}"
       env_not_exists_01: "{{ env('FOO') }}"
       env_not_exists_02: "{{ env('FOO', 'default') }}"
+
+  - task: combine_macros
+    upstream: macros
+    op: debug
+    params:
+      variable_combine: "{{ gcs_path }}"
 
   - task: filter
     upstream: macros

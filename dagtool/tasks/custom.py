@@ -26,10 +26,9 @@ class CustomTask(OperatorTask):
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-        **kwargs,
     ) -> Operator | TaskGroup:
         """Build with Custom builder function."""
-        ctx: dict[str, Any] = context or {}
+        ctx: Context = context or {}
         custom_operators: dict[str, type[BaseTask]] = ctx["operators"]
         if self.uses not in custom_operators:
             raise ValueError(
@@ -41,5 +40,4 @@ class CustomTask(OperatorTask):
             dag=dag,
             task_group=task_group,
             context=context | self.params,
-            **kwargs,
         )

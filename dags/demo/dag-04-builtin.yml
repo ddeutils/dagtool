@@ -2,6 +2,9 @@ name: 04_builtin
 type: dag
 desc: |
   ## Builtin DAG
+
+  This is the demo dag for using builtin task to DAG object.
+start_date: "2025-01-01"
 owner: "de-oncall@email.com"
 tags:
   - "group:demo"
@@ -27,24 +30,27 @@ tasks:
 #          PROJECT_ID: "{{ vars('project_id') }}"
           PROJECT_ID: "Direct-project-id"
           BUCKET_ID: "Direct-bucket-id"
-          NEW_ENV: "{{ env('AIRFLOW_ENV') }}"
+          NEW_ENV: "{{ env('AIRFLOW_ENV') }}-prepare"
 
   - group: call_python_group
     upstream: start
     tasks:
       - task: call_python
         op: python
-        func: say_hi
+        caller: say_hi
         params:
           name: "World"
 
       - task: call_python_via_render
         op: python
-        func: say_hi
+        caller: say_hi
 
-  - task: call_custom
+  - group: call_custom_group
     upstream: start
-    op: custom
-    uses: demo_task
-    params:
-      name: "Jerry"
+    tasks:
+
+      - task: call_custom
+        op: custom
+        uses: demo_task
+        params:
+          name: "Jerry"

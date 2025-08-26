@@ -30,11 +30,9 @@ class BashTask(OperatorTask):
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-        **kwargs,
     ) -> Operator:
         """Build Airflow Bash Operator object."""
         return BashOperator(
-            task_id=self.task,
             bash_command=self.command,
             env=self.env,
             append_env=self.append_env,
@@ -43,4 +41,5 @@ class BashTask(OperatorTask):
             cwd=self.cwd,
             dag=dag,
             task_group=task_group,
+            **self.task_kwargs(),
         )

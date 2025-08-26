@@ -26,7 +26,6 @@ class CustomTask(BaseTask):
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-        **kwargs,
     ) -> TaskGroup:
         with TaskGroup(
             "custom_task_group", dag=dag, parent_group=task_group

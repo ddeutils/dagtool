@@ -4,6 +4,7 @@ docs: |
   ## Common DAG
 
   This is the demo dag for passing template data to DAG object.
+start_date: "2025-01-01"
 tags:
   - "group:demo"
   - "tool:true"

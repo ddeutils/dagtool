@@ -15,19 +15,20 @@ from yaml import safe_load
 from yaml.parser import ParserError
 
 from .conf import ASSET_DIR, YamlConf
-from .tasks import AnyTask
+from .tasks import AnyTask, Context
 from .utils import TaskMapped, change_tz, format_dt, set_upstream
 
 
 class DefaultArgs(BaseModel):
     """Default Args Model that will use with the `default_args` field."""
 
-    owner: str | None = Field(default="DagTool")
-    depends_on_past: bool = False
+    owner: str | None = Field(default=None)
+    depends_on_past: bool = Field(default=False)
     retries: int = Field(default=1, description="A retry count.")
     retry_delay: dict[str, int] | None = Field(default=None)
 
     def to_dict(self) -> dict[str, Any]:
+        """Making Python dict object without field that use default value."""
         return self.model_dump(exclude_defaults=True)
 
 
@@ -39,11 +40,13 @@ class DagModel(BaseModel):
 
     name: str = Field(description="A DAG name.")
     type: Literal["dag"] = Field(description="A type of template config.")
+    desc: str | None = Field(default=None, description="A DAG description.")
     docs: str | None = Field(
         default=None,
         description="A DAG document that allow to pass with markdown syntax.",
     )
     params: dict[str, str] = Field(default_factory=dict)
+    vars: dict[str, str] = Field(default_factory=dict)
     tasks: list[AnyTask] = Field(
         default_factory=list,
         description="A list of any task, origin task or group task",
@@ -143,7 +146,7 @@ class DagModel(BaseModel):
         template_searchpath: list[str] | None = None,
         on_success_callback: list[Any] | Any | None = None,
         on_failure_callback: list[Any] | Any | None = None,
-        context: dict[str, Any] | None = None,
+        context: Context | None = None,
     ) -> DAG:
         """Build Airflow DAG object from the current model field values that
         passing from template and render via Jinja with variables.
@@ -173,6 +176,7 @@ class DagModel(BaseModel):
         dag = DAG(
             dag_id=name,
             tags=self.tags,
+            description=self.desc,
             doc_md=self.build_docs(docs),
             schedule=self.schedule,
             start_date=self.start_date,
@@ -185,10 +189,11 @@ class DagModel(BaseModel):
                 if self.dagrun_timeout_sec
                 else None
             ),
-            default_args={
-                "owner": self.owner,
-                **(default_args or {}),
-            },
+            default_args=(
+                {"owner": self.owner}
+                | self.default_args.to_dict()
+                | DefaultArgs.model_validate(default_args or {}).to_dict()
+            ),
             template_searchpath=[str((self.parent_dir / ASSET_DIR).absolute())]
             + (template_searchpath or []),
             user_defined_macros={
@@ -276,7 +281,7 @@ def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
     Args:
         name (str): A name.
         path (Path): A template path that want to search variable file.
-        prefix (str): A prefix name that use to combine with name.
+        prefix (str, default None): A prefix name that use to combine with name.
 
     Returns:
         dict[str, Any]: A variable mapping
