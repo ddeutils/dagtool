@@ -4,7 +4,8 @@ from typing import Any, Literal, TypedDict
 
 from airflow.models import DAG, Operator
 from airflow.utils.task_group import TaskGroup
-from pydantic import BaseModel, Field, field_validator
+from airflow.utils.trigger_rule import TriggerRule
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Context(TypedDict):
@@ -37,7 +38,6 @@ class BaseAirflowTask(BaseTask, ABC):
     desc: str | None = Field(
         default=None, description="A Airflow task description"
     )
-    trigger_rule: str = Field(default="all_done")
     upstream: list[str] = Field(
         default_factory=list,
         validate_default=True,
@@ -72,9 +72,18 @@ class BaseAirflowTask(BaseTask, ABC):
 class OperatorTask(BaseAirflowTask, ABC):
     """Operator Task Model."""
 
+    model_config = ConfigDict(use_enum_values=True)
+
     task: str = Field(description="A task name.")
     type: Literal["task"] = Field(default="task")
     op: str = Field(description="An operator type of this task.")
+    trigger_rule: TriggerRule = Field(
+        default=TriggerRule.ALL_SUCCESS,
+        description=(
+            "Task trigger rule. Read more detail, "
+            "https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
+        ),
+    )
     inlets: list[dict[str, Any]] = Field(default_factory=list)
     outlets: list[dict[str, Any]] = Field(default_factory=list)
 
@@ -96,7 +105,10 @@ class OperatorTask(BaseAirflowTask, ABC):
 
     def task_kwargs(self) -> dict[str, Any]:
         """Prepare Airflow BaseOperator kwargs from OperatorTask model field."""
-        kws: dict[str, Any] = {"task_id": self.iden}
+        kws: dict[str, Any] = {
+            "task_id": self.iden,
+            "trigger_rule": self.trigger_rule,
+        }
         if self.desc:
             kws.update({"doc": self.desc})
         if self.inlets:

@@ -16,11 +16,6 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
-        "trigger_rule": {
-          "default": "all_done",
-          "title": "Trigger Rule",
-          "type": "string"
-        },
         "upstream": {
           "anyOf": [
             {
@@ -55,6 +50,11 @@
           "description": "An operator type for bash model.",
           "title": "Op",
           "type": "string"
+        },
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
         "inlets": {
           "items": {
@@ -158,11 +158,6 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
-        "trigger_rule": {
-          "default": "all_done",
-          "title": "Trigger Rule",
-          "type": "string"
-        },
         "upstream": {
           "anyOf": [
             {
@@ -196,6 +191,11 @@
           "const": "operator",
           "title": "Op",
           "type": "string"
+        },
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
         "inlets": {
           "items": {
@@ -249,11 +249,6 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
-        "trigger_rule": {
-          "default": "all_done",
-          "title": "Trigger Rule",
-          "type": "string"
-        },
         "upstream": {
           "anyOf": [
             {
@@ -287,6 +282,11 @@
           "const": "custom_task",
           "title": "Op",
           "type": "string"
+        },
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
         "inlets": {
           "items": {
@@ -340,11 +340,6 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
-        "trigger_rule": {
-          "default": "all_done",
-          "title": "Trigger Rule",
-          "type": "string"
-        },
         "upstream": {
           "anyOf": [
             {
@@ -378,6 +373,11 @@
           "const": "debug",
           "title": "Op",
           "type": "string"
+        },
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
         "inlets": {
           "items": {
@@ -470,11 +470,6 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
-        "trigger_rule": {
-          "default": "all_done",
-          "title": "Trigger Rule",
-          "type": "string"
-        },
         "upstream": {
           "anyOf": [
             {
@@ -508,6 +503,11 @@
           "const": "empty",
           "title": "Op",
           "type": "string"
+        },
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
         "inlets": {
           "items": {
@@ -548,11 +548,6 @@
           "default": null,
           "description": "A Airflow task description",
           "title": "Desc"
-        },
-        "trigger_rule": {
-          "default": "all_done",
-          "title": "Trigger Rule",
-          "type": "string"
         },
         "upstream": {
           "anyOf": [
@@ -597,7 +592,8 @@
                     "debug": "#/$defs/DebugTask",
                     "empty": "#/$defs/EmptyTask",
                     "operator": "#/$defs/CustomOperatorTask",
-                    "python": "#/$defs/PythonTask"
+                    "python": "#/$defs/PythonTask",
+                    "raise": "#/$defs/RaiseTask"
                   },
                   "propertyName": "op"
                 },
@@ -619,6 +615,9 @@
                   },
                   {
                     "$ref": "#/$defs/CustomOperatorTask"
+                  },
+                  {
+                    "$ref": "#/$defs/RaiseTask"
                   }
                 ]
               },
@@ -652,11 +651,6 @@
           "default": null,
           "description": "A Airflow task description",
           "title": "Desc"
-        },
-        "trigger_rule": {
-          "default": "all_done",
-          "title": "Trigger Rule",
-          "type": "string"
         },
         "upstream": {
           "anyOf": [
@@ -692,6 +686,11 @@
           "title": "Op",
           "type": "string"
         },
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
+        },
         "inlets": {
           "items": {
             "additionalProperties": true,
@@ -726,6 +725,122 @@
       ],
       "title": "PythonTask",
       "type": "object"
+    },
+    "RaiseTask": {
+      "properties": {
+        "desc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A Airflow task description",
+          "title": "Desc"
+        },
+        "upstream": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A list of upstream task name or only task name of this task.",
+          "title": "Upstream"
+        },
+        "task": {
+          "description": "A task name.",
+          "title": "Task",
+          "type": "string"
+        },
+        "type": {
+          "const": "task",
+          "default": "task",
+          "title": "Type",
+          "type": "string"
+        },
+        "op": {
+          "const": "raise",
+          "title": "Op",
+          "type": "string"
+        },
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
+        },
+        "inlets": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Inlets",
+          "type": "array"
+        },
+        "outlets": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Outlets",
+          "type": "array"
+        },
+        "message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message"
+        },
+        "skipped": {
+          "default": false,
+          "title": "Skipped",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "task",
+        "op"
+      ],
+      "title": "RaiseTask",
+      "type": "object"
+    },
+    "TriggerRule": {
+      "description": "Class with task's trigger rules.",
+      "enum": [
+        "all_success",
+        "all_failed",
+        "all_done",
+        "all_done_setup_success",
+        "one_success",
+        "one_failed",
+        "one_done",
+        "none_failed",
+        "none_failed_or_skipped",
+        "none_skipped",
+        "dummy",
+        "always",
+        "none_failed_min_one_success",
+        "all_skipped"
+      ],
+      "title": "TriggerRule",
+      "type": "string"
     }
   },
   "description": "Base Dag Model for validate template config data support DagTool object.\nThis model will include necessary field for Airflow DAG object and custom\nfield for DagTool object together.",
@@ -795,7 +910,8 @@
                 "debug": "#/$defs/DebugTask",
                 "empty": "#/$defs/EmptyTask",
                 "operator": "#/$defs/CustomOperatorTask",
-                "python": "#/$defs/PythonTask"
+                "python": "#/$defs/PythonTask",
+                "raise": "#/$defs/RaiseTask"
               },
               "propertyName": "op"
             },
@@ -817,6 +933,9 @@
               },
               {
                 "$ref": "#/$defs/CustomOperatorTask"
+              },
+              {
+                "$ref": "#/$defs/RaiseTask"
               }
             ]
           },

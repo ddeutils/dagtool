@@ -26,7 +26,12 @@ def set_upstream(tasks: dict[str, TaskMapped]) -> None:
         task_mapped: TaskMapped = tasks[task]
         if upstream := task_mapped["upstream"]:
             for t in upstream:
-                task_mapped["task"].set_upstream(tasks[t]["task"])
+                try:
+                    task_mapped["task"].set_upstream(tasks[t]["task"])
+                except KeyError as e:
+                    raise KeyError(
+                        f"Task ids, {e}, does not found from the template."
+                    ) from e
 
 
 def change_tz(dt: DateTime | None, tz: str = "UTC") -> DateTime | None:

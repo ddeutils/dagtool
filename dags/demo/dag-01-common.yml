@@ -26,6 +26,11 @@ tasks:
       environment: "{{ env('AIRFLOW_ENV') }}"
       variable: "{{ vars('test') }}"
 
-  - task: end
+  - task: force_raise
     upstream: debug
+    op: raise
+
+  - task: end
+    upstream: force_raise
+    trigger_rule: one_failed
     op: empty
