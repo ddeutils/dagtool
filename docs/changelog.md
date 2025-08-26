@@ -2,6 +2,22 @@
 
 ## Latest Changes
 
+## 0.0.3
+
+### :stars: Highlight Features
+
+- :star: add support operator from provider.
+
+### :sparkles: Features
+
+- :dart: add vars on template for combine vars option.
+- :dart: add demo for create custom task.
+
+### :black_nib: Code Changes
+
+- :art: add more example and format code.
+- :art: change code format.
+
 ## 0.0.2
 
 ### :stars: Highlight Features
