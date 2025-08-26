@@ -2,6 +2,21 @@
 
 ## Latest Changes
 
+## 0.0.5
+
+### :bug: Bug fixes
+
+- :gear: add more pattern on docker ignore file.
+
+### :black_nib: Code Changes
+
+- :lipstick: change airflow ui color.
+
+### :book: Documentations
+
+- :page_facing_up: fixed image url support push to pypi.
+- :page_facing_up: update readme file.
+
 ## 0.0.4
 
 ### :sparkles: Features
