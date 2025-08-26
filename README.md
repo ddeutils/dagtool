@@ -1,3 +1,5 @@
+from airflow.utils.task_group import TaskGroupfrom airflow import DAG
+
 # DAG Tool
 
 A **Friendly Airflow DAG Build Tool** for Data Engineer with YAML file template.
@@ -111,6 +113,8 @@ object to get the current path on `__init__.py` file.
 > `variable.yaml` file for dynamic value that marking on config template via macro
 > function, `{{ vars('keystore-on-dag-name') }}`.
 
+On the `dag-transaction.yml` file:
+
 ```yaml
 name: transaction
 schedule: "@daily"
@@ -129,21 +133,14 @@ tasks:
     tasks:
       - type: extract
         op: python
-        func: get_api_data
-        assets:
-          - name: schema-mapping.json
-            alias: schema
-            convertor: basic
+        caller: get_api_data
         params:
           path: gcs://{{ vars("PROJECT_ID") }}/sales/master/date/{ exec_date:%y }
 
       - task: transform
         upstream: extract
-        op: docker
-        uses: docker.rgt.co.th/image.transform:0.0.1
-        assets:
-          - name: transform-query.sql
-            alias: transform
+        op: operator
+        uses: gcs_transform_data
         params:
           path: gcs://{{ vars("PROJECT_ID") }}/landing/master/date/{ exec_date:%y }
 
@@ -159,6 +156,8 @@ tasks:
     op: empty
 ```
 
+On the `__inti__.py` file:
+
 ```python
 """# SALES DAG
 
@@ -167,17 +166,53 @@ via DuckDB engine.
 
 > This DAG is the temp DAG for ingest data to GCP.
 """
-from dagtool import DagTool
+from dagtool import DagTool, BaseTask, Context
 
-dag = DagTool(
+from airflow.models import DAG
+from airflow.utils.dates import days_ago
+from airflow.utils.task_group import TaskGroup
+from airflow.operators.empty import EmptyOperator
+
+# NOTE: Some external provider operator object.
+from airflow.providers.google.cloud.operators import GCSTransformData
+
+# NOTE: Some function that want to use with PythonOperator
+def get_api_data(path: str):
+    return {}
+
+# NOTE: Some custom task that create any Airflow Task instance object.
+class WriteIceberg(BaseTask):
+    path: str
+
+    def build(
+        self,
+        dag: DAG | None = None,
+        task_group: TaskGroup | None = None,
+        context: Context | None = None,
+    ) -> TaskGroup:
+        with TaskGroup(
+            group_id="write_iceberg",
+            parent_group=task_group,
+            dag=dag,
+        ) as tg:
+            t1 = EmptyOperator(task_id="prepare", dag=dag)
+            t2 = EmptyOperator(task_id="write", dag=dag)
+            t2.set_upstream(t1)
+        return tg
+
+
+tool = DagTool(
     name="sales",
     path=__file__,
     docs=__doc__,
-    operators={
-        "get_api_data": ...,
-    }
+    operators={"gcs_transform_data": GCSTransformData},
+    python_callers={"get_api_data": get_api_data},
+    tasks={"write_iceberg": WriteIceberg},
 )
-dag.build_airflow_dags_to_globals(gb=globals())
+tool.build_airflow_dags_to_globals(
+    gb=globals(),
+    default_args={"start_date": days_ago(2)},
+)
 ```
 
 **Output**:
