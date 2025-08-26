@@ -1,10 +1,10 @@
 {
   "common-conf": {
-    "destination-directory-path": "gs://stock-prod-lake-zxcvb/transforming",
+    "destination-directory-path": "gs://stock-prod-lake/transforming",
     "path-generator-name": "datetime_path",
     "saver-name": "iceberg",
     "saver-write-mode": "append",
-    "source-directory-path": "gs://stock-prod-lake-zxcvb/pre-landing/stock_loss/year={YEAR}/month={MONTH}/day={DAY}/hour={HOUR}/*.json",
+    "source-directory-path": "gs://stock-prod-lake/pre-landing/stock_loss/year={YEAR}/month={MONTH}/day={DAY}/hour={HOUR}/*.json",
     "source-reader-name": "json",
     "source-reader-options": {
       "multiline": "true"
@@ -29,7 +29,7 @@
     "table-name": "stock_loss"
   },
   "spark-conf": {
-    "spark.sql.catalog.local.warehouse": "gs://stock-prod-lake-zxcvb/transforming",
+    "spark.sql.catalog.local.warehouse": "gs://stock-prod-lake/transforming",
     "spark.sql.session.timeZone": "UTC"
   },
   "transformer-conf": {
@@ -43,7 +43,7 @@
       "createdBy",
       "branchCode"
     ],
-    "custom-sql-file": "gs://stock-prod-lake-zxcvb/configs/stock_loss/stock_loss_query.sql",
+    "custom-sql-file": "gs://stock-prod-lake/configs/stock_loss/stock_loss_query.sql",
     "schema-type-list": [
       {
         "_id": "StringType"

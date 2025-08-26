@@ -143,7 +143,7 @@
       "title": "BashTask",
       "type": "object"
     },
-    "CustomOperator": {
+    "CustomOperatorTask": {
       "properties": {
         "desc": {
           "anyOf": [
@@ -230,7 +230,7 @@
         "op",
         "from"
       ],
-      "title": "CustomOperator",
+      "title": "CustomOperatorTask",
       "type": "object"
     },
     "CustomTask": {
@@ -596,7 +596,7 @@
                     "custom_task": "#/$defs/CustomTask",
                     "debug": "#/$defs/DebugTask",
                     "empty": "#/$defs/EmptyTask",
-                    "operator": "#/$defs/CustomOperator",
+                    "operator": "#/$defs/CustomOperatorTask",
                     "python": "#/$defs/PythonTask"
                   },
                   "propertyName": "op"
@@ -618,7 +618,7 @@
                     "$ref": "#/$defs/CustomTask"
                   },
                   {
-                    "$ref": "#/$defs/CustomOperator"
+                    "$ref": "#/$defs/CustomOperatorTask"
                   }
                 ]
               },
@@ -794,7 +794,7 @@
                 "custom_task": "#/$defs/CustomTask",
                 "debug": "#/$defs/DebugTask",
                 "empty": "#/$defs/EmptyTask",
-                "operator": "#/$defs/CustomOperator",
+                "operator": "#/$defs/CustomOperatorTask",
                 "python": "#/$defs/PythonTask"
               },
               "propertyName": "op"
@@ -816,7 +816,7 @@
                 "$ref": "#/$defs/CustomTask"
               },
               {
-                "$ref": "#/$defs/CustomOperator"
+                "$ref": "#/$defs/CustomOperatorTask"
               }
             ]
           },

@@ -4,7 +4,7 @@ variables:
     desc: "A variable set for the 03_start DAG."
     stages:
       dev:
-        project_id: 'stock-data-dev-399709'
+        project_id: 'stock-data-dev'
         catchup: false
         schedule_interval: "1 * * * *"
         start_date: "2022-06-16 00:00:00 Asia/Bangkok"

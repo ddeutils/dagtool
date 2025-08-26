@@ -1,6 +1,6 @@
 {
   "common-conf": {
-    "base-directory-path": "gs://stock-prod-lake-zxcvb/transforming",
+    "base-directory-path": "gs://stock-prod-lake/transforming",
     "base-reader-name": "iceberg",
     "expectation-data-asset-name": "stock_loss",
     "expectation-datasource-name": "lake-transforming",
@@ -105,6 +105,6 @@
     "table-name": "stock_loss"
   },
   "spark-conf": {
-    "spark.sql.catalog.local.warehouse": "gs://stock-prod-lake-zxcvb/transforming"
+    "spark.sql.catalog.local.warehouse": "gs://stock-prod-lake/transforming"
   }
 }

@@ -4,8 +4,8 @@ variables:
     desc: "A variable set for unittest."
     stages:
       dev:
-        project_id: 'stock-data-dev-399709'
-        bucket_name: 'stock-dev-lake-zxcvb'
+        project_id: 'stock-data-dev'
+        bucket_name: 'stock-dev-lake'
         catchup: false
         schedule_interval: "1 * * * *"
         start_date: "2022-06-16 00:00:00 Asia/Bangkok"
@@ -16,7 +16,7 @@ variables:
         dp_pyspark_version: "v4.20.0-dev"
       prod:
         project_id: "stock-data-prod"
-        bucket_name: "stock-prod-lake-zxcvb"
+        bucket_name: "stock-prod-lake"
         catchup: true
         schedule_interval: "1 * * * *"
         start_date: "2025-01-16 00:00:00 Asia/Bangkok"

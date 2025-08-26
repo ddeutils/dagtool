@@ -37,7 +37,7 @@ tasks:
     op: operator
     uses: gcs_copy_files_time_range_operator
     params:
-      source_bucket: "cjnext-pos-admin"
+      source_bucket: "pos-admin"
       source_prefix: "stock-loss/"
       destination_bucket: "{{ vars('bucket_name') }}"
       destination_prefix: "pre-landing/stock_loss/{{ data_interval_start | tz('Asia/Bangkok') | fmt('year=%Y/month=%m/day=%d/hour=%H') }}"
@@ -49,7 +49,7 @@ tasks:
       match_glob: "*/*/{{ data_interval_start | tz('Asia/Bangkok') | fmt('%Y/%m/%d') }}/*?"
     inlets:
       - platform: gcs
-        name: "cjnext-pos-admin/stock-loss/"
+        name: "pos-admin/stock-loss/"
     outlets:
       - platform: gcs
         name: "{{ vars('bucket_name') }}/pre-landing"
@@ -100,7 +100,7 @@ tasks:
         op: operator
         uses: gcs_to_gcs
         params:
-          source_bucket: "cjnext-pos-admin"
+          source_bucket: "pos-admin"
           source_objects: "{{ task_instance.xcom_pull(task_ids='get_backfill_full_path') | unnested_list }}"
           destination_bucket: "{{ vars('bucket_name') }}"
           destination_object: "pre-landing/stock_loss/{{ data_interval_start | tz('Asia/Bangkok') | fmt('year=%Y/month=%m/day=%d/hour=%H') }}"
