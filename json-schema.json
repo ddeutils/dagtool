@@ -578,6 +578,12 @@
           "title": "Type",
           "type": "string"
         },
+        "tooltip": {
+          "default": "",
+          "description": "A task group tooltip that will display on the UI.",
+          "title": "Tooltip",
+          "type": "string"
+        },
         "tasks": {
           "description": "A list of Any Task model.",
           "items": {

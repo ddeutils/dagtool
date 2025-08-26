@@ -18,7 +18,7 @@ A **Friendly Airflow DAG Build Tool** for Data Engineer with YAML file template.
 
 **Feature Supported**:
 
-- ✅ JSON Schema Validation
+- ✅ JSON Schema Validation (Set IDE with `json-schema.json`)
 - 🔐 Passing environment variable
 - 💚 Allow Passing Airflow Template
 

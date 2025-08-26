@@ -11,7 +11,7 @@ docs: |
 
   - start_date: "2025-02-01 00:30:00"
   - catchup: false
-start_date: "{{ vars('start_date') }}"
+start_date: "{{ vars('start_date', '2025-01-01 00:00:00') }}"
 tags:
   - "group:demo"
   - "tool:true"
@@ -33,7 +33,7 @@ tasks:
           - task: deep
             op: empty
 
-          - group: nested_group
+          - group: nested_nested_group
             upstream: deep
             tasks:
               - task: deep_deep

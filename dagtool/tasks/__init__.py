@@ -35,6 +35,10 @@ class GroupTask(BaseAirflowTask):
 
     group: str = Field(description="A task group name.")
     type: Literal["group"] = Field(default="group")
+    tooltip: str = Field(
+        default="",
+        description="A task group tooltip that will display on the UI.",
+    )
     tasks: list["AnyTask"] = Field(
         default_factory=list,
         description="A list of Any Task model.",
@@ -49,8 +53,11 @@ class GroupTask(BaseAirflowTask):
         """Build Airflow Task Group object."""
         task_group = TaskGroup(
             group_id=self.group,
+            prefix_group_id=False,
+            tooltip=self.tooltip,
             parent_group=task_group,
             dag=dag,
+            add_suffix_on_collision=False,
         )
         tasks: dict[str, TaskMapped] = {}
         for task in self.tasks:

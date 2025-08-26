@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from datetime import datetime
 from typing import TypedDict
 
@@ -35,6 +36,7 @@ def set_upstream(tasks: dict[str, TaskMapped]) -> None:
 
 
 def change_tz(dt: DateTime | None, tz: str = "UTC") -> DateTime | None:
+    """Change timezone to pendulum.DateTime object."""
     if dt is None:
         return None
     return dt.in_timezone(tz)
@@ -43,9 +45,16 @@ def change_tz(dt: DateTime | None, tz: str = "UTC") -> DateTime | None:
 def format_dt(
     dt: datetime | DateTime | None, fmt: str = "%Y-%m-%d %H:00:00%z"
 ) -> str | None:
+    """Format string value on pendulum.DateTime or datetime object"""
     if dt is None:
         return None
     return dt.strftime(fmt)
+
+
+FILTERS: dict[str, Callable] = {
+    "tz": change_tz,
+    "fmt": format_dt,
+}
 
 
 def hash_sha256(data: str | bytes) -> str:

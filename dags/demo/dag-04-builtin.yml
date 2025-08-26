@@ -35,6 +35,7 @@ tasks:
 
   - group: call_python_group
     upstream: start
+    tooltip: "This is Python group"
     tasks:
       - task: call_python
         op: python
@@ -52,7 +53,7 @@ tasks:
         params:
           # NOTE: Pull Xcom does not support when use task ids `call_python`
           #   without group ids prefix.
-          result: "{{ task_instance.xcom_pull(task_ids='call_python_group.call_python') }}"
+          result: "{{ task_instance.xcom_pull(task_ids='call_python') }}"
 
   - group: call_custom_group
     upstream: start

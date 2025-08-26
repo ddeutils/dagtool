@@ -84,8 +84,18 @@ class OperatorTask(BaseAirflowTask, ABC):
             "https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         ),
     )
-    inlets: list[dict[str, Any]] = Field(default_factory=list)
-    outlets: list[dict[str, Any]] = Field(default_factory=list)
+    owner: str | None = Field(default=None)
+    email: str | list[str] | None = None
+    email_on_failure: bool = False
+    email_on_retry: bool = False
+    depends_on_past: bool = False
+    pool: str | None = None
+    retries: int | None = Field(default=None, description="A retry count.")
+    retry_delay: dict[str, int] | None = Field(default=None)
+    retry_exponential_backoff: bool = False
+    executor_config: dict[str, Any] | None = Field(default=None)
+    inlets: list[dict[str, Any] | str] = Field(default_factory=list)
+    outlets: list[dict[str, Any] | str] = Field(default_factory=list)
 
     @abstractmethod
     def build(
@@ -108,6 +118,7 @@ class OperatorTask(BaseAirflowTask, ABC):
         kws: dict[str, Any] = {
             "task_id": self.iden,
             "trigger_rule": self.trigger_rule,
+            "retry_exponential_backoff": self.retry_exponential_backoff,
         }
         if self.desc:
             kws.update({"doc": self.desc})
@@ -115,4 +126,12 @@ class OperatorTask(BaseAirflowTask, ABC):
             kws.update({"inlets": self.inlets})
         if self.outlets:
             kws.update({"outlets": self.outlets})
+        if self.executor_config:
+            kws.update({"executor_config": self.executor_config})
+        if self.retries:
+            kws.update({"retries": self.retries})
+        if self.retry_delay:
+            kws.update({"retry_delay": self.retry_delay})
+        if self.owner:
+            kws.update({"owner": self.owner})
         return kws

@@ -1,4 +1,5 @@
 import os
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import partial
 from pathlib import Path
@@ -16,7 +17,7 @@ from yaml.parser import ParserError
 
 from .conf import ASSET_DIR, YamlConf
 from .tasks import AnyTask, Context
-from .utils import TaskMapped, change_tz, format_dt, set_upstream
+from .utils import FILTERS, TaskMapped, set_upstream
 
 
 class DefaultArgs(BaseModel):
@@ -26,6 +27,8 @@ class DefaultArgs(BaseModel):
     depends_on_past: bool = Field(default=False)
     retries: int = Field(default=1, description="A retry count.")
     retry_delay: dict[str, int] | None = Field(default=None)
+    retry_exponential_backoff: bool = False
+    sla: Any | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Making Python dict object without field that use default value."""
@@ -97,6 +100,7 @@ class DagModel(BaseModel):
         default=None,
         description="A DagRun timeout in second value.",
     )
+    owner_links: dict[str, str] | None = None
     default_args: DefaultArgs = Field(default_factory=DefaultArgs)
 
     @field_validator(
@@ -106,7 +110,9 @@ class DagModel(BaseModel):
         json_schema_input_type=str | datetime | None,
     )
     def __prepare_datetime(cls, data: Any) -> Any:
-        """Prepare datetime if it passes with string value."""
+        """Prepare datetime if it passes with datetime string to
+        pendulum.Datetime object.
+        """
         if data and isinstance(data, str):
             return parse(data).in_tz(timezone("Asia/Bangkok"))
         return data
@@ -173,6 +179,11 @@ class DagModel(BaseModel):
         variables: dict[str, Any] = pull_vars(
             name=self.name, path=self.parent_dir, prefix=prefix
         )
+        macros: dict[str, Callable | str] = {
+            "env": os.getenv,
+            "vars": variables.get,
+            "dag_id_prefix": prefix,
+        }
         dag = DAG(
             dag_id=name,
             tags=self.tags,
@@ -196,21 +207,14 @@ class DagModel(BaseModel):
             ),
             template_searchpath=[str((self.parent_dir / ASSET_DIR).absolute())]
             + (template_searchpath or []),
-            user_defined_macros={
-                "env": os.getenv,
-                "vars": variables.get,
-            }
-            | (user_defined_macros or {}),
-            user_defined_filters={
-                "tz": change_tz,
-                "fmt": format_dt,
-            }
-            | (user_defined_filters or {}),
+            user_defined_macros=macros | (user_defined_macros or {}),
+            user_defined_filters=FILTERS | (user_defined_filters or {}),
             default_view="graph",
             render_template_as_native_obj=True,
             is_paused_upon_creation=self.is_paused_upon_creation,
             on_success_callback=on_success_callback,
             on_failure_callback=on_failure_callback,
+            owner_links=self.owner_links,
         )
 
         # NOTE: Build Tasks.

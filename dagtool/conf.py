@@ -99,8 +99,9 @@ class YamlConf:
         return conf
 
     def read_assets(self, filename: str) -> str:
+        """Read the asset file from the template config path."""
         search_files: list[Path] = list(
-            self.path.rglob(f"{ASSET_DIR}{filename}")
+            self.path.rglob(f"{ASSET_DIR}/{filename}")
         )
         if not search_files:
             raise FileNotFoundError(f"Asset file: {filename} does not found.")

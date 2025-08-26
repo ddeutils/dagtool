@@ -52,12 +52,12 @@ class DagTool:
         docs: str | None = None,
         operators: dict[str, type[Operator]] | None = None,
         tasks: dict[str, type[BaseTask]] | None = None,
-        python_callers: dict[str, Any] | None = None,
+        python_callers: dict[str, Callable] | None = None,
         # NOTE: Extended Airflow params.
         # ---
         template_searchpath: list[str | Path] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
-        user_defined_macros: dict[str, Any] | None = None,
+        user_defined_macros: dict[str, Callable | str] | None = None,
         on_success_callback: list[Any] | Any | None = None,
         on_failure_callback: list[Any] | Any | None = None,
     ) -> None:
@@ -71,10 +71,14 @@ class DagTool:
                 be the header of full docs.
             operators (dict[str, type[BaseTask]]): A mapping of name and sub-model
                 of BaseTask model.
-            python_callers:
-            template_searchpath:
-            user_defined_filters:
-            user_defined_macros:
+            python_callers (dict[str, Callable]): A mapping of name and function
+                that want to use with Airflow PythonOperator.
+            template_searchpath (list[str | Path]): A list of Jinja template
+                search path.
+            user_defined_filters (dict[str, Callable]): An user defined Jinja
+                template filters that will add to Jinja environment.
+            user_defined_macros (dict[str, Callable | str]): An user defined
+                Jinja template macros that will add to Jinja environment.
             on_success_callback:
             on_failure_callback:
         """
@@ -85,7 +89,10 @@ class DagTool:
         self.yaml_loader = YamlConf(path=self.path)
 
         # NOTE: Set Extended Airflow params.
-        self.template_searchpath = template_searchpath or []
+        self.template_searchpath: list[str] = [
+            str(p.absolute()) if isinstance(p, Path) else p
+            for p in (template_searchpath or [])
+        ]
         self.user_defined_filters = user_defined_filters or {}
         self.user_defined_macros = user_defined_macros or {}
         self.on_success_callback = on_success_callback
@@ -134,6 +141,10 @@ class DagTool:
     def render_template(self, data: Any, env: Environment) -> Any:
         """Render template to the value of key that exists in the
         `template_fields` class variable.
+
+        Args:
+            data (Any): Any data that want to render Jinja template.
+            env (Environment): A Jinja environment.
         """
         for key in data:
             if key == "default_args":
@@ -176,10 +187,11 @@ class DagTool:
     def get_template_env(
         self,
         *,
-        user_defined_macros: dict[str, Any] | None = None,
-        user_defined_filters: dict[str, Any] | None = None,
+        user_defined_filters: dict[str, Callable] | None = None,
+        user_defined_macros: dict[str, Callable | str] | None = None,
     ) -> Environment:
-        """Return Jinja Template Native Environment object.
+        """Return Jinja Template Native Environment object for render template
+        to the DagModel parameters before create Airflow DAG.
 
         Args:
             user_defined_filters:
@@ -200,6 +212,10 @@ class DagTool:
 
     def build(self, default_args: dict[str, Any] | None = None) -> list[DAG]:
         """Build Airflow DAGs from template files.
+
+        Args:
+            default_args (dict[str, Any]): A mapping of default arguments that
+                want to override on the template config data.
 
         Returns:
             list[DAG]: A list of Airflow DAG object.
