@@ -1,6 +1,8 @@
-from airflow.utils.task_group import TaskGroupfrom airflow import DAG
-
 # DAG Tool
+
+[![pypi version](https://img.shields.io/pypi/v/dagtool)](https://pypi.org/project/dagtool/)
+[![python support version](https://img.shields.io/pypi/pyversions/dagtool)](https://pypi.org/project/dagtool/)
+[![size](https://img.shields.io/github/languages/code-size/ddeutils/dagtool)](https://github.com/ddeutils/dagtool)
 
 A **Friendly Airflow DAG Build Tool** for Data Engineer with YAML file template.
 
