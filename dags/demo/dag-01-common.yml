@@ -4,6 +4,10 @@ docs: |
   ## Common DAG
 
   This is the demo dag for passing template data to DAG object.
+
+  ```python
+  from dagtool import DagTool
+  ```
 start_date: "2025-01-01"
 tags:
   - "group:demo"

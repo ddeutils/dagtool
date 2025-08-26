@@ -39,7 +39,6 @@ class PythonTask(OperatorTask):
                 f"{self.caller}, first."
             )
         return PythonOperator(
-            doc=self.desc,
             task_group=task_group,
             dag=dag,
             python_callable=python_callers[self.caller],

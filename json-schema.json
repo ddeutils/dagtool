@@ -16,6 +16,11 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
+        "trigger_rule": {
+          "default": "all_done",
+          "title": "Trigger Rule",
+          "type": "string"
+        },
         "upstream": {
           "anyOf": [
             {
@@ -53,14 +58,16 @@
         },
         "inlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Outlets",
           "type": "array"
@@ -152,6 +159,11 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
+        "trigger_rule": {
+          "default": "all_done",
+          "title": "Trigger Rule",
+          "type": "string"
+        },
         "upstream": {
           "anyOf": [
             {
@@ -182,20 +194,22 @@
           "type": "string"
         },
         "op": {
-          "const": "custom",
+          "const": "custom_task",
           "title": "Op",
           "type": "string"
         },
         "inlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Outlets",
           "type": "array"
@@ -236,6 +250,11 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
+        "trigger_rule": {
+          "default": "all_done",
+          "title": "Trigger Rule",
+          "type": "string"
+        },
         "upstream": {
           "anyOf": [
             {
@@ -272,14 +291,16 @@
         },
         "inlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Outlets",
           "type": "array"
@@ -359,6 +380,11 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
+        "trigger_rule": {
+          "default": "all_done",
+          "title": "Trigger Rule",
+          "type": "string"
+        },
         "upstream": {
           "anyOf": [
             {
@@ -395,14 +421,16 @@
         },
         "inlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Outlets",
           "type": "array"
@@ -430,6 +458,11 @@
           "default": null,
           "description": "A Airflow task description",
           "title": "Desc"
+        },
+        "trigger_rule": {
+          "default": "all_done",
+          "title": "Trigger Rule",
+          "type": "string"
         },
         "upstream": {
           "anyOf": [
@@ -470,7 +503,7 @@
                 "discriminator": {
                   "mapping": {
                     "bash": "#/$defs/BashTask",
-                    "custom": "#/$defs/CustomTask",
+                    "custom_task": "#/$defs/CustomTask",
                     "debug": "#/$defs/DebugTask",
                     "empty": "#/$defs/EmptyTask",
                     "python": "#/$defs/PythonTask"
@@ -526,6 +559,11 @@
           "description": "A Airflow task description",
           "title": "Desc"
         },
+        "trigger_rule": {
+          "default": "all_done",
+          "title": "Trigger Rule",
+          "type": "string"
+        },
         "upstream": {
           "anyOf": [
             {
@@ -562,14 +600,16 @@
         },
         "inlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "type": "string"
+            "additionalProperties": true,
+            "type": "object"
           },
           "title": "Outlets",
           "type": "array"
@@ -657,7 +697,7 @@
             "discriminator": {
               "mapping": {
                 "bash": "#/$defs/BashTask",
-                "custom": "#/$defs/CustomTask",
+                "custom_task": "#/$defs/CustomTask",
                 "debug": "#/$defs/DebugTask",
                 "empty": "#/$defs/EmptyTask",
                 "python": "#/$defs/PythonTask"

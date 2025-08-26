@@ -20,7 +20,6 @@ class EmptyTask(OperatorTask):
     ) -> Operator:
         """Build Airflow Empty Operator object."""
         return EmptyOperator(
-            doc=self.desc,
             task_group=task_group,
             dag=dag,
             **self.task_kwargs(),

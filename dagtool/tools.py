@@ -4,7 +4,7 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
-from airflow.models.dag import DAG
+from airflow.models.dag import DAG, Operator
 from airflow.templates import NativeEnvironment
 from jinja2 import Environment, Template
 from pydantic import ValidationError
@@ -50,7 +50,8 @@ class DagTool:
         path: str | Path,
         *,
         docs: str | None = None,
-        operators: dict[str, type[BaseTask]] | None = None,
+        operators: dict[str, type[Operator]] | None = None,
+        tasks: dict[str, type[BaseTask]] | None = None,
         python_callers: dict[str, Any] | None = None,
         # NOTE: Extended Airflow params.
         # ---
@@ -91,7 +92,8 @@ class DagTool:
         self.on_failure_callback = on_failure_callback
 
         # NOTE: Define tasks that able map to template.
-        self.operators: dict[str, Any] = operators or {}
+        self.operators: dict[str, type[Operator]] = operators or {}
+        self.tasks: dict[str, type[BaseTask]] = tasks or {}
         self.python_callers: dict[str, Any] = python_callers or {}
 
         # NOTE: Fetching config data from template path.
@@ -124,6 +126,7 @@ class DagTool:
     def set_context(self) -> Context:
         """Set context data that bypass to the build method."""
         return {
+            "tasks": self.tasks,
             "operators": self.operators,
             "python_callers": self.python_callers,
         }

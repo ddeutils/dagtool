@@ -29,12 +29,8 @@ tool = DagTool(
         "bigquery_get_data_operator": BigQueryGetDataOperator,
         "gcs_to_gcs": GCSToGCSOperator,
     },
-    # user_defined_macros={
-    #     "var": ...,  # NOTE: Get Airflow variable.
-    #     "env": ...,  # NOTE: Get Environment variable.
-    # },
+    user_defined_filters={"unnested_list": ...},
 )
-logger.info(f"Start Generate: {tool.name}")
 tool.build_airflow_dags_to_globals(
     gb=globals(),
     default_args={},

@@ -50,7 +50,7 @@ tasks:
     tasks:
 
       - task: call_custom
-        op: custom
+        op: custom_task
         uses: demo_task
         params:
           name: "Jerry"

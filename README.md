@@ -25,6 +25,10 @@ So, this project focus for this plain to make sure that all DAG can readable and
 maintain with the same standard when we want to scale up and out the Airflow application
 support 10 to 1000 DAGs.
 
+<p align="center">
+  <img src="./docs/img/overview.png" width="500" height="260">
+</p>
+
 **File Structure**:
 
 ```text
@@ -179,13 +183,6 @@ dag.build_airflow_dags_to_globals(gb=globals())
 **Output**:
 
 The DAG that was built from this package will have the name is, `sales_transaction`.
-
-### Variable Sync
-
-I will give the way to sync it:
-
-1. Sync to Airflow Variable
-2. Sync to Storage Object like GCS, ADLS, S3, etc.
 
 ## 💬 Contribute
 

@@ -8,7 +8,8 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class Context(TypedDict):
-    operators: dict[str, type["BaseTask"]]
+    tasks: dict[str, type["BaseTask"]]
+    operators: dict[str, type[Operator]]
     python_callers: dict[str, Callable]
 
 
@@ -36,6 +37,7 @@ class BaseAirflowTask(BaseTask, ABC):
     desc: str | None = Field(
         default=None, description="A Airflow task description"
     )
+    trigger_rule: str = Field(default="all_done")
     upstream: list[str] = Field(
         default_factory=list,
         validate_default=True,
@@ -73,8 +75,8 @@ class OperatorTask(BaseAirflowTask, ABC):
     task: str = Field(description="A task name.")
     type: Literal["task"] = Field(default="task")
     op: str = Field(description="An operator type of this task.")
-    inlets: list[str] = Field(default=list)
-    outlets: list[str] = Field(default=list)
+    inlets: list[dict[str, Any]] = Field(default_factory=list)
+    outlets: list[dict[str, Any]] = Field(default_factory=list)
 
     @abstractmethod
     def build(
@@ -95,6 +97,8 @@ class OperatorTask(BaseAirflowTask, ABC):
     def task_kwargs(self) -> dict[str, Any]:
         """Prepare Airflow BaseOperator kwargs from OperatorTask model field."""
         kws: dict[str, Any] = {"task_id": self.iden}
+        if self.desc:
+            kws.update({"doc": self.desc})
         if self.inlets:
             kws.update({"inlets": self.inlets})
         if self.outlets:
