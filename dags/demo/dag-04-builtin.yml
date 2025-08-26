@@ -1,6 +1,7 @@
 name: 04_builtin
 type: dag
-desc: |
+desc: Builtin DAG that use for call builtin operator.
+docs: |
   ## Builtin DAG
 
   This is the demo dag for using builtin task to DAG object.
@@ -45,6 +46,14 @@ tasks:
         op: python
         caller: say_hi
 
+      - task: check_result
+        upstream: call_python
+        op: debug
+        params:
+          # NOTE: Pull Xcom does not support when use task ids `call_python`
+          #   without group ids prefix.
+          result: "{{ task_instance.xcom_pull(task_ids='call_python_group.call_python') }}"
+
   - group: call_custom_group
     upstream: start
     tasks:
@@ -54,3 +63,11 @@ tasks:
         uses: demo_task
         params:
           name: "Jerry"
+
+      - task: call_operator
+        op: operator
+        from: import_debug
+        params:
+          debug:
+            foo: bar
+            test: "{{ env('AIRFLOW_ENV') }}"

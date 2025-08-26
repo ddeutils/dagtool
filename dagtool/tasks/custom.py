@@ -3,7 +3,6 @@ from typing import Any, Literal
 from airflow import DAG
 from airflow.models import Operator
 from airflow.utils.task_group import TaskGroup
-from httplib2.auth import params
 from pydantic import Field
 
 from .__abc import BaseTask, Context, OperatorTask
@@ -44,7 +43,7 @@ class CustomTask(OperatorTask):
         )
 
 
-class CustomOperator(OperatorTask):
+class CustomOperatorTask(OperatorTask):
     op: Literal["operator"]
     operator_name: str = Field(
         alias="from",
@@ -73,6 +72,6 @@ class CustomOperator(OperatorTask):
         return op(
             dag=dag,
             task_group=task_group,
-            **params,
+            **self.params,
             **self.task_kwargs(),
         )

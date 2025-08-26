@@ -27,24 +27,30 @@ tasks:
 
   - task: check_blob_exist
     upstream: copy_latest_blob
-    op: airflow.providers.google.cloud.sensors.gcs.GCSObjectsWithPrefixExistenceSensor
-    bucket: "{{ var('bucket_name') }}"
-    prefix: some-prefix
-    deferrable: true
+    op: operator
+    from: gcs_object_with_prefix_existence_sensor
+    params:
+      bucket: "{{ var('bucket_name') }}"
+      prefix: some-prefix
+      deferrable: true
 
   - task: concat_file_into_landing
     upstream: check_blob_exist
+    op: empty
 
   - group: spark_trans_and_validate_group
     upstream: concat_file_into_landing
     tasks:
       - task: transform
+        op: empty
 
       - task: validate
         upstream: transform
+        op: empty
 
       - task: sync_biglake
         upstream: validate
+        op: empty
 
   - task: end
     upstream: spark_trans_and_validate_group

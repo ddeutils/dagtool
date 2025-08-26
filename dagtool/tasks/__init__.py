@@ -8,7 +8,7 @@ from dagtool.utils import TaskMapped, set_upstream
 
 from .__abc import BaseAirflowTask, BaseTask, Context, OperatorTask
 from .bash import BashTask
-from .custom import CustomTask
+from .custom import CustomOperatorTask, CustomTask
 from .debug import DebugTask
 from .empty import EmptyTask
 from .python import PythonTask
@@ -20,6 +20,7 @@ Task = Annotated[
         BashTask,
         PythonTask,
         CustomTask,
+        CustomOperatorTask,
     ],
     Field(
         discriminator="op",

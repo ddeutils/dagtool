@@ -26,7 +26,7 @@ maintain with the same standard when we want to scale up and out the Airflow app
 support 10 to 1000 DAGs.
 
 <p align="center">
-  <img src="./docs/img/overview.png" width="500" height="260">
+  <img src="./docs/img/overview.png" width="720" height="360">
 </p>
 
 **File Structure**:

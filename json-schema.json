@@ -143,6 +143,96 @@
       "title": "BashTask",
       "type": "object"
     },
+    "CustomOperator": {
+      "properties": {
+        "desc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A Airflow task description",
+          "title": "Desc"
+        },
+        "trigger_rule": {
+          "default": "all_done",
+          "title": "Trigger Rule",
+          "type": "string"
+        },
+        "upstream": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A list of upstream task name or only task name of this task.",
+          "title": "Upstream"
+        },
+        "task": {
+          "description": "A task name.",
+          "title": "Task",
+          "type": "string"
+        },
+        "type": {
+          "const": "task",
+          "default": "task",
+          "title": "Type",
+          "type": "string"
+        },
+        "op": {
+          "const": "operator",
+          "title": "Op",
+          "type": "string"
+        },
+        "inlets": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Inlets",
+          "type": "array"
+        },
+        "outlets": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Outlets",
+          "type": "array"
+        },
+        "from": {
+          "description": "An Airflow operator that import from external provider.",
+          "title": "From",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "A mapping of parameters that want to pass to Airflow Operator",
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "task",
+        "op",
+        "from"
+      ],
+      "title": "CustomOperator",
+      "type": "object"
+    },
     "CustomTask": {
       "description": "Custom Task model.",
       "properties": {
@@ -506,6 +596,7 @@
                     "custom_task": "#/$defs/CustomTask",
                     "debug": "#/$defs/DebugTask",
                     "empty": "#/$defs/EmptyTask",
+                    "operator": "#/$defs/CustomOperator",
                     "python": "#/$defs/PythonTask"
                   },
                   "propertyName": "op"
@@ -525,6 +616,9 @@
                   },
                   {
                     "$ref": "#/$defs/CustomTask"
+                  },
+                  {
+                    "$ref": "#/$defs/CustomOperator"
                   }
                 ]
               },
@@ -700,6 +794,7 @@
                 "custom_task": "#/$defs/CustomTask",
                 "debug": "#/$defs/DebugTask",
                 "empty": "#/$defs/EmptyTask",
+                "operator": "#/$defs/CustomOperator",
                 "python": "#/$defs/PythonTask"
               },
               "propertyName": "op"
@@ -719,6 +814,9 @@
               },
               {
                 "$ref": "#/$defs/CustomTask"
+              },
+              {
+                "$ref": "#/$defs/CustomOperator"
               }
             ]
           },
