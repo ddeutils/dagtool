@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from typing import Any, Literal
 
 from airflow import DAG
@@ -6,10 +7,19 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import OperatorTask
+from .__abc import Context, OperatorTask
+
+
+class DataReader:
+    template_fields: Sequence[str] = ("name",)
+
+    def __init__(self, data: str):
+        self.name = data
 
 
 class PythonTask(OperatorTask):
+    """Python Task model."""
+
     op: Literal["python"]
     func: str = Field(description="A Python function name.")
     params: dict[str, Any] = Field(default_factory=dict)
@@ -18,7 +28,7 @@ class PythonTask(OperatorTask):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
-        context: dict[str, Any] | None = None,
+        context: Context | None = None,
         **kwargs,
     ) -> Operator:
         """Build Airflow Python Operator object."""
@@ -35,6 +45,7 @@ class PythonTask(OperatorTask):
             task_group=task_group,
             dag=dag,
             python_callable=python_callers[self.func],
-            op_kwargs=self.params,
+            op_args=[DataReader(data="{{ run_id }}")],
+            # op_kwargs={"name": DataReader(data="{{ run_id }}")} | self.params,
             **kwargs,
         )

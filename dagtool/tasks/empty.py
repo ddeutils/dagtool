@@ -1,10 +1,10 @@
-from typing import Any, Literal
+from typing import Literal
 
 from airflow.models import DAG, Operator
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-from .__abc import OperatorTask
+from .__abc import Context, OperatorTask
 
 
 class EmptyTask(OperatorTask):
@@ -16,7 +16,7 @@ class EmptyTask(OperatorTask):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
-        context: dict[str, Any] | None = None,
+        context: Context | None = None,
         **kwargs,
     ) -> Operator:
         """Build Airflow Empty Operator object."""

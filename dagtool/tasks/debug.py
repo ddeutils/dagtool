@@ -4,11 +4,11 @@ from typing import Any, Literal, cast
 
 from airflow.models import DAG, Operator
 from airflow.models.baseoperator import BaseOperator
-from airflow.utils.context import Context
+from airflow.utils.context import Context as AirflowContext
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import OperatorTask
+from .__abc import Context, OperatorTask
 
 
 class DebugOperator(BaseOperator):
@@ -26,19 +26,19 @@ class DebugOperator(BaseOperator):
         super().__init__(**kwargs)
         self.debug: dict[str, Any] = debug
 
-    def execute(self, context: Context) -> None:
+    def execute(self, context: AirflowContext) -> None:
         """Debug Operator execute method that only show parameters that passing
         from the template config.
 
         Args:
-            context (Context): An Airflow Context object.
+            context (AirflowContext): An Airflow Context object.
         """
         self.log.info("Start DEBUG Parameters:")
         for k, v in self.debug.items():
             self.log.info(f"> {k}: {v}")
 
         self.log.info("Start DEBUG Context:")
-        ctx: Context = cast(Context, dict(context))
+        ctx: AirflowContext = cast(AirflowContext, dict(context))
         self.log.info(json.dumps(ctx, indent=2, default=str))
 
 
@@ -55,7 +55,7 @@ class DebugTask(OperatorTask):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
-        context: dict[str, Any] | None = None,
+        context: Context | None = None,
         **kwargs,
     ) -> Operator:
         """Build Airflow Debug Operator object."""

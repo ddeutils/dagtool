@@ -1,12 +1,15 @@
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 from yaml import safe_load
 from yaml.parser import ParserError
 
-from .const import ASSET_DIR, DAG_FILENAME_PREFIX, VARIABLE_FILENAME
 from .utils import hash_sha256
+
+DAG_FILENAME_PREFIX: Final[str] = "dag"
+VARIABLE_FILENAME: Final[str] = "variables"
+ASSET_DIR: Final[str] = "assets"
 
 
 class YamlConf:

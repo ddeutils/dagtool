@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Union
+from typing import Annotated, Union
 
 from airflow.models import DAG, Operator
 from airflow.utils.task_group import TaskGroup
@@ -6,7 +6,7 @@ from pydantic import Field
 
 from dagtool.utils import TaskMapped, set_upstream
 
-from .__abc import BaseTask, BaseTaskModel, OperatorTask
+from .__abc import BaseAirflowTask, BaseTask, Context, OperatorTask
 from .bash import BashTask
 from .custom import CustomTask
 from .debug import DebugTask
@@ -28,7 +28,7 @@ Task = Annotated[
 ]
 
 
-class GroupTask(BaseTask):
+class GroupTask(BaseAirflowTask):
     """Group of Task model that will represent Airflow Task Group object."""
 
     group: str = Field(description="A task group name.")
@@ -41,23 +41,28 @@ class GroupTask(BaseTask):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
-        context: dict[str, Any] | None = None,
+        context: Context | None = None,
         **kwargs,
     ) -> TaskGroup:
         """Build Airflow Task Group object."""
         task_group = TaskGroup(
-            group_id=self.group, parent_group=task_group, dag=dag
+            group_id=self.group,
+            parent_group=task_group,
+            dag=dag,
         )
         tasks: dict[str, TaskMapped] = {}
         for task in self.tasks:
-            task_object: Operator | TaskGroup = task.build(
-                dag=dag, task_group=task_group, **kwargs
+            task_airflow: Operator | TaskGroup = task.build(
+                dag=dag,
+                task_group=task_group,
+                context=context,
+                **kwargs,
             )
-            tasks[task.iden] = {
-                "upstream": task.upstream,
-                "task": task_object,
-            }
+            tasks[task.iden] = {"upstream": task.upstream, "task": task_airflow}
+
+        # NOTE: Set Stream for subtask that set in this group.
         set_upstream(tasks)
+
         return task_group
 
     @property

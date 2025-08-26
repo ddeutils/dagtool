@@ -125,7 +125,7 @@ tasks:
     tasks:
       - type: extract
         op: python
-        func: libs.gcs.csv@1.1.0
+        func: get_api_data
         assets:
           - name: schema-mapping.json
             alias: schema
@@ -165,7 +165,14 @@ via DuckDB engine.
 """
 from dagtool import DagTool
 
-dag = DagTool(name="sales", path=__file__, docs=__doc__)
+dag = DagTool(
+    name="sales",
+    path=__file__,
+    docs=__doc__,
+    operators={
+        "get_api_data": ...,
+    }
+)
 dag.build_airflow_dags_to_globals(gb=globals())
 ```
 

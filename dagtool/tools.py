@@ -11,6 +11,7 @@ from pydantic import ValidationError
 
 from .conf import YamlConf
 from .models import DagModel, pull_vars
+from .tasks import Context
 
 
 class DagTool:
@@ -35,7 +36,9 @@ class DagTool:
     # NOTE: Template fields for DAG parameters that will use on different
     #   stages like `catchup` parameter that should disable when deploy to dev.
     template_fields: Sequence[str] = (
+        "schedule",
         "start_date",
+        "end_date",
         "catchup",
         "max_active_runs",
     )
@@ -109,7 +112,7 @@ class DagTool:
             except ValidationError:
                 continue
 
-    def set_context(self) -> dict[str, Any]:
+    def set_context(self) -> Context:
         """Set context data that bypass to the build method."""
         return {
             "operators": self.operators,
@@ -188,7 +191,7 @@ class DagTool:
             list[DAG]: A list of Airflow DAG object.
         """
         dags: list[DAG] = []
-        context = self.set_context()
+        context: Context = self.set_context()
         for name, model in self.conf.items():
             dag: DAG = model.build(
                 prefix=self.name,

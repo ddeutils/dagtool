@@ -1,11 +1,11 @@
-from typing import Any, Literal
+from typing import Literal
 
 from airflow.models import DAG, Operator
 from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import OperatorTask
+from .__abc import Context, OperatorTask
 
 
 class BashTask(OperatorTask):
@@ -13,10 +13,14 @@ class BashTask(OperatorTask):
 
     op: Literal["bash"] = Field(description="An operator type for bash model.")
     command: str = Field(description="A bash command or bash file")
-    env: dict[str, str] | None = None
+    env: dict[str, str] | None = Field(
+        default=None,
+        description="A mapping of environment variable.",
+    )
     append_env: bool = False
     output_encoding: str = Field(
-        default="utf-8", description="Output encoding of bash command."
+        default="utf-8",
+        description="Output encoding of bash command.",
     )
     skip_on_exit_code: int | list[int] | None = Field(default=99)
     cwd: str | None = None
@@ -25,7 +29,7 @@ class BashTask(OperatorTask):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
-        context: dict[str, Any] | None = None,
+        context: Context | None = None,
         **kwargs,
     ) -> Operator:
         """Build Airflow Bash Operator object."""

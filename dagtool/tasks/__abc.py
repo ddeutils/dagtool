@@ -1,31 +1,42 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from collections.abc import Callable
+from typing import Any, TypedDict
 
 from airflow.models import DAG, Operator
 from airflow.utils.task_group import TaskGroup
 from pydantic import BaseModel, Field, field_validator
 
 
+class Context(TypedDict):
+    operators: dict[str, type["BaseTask"]]
+    python_callers: dict[str, Callable]
+
+
 class TaskMixin(ABC):
+    """Task Mixin Abstract class override the build method."""
 
     @abstractmethod
     def build(
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
-        context: dict[str, Any] | None = None,
+        context: Context | None = None,
         **kwargs,
     ) -> Operator | TaskGroup:
-        """Build Any Airflow Task object."""
+        """Build Any Airflow Task object. This method can return Operator or
+        TaskGroup object.
+        """
 
 
-class BaseTaskModel(BaseModel, TaskMixin, ABC): ...
+class BaseTask(BaseModel, TaskMixin, ABC): ...
 
 
-class BaseTask(BaseTaskModel, ABC):
+class BaseAirflowTask(BaseTask, ABC):
     """Base Task model that represent Airflow Task object."""
 
-    desc: str | None = Field(default=None)
+    desc: str | None = Field(
+        default=None, description="A Airflow task description"
+    )
     upstream: list[str] = Field(
         default_factory=list,
         validate_default=True,
@@ -55,7 +66,7 @@ class BaseTask(BaseTaskModel, ABC):
         """Task identity Abstract method."""
 
 
-class OperatorTask(BaseTask, ABC):
+class OperatorTask(BaseAirflowTask, ABC):
     """Operator Task Model."""
 
     task: str = Field(description="A task name.")
@@ -66,7 +77,7 @@ class OperatorTask(BaseTask, ABC):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
-        context: dict[str, Any] | None = None,
+        context: Context | None = None,
         **kwargs,
     ) -> Operator:
         """Build the Airflow Operator object from this model fields."""
