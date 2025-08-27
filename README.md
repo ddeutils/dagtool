@@ -80,18 +80,7 @@ passing it to Airflow objects.
 S --> Template --> Pydantic Model --> DAG/Operator Objects --> Execute --> E
 ```
 
-**CI Flow**:
-
-```text
-S --> DAGs      --> GitSync     --> Airflow K8s Pod
-  --> Variables --> API Sync    --> Airflow Variables
-  --> Assets    --> CI Merge
-```
-
 ## 📦 Installation
-
-> [!WARNING]
-> This package does not publish to PyPI yet.
 
 ```shell
 uv pip install -U dagtool
