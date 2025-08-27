@@ -6,9 +6,9 @@ from pydantic import Discriminator, Field, Tag
 
 from dagtool.utils import TaskMapped, set_upstream
 
-from .__abc import BaseAirflowToolModel, BaseOperatorTask, Context, TaskModel
+from .__abc import BaseAirflowTaskModel, BaseOperatorTask, Context, TaskModel
 from .bash import BashTask
-from .custom import CustomOperatorTask, CustomTask
+from .custom import CustomTask, OperatorTask
 from .debug import DebugTask, RaiseTask
 from .empty import EmptyTask
 from .python import PythonTask
@@ -20,17 +20,17 @@ Task = Annotated[
         BashTask,
         PythonTask,
         CustomTask,
-        CustomOperatorTask,
+        OperatorTask,
         RaiseTask,
     ],
     Field(
-        discriminator="op",
+        discriminator="tool",
         description="All supported Operator Tasks.",
     ),
 ]
 
 
-class GroupTask(BaseAirflowToolModel):
+class GroupTask(BaseAirflowTaskModel):
     """Group of Task model that will represent Airflow Task Group object."""
 
     group: str = Field(description="A task group name.")

@@ -32,7 +32,7 @@ class ToolMixin(ABC):
 class TaskModel(BaseModel, ToolMixin, ABC): ...
 
 
-class BaseAirflowToolModel(TaskModel, ABC):
+class BaseAirflowTaskModel(TaskModel, ABC):
     """Base Task model that represent Airflow Task object."""
 
     desc: str | None = Field(
@@ -69,14 +69,14 @@ class BaseAirflowToolModel(TaskModel, ABC):
         """
 
 
-class BaseOperatorTask(BaseAirflowToolModel, ABC):
+class BaseOperatorTask(BaseAirflowTaskModel, ABC):
     """Operator Task Model."""
 
     model_config = ConfigDict(use_enum_values=True)
 
     task: str = Field(description="A task name.")
     type: Literal["task"] = Field(default="task")
-    op: str = Field(description="An operator type of this task.")
+    tool: str = Field(description="An tool type of this task.")
     trigger_rule: TriggerRule = Field(
         default=TriggerRule.ALL_SUCCESS,
         description=(

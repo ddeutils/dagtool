@@ -5,7 +5,8 @@ from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 
 from dagtool.models import get_variable_stage
-from dagtool.tasks.debug import DebugOperator
+from dagtool.tools.debug import DebugOperator
+from ignore.utils import sequence_pool
 
 dag = DAG(
     dag_id="origin_template",
@@ -28,5 +29,6 @@ task_debug = DebugOperator(
         "variable_1": "{{ vars('schedule_interval') }}",
         "variable_2": "{{ vars('project_id') }}",
     },
+    pool=sequence_pool.pool,
 )
 task_debug.set_upstream(task)

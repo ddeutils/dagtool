@@ -20,7 +20,7 @@ class DataReader:
 class PythonTask(BaseOperatorTask):
     """Python Task model."""
 
-    op: Literal["python"]
+    tool: Literal["python"]
     caller: str = Field(description="A Python function name.")
     params: dict[str, Any] = Field(default_factory=dict)
 

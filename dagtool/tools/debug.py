@@ -33,7 +33,7 @@ class RaiseOperator(BaseOperator):
 
 
 class RaiseTask(BaseOperatorTask):
-    op: Literal["raise"]
+    tool: Literal["raise"]
     message: str | None = Field(default=None)
     skipped: bool = False
 
@@ -55,7 +55,7 @@ class RaiseTask(BaseOperatorTask):
 class DebugOperator(BaseOperator):
     """Operator that does literally nothing.
 
-    It can be used to group tasks in a DAG.
+    It can be used to group tools in a DAG.
     The task is evaluated by the scheduler but never processed by the executor.
     """
 
@@ -86,7 +86,7 @@ class DebugOperator(BaseOperator):
 class DebugTask(BaseOperatorTask):
     """Debug Task model that inherit from Operator task."""
 
-    op: Literal["debug"]
+    tool: Literal["debug"]
     params: dict[str, Any] = Field(
         default_factory=dict,
         description="A parameters that want to logging.",

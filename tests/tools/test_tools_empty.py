@@ -2,16 +2,16 @@ import pytest
 from airflow.exceptions import AirflowException
 from airflow.operators.empty import EmptyOperator
 
-from dagtool.tasks.empty import EmptyTask
+from dagtool.tools.empty import EmptyTask
 
 
-def test_task_empty():
+def test_tool_empty():
     task = EmptyTask(task="demo", op="empty")
     assert task.upstream == []
     assert task.task_kwargs() == {"task_id": "demo"}
 
 
-def test_task_empty_build():
+def test_tool_empty_build():
     task = EmptyTask(task="demo", op="empty")
     op = task.build()
     assert isinstance(op, EmptyOperator)

@@ -18,7 +18,7 @@ class TaskMapped(TypedDict):
 
 
 def set_upstream(tasks: dict[str, TaskMapped]) -> None:
-    """Set Upstream Task for each tasks in mapping.
+    """Set Upstream Task for each tools in mapping.
 
     Args:
         tasks: A mapping of task_id and TaskMapped dict object.
@@ -51,6 +51,7 @@ def format_dt(
     return dt.strftime(fmt)
 
 
+# NOTE: Defined builtin filters for this package.
 FILTERS: dict[str, Callable] = {
     "tz": change_tz,
     "fmt": format_dt,
@@ -67,7 +68,8 @@ def hash_sha256(data: str | bytes) -> str:
         str: The hexadecimal representation of the SHA-256 hash.
     """
     if isinstance(data, str):
-        data = data.encode("utf-8")  # Encode string to bytes
+        # NOTE: Encode string to bytes
+        data = data.encode("utf-8")
 
     sha256_hash = hashlib.sha256()
     sha256_hash.update(data)

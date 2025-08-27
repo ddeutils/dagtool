@@ -19,22 +19,22 @@ tags:
 tasks:
   - task: start
     desc: This is the first task for group DAG.
-    op: empty
+    tool: empty
 
   - group: first_group
     upstream: start
     tasks:
       - task: inside
-        op: empty
+        tool: empty
 
       - group: nested_group
         upstream: inside
         tasks:
           - task: deep
-            op: empty
+            tool: empty
 
           - group: nested_nested_group
             upstream: deep
             tasks:
               - task: deep_deep
-                op: empty
+                tool: empty

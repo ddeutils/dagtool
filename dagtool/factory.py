@@ -11,7 +11,7 @@ from pydantic import ValidationError
 
 from .conf import YamlConf
 from .models import DagModel, pull_vars
-from .tasks import Context, TaskModel
+from .tools import Context, TaskModel
 
 
 class Factory:
@@ -100,7 +100,7 @@ class Factory:
         self.on_success_callback = on_success_callback
         self.on_failure_callback = on_failure_callback
 
-        # NOTE: Define tasks that able map to template.
+        # NOTE: Define tools that able map to template.
         self.operators: dict[str, type[Operator]] = operators or {}
         self.tasks: dict[str, type[TaskModel]] = tasks or {}
         self.python_callers: dict[str, Any] = python_callers or {}

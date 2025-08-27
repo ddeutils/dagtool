@@ -13,17 +13,17 @@ tags:
   - "domain:demo"
 tasks:
   - task: start
-    op: empty
+    tool: empty
 
   - group: call_bash_group
     upstream: start
     tasks:
       - task: call_cmd
-        op: bash
+        tool: bash
         command: "echo \"${AIRFLOW_ENV}\""
 
       - task: call_file
-        op: bash
+        tool: bash
         # NOTE: This task allow to search jinja template from the `assets/` path.
         command: "dag-04-bash-script.sh"
         append_env: true
@@ -38,18 +38,18 @@ tasks:
     tooltip: "This is Python group"
     tasks:
       - task: call_python
-        op: python
+        tool: python
         caller: say_hi
         params:
           name: "World"
 
       - task: call_python_via_render
-        op: python
+        tool: python
         caller: say_hi
 
       - task: check_result
         upstream: call_python
-        op: debug
+        tool: debug
         params:
           # NOTE: Pull Xcom does not support when use task ids `call_python`
           #   without group ids prefix.
@@ -60,14 +60,14 @@ tasks:
     tasks:
 
       - task: call_custom
-        op: custom_task
+        tool: custom_task
         uses: demo_task
         params:
           name: "Jerry"
 
       - task: call_operator
-        op: operator
-        from: import_debug
+        tool: operator
+        operator: import_debug
         params:
           debug:
             foo: bar

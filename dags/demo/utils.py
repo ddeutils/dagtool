@@ -5,8 +5,8 @@ from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-from dagtool.tasks import Context, TaskModel
-from dagtool.tasks.debug import DebugOperator
+from dagtool.tools import Context, TaskModel
+from dagtool.tools.debug import DebugOperator
 
 
 def say_hi(name: Any) -> str:

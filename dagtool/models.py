@@ -16,7 +16,7 @@ from yaml import safe_load
 from yaml.parser import ParserError
 
 from .conf import ASSET_DIR, YamlConf
-from .tasks import AnyTask, Context
+from .tools import AnyTask, Context
 from .utils import FILTERS, TaskMapped, set_upstream
 
 

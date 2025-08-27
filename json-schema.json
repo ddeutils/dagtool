@@ -45,10 +45,10 @@
           "title": "Type",
           "type": "string"
         },
-        "op": {
+        "tool": {
           "const": "bash",
-          "description": "An operator type for bash model.",
-          "title": "Op",
+          "description": "An tool type for bash model.",
+          "title": "Tool",
           "type": "string"
         },
         "trigger_rule": {
@@ -56,18 +56,135 @@
           "default": "all_success",
           "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "default": false,
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "default": false,
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
+        "depends_on_past": {
+          "default": false,
+          "title": "Depends On Past",
+          "type": "boolean"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool"
+        },
+        "retries": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A retry count.",
+          "title": "Retries"
+        },
+        "retry_delay": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "executor_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Config"
+        },
         "inlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Outlets",
           "type": "array"
@@ -137,7 +254,7 @@
       },
       "required": [
         "task",
-        "op",
+        "tool",
         "command"
       ],
       "title": "BashTask",
@@ -187,9 +304,9 @@
           "title": "Type",
           "type": "string"
         },
-        "op": {
+        "tool": {
           "const": "operator",
-          "title": "Op",
+          "title": "Tool",
           "type": "string"
         },
         "trigger_rule": {
@@ -197,25 +314,142 @@
           "default": "all_success",
           "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "default": false,
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "default": false,
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
+        "depends_on_past": {
+          "default": false,
+          "title": "Depends On Past",
+          "type": "boolean"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool"
+        },
+        "retries": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A retry count.",
+          "title": "Retries"
+        },
+        "retry_delay": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "executor_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Config"
+        },
         "inlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Outlets",
           "type": "array"
         },
-        "from": {
+        "operator": {
           "description": "An Airflow operator that import from external provider.",
-          "title": "From",
+          "title": "Operator",
           "type": "string"
         },
         "params": {
@@ -227,8 +461,8 @@
       },
       "required": [
         "task",
-        "op",
-        "from"
+        "tool",
+        "operator"
       ],
       "title": "CustomOperatorTask",
       "type": "object"
@@ -278,9 +512,9 @@
           "title": "Type",
           "type": "string"
         },
-        "op": {
+        "tool": {
           "const": "custom_task",
-          "title": "Op",
+          "title": "Tool",
           "type": "string"
         },
         "trigger_rule": {
@@ -288,18 +522,135 @@
           "default": "all_success",
           "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "default": false,
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "default": false,
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
+        "depends_on_past": {
+          "default": false,
+          "title": "Depends On Past",
+          "type": "boolean"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool"
+        },
+        "retries": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A retry count.",
+          "title": "Retries"
+        },
+        "retry_delay": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "executor_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Config"
+        },
         "inlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Outlets",
           "type": "array"
@@ -318,7 +669,7 @@
       },
       "required": [
         "task",
-        "op",
+        "tool",
         "uses"
       ],
       "title": "CustomTask",
@@ -369,9 +720,9 @@
           "title": "Type",
           "type": "string"
         },
-        "op": {
+        "tool": {
           "const": "debug",
-          "title": "Op",
+          "title": "Tool",
           "type": "string"
         },
         "trigger_rule": {
@@ -379,18 +730,135 @@
           "default": "all_success",
           "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "default": false,
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "default": false,
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
+        "depends_on_past": {
+          "default": false,
+          "title": "Depends On Past",
+          "type": "boolean"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool"
+        },
+        "retries": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A retry count.",
+          "title": "Retries"
+        },
+        "retry_delay": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "executor_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Config"
+        },
         "inlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Outlets",
           "type": "array"
@@ -404,7 +872,7 @@
       },
       "required": [
         "task",
-        "op"
+        "tool"
       ],
       "title": "DebugTask",
       "type": "object"
@@ -422,6 +890,7 @@
             }
           ],
           "default": null,
+          "description": "An owner name.",
           "title": "Owner"
         },
         "depends_on_past": {
@@ -449,6 +918,21 @@
           ],
           "default": null,
           "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "sla": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sla"
         }
       },
       "title": "DefaultArgs",
@@ -499,9 +983,9 @@
           "title": "Type",
           "type": "string"
         },
-        "op": {
+        "tool": {
           "const": "empty",
-          "title": "Op",
+          "title": "Tool",
           "type": "string"
         },
         "trigger_rule": {
@@ -509,18 +993,135 @@
           "default": "all_success",
           "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "default": false,
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "default": false,
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
+        "depends_on_past": {
+          "default": false,
+          "title": "Depends On Past",
+          "type": "boolean"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool"
+        },
+        "retries": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A retry count.",
+          "title": "Retries"
+        },
+        "retry_delay": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "executor_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Config"
+        },
         "inlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Outlets",
           "type": "array"
@@ -528,7 +1129,7 @@
       },
       "required": [
         "task",
-        "op"
+        "tool"
       ],
       "title": "EmptyTask",
       "type": "object"
@@ -601,7 +1202,7 @@
                     "python": "#/$defs/PythonTask",
                     "raise": "#/$defs/RaiseTask"
                   },
-                  "propertyName": "op"
+                  "propertyName": "tool"
                 },
                 "oneOf": [
                   {
@@ -687,9 +1288,9 @@
           "title": "Type",
           "type": "string"
         },
-        "op": {
+        "tool": {
           "const": "python",
-          "title": "Op",
+          "title": "Tool",
           "type": "string"
         },
         "trigger_rule": {
@@ -697,18 +1298,135 @@
           "default": "all_success",
           "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "default": false,
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "default": false,
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
+        "depends_on_past": {
+          "default": false,
+          "title": "Depends On Past",
+          "type": "boolean"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool"
+        },
+        "retries": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A retry count.",
+          "title": "Retries"
+        },
+        "retry_delay": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "executor_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Config"
+        },
         "inlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Outlets",
           "type": "array"
@@ -726,7 +1444,7 @@
       },
       "required": [
         "task",
-        "op",
+        "tool",
         "caller"
       ],
       "title": "PythonTask",
@@ -776,9 +1494,9 @@
           "title": "Type",
           "type": "string"
         },
-        "op": {
+        "tool": {
           "const": "raise",
-          "title": "Op",
+          "title": "Tool",
           "type": "string"
         },
         "trigger_rule": {
@@ -786,18 +1504,135 @@
           "default": "all_success",
           "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "default": false,
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "default": false,
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
+        "depends_on_past": {
+          "default": false,
+          "title": "Depends On Past",
+          "type": "boolean"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool"
+        },
+        "retries": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A retry count.",
+          "title": "Retries"
+        },
+        "retry_delay": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "executor_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Config"
+        },
         "inlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Inlets",
           "type": "array"
         },
         "outlets": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "title": "Outlets",
           "type": "array"
@@ -822,7 +1657,7 @@
       },
       "required": [
         "task",
-        "op"
+        "tool"
       ],
       "title": "RaiseTask",
       "type": "object"
@@ -919,7 +1754,7 @@
                 "python": "#/$defs/PythonTask",
                 "raise": "#/$defs/RaiseTask"
               },
-              "propertyName": "op"
+              "propertyName": "tool"
             },
             "oneOf": [
               {
@@ -1128,6 +1963,21 @@
       "default": null,
       "description": "A DagRun timeout in second value.",
       "title": "Dagrun Timeout Sec"
+    },
+    "owner_links": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Owner Links"
     },
     "default_args": {
       "$ref": "#/$defs/DefaultArgs"

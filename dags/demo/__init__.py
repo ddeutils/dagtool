@@ -6,7 +6,7 @@ The demo DAGs that generate from template config file.
 from airflow.utils.dates import days_ago
 
 from dagtool import Factory
-from dagtool.tasks.debug import DebugOperator
+from dagtool.tools.debug import DebugOperator
 
 from .utils import CustomTask, say_hi
 

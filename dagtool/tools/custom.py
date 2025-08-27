@@ -11,7 +11,7 @@ from .__abc import BaseOperatorTask, Context, TaskModel
 class CustomTask(BaseOperatorTask):
     """Custom Task model."""
 
-    op: Literal["custom_task"]
+    tool: Literal["custom_task"]
     uses: str = Field(description="A custom building function name.")
     params: dict[str, Any] = Field(
         default_factory=dict,
@@ -43,10 +43,9 @@ class CustomTask(BaseOperatorTask):
         )
 
 
-class CustomOperatorTask(BaseOperatorTask):
-    op: Literal["operator"]
-    operator_name: str = Field(
-        alias="from",
+class OperatorTask(BaseOperatorTask):
+    tool: Literal["operator"]
+    operator: str = Field(
         description="An Airflow operator that import from external provider.",
     )
     params: dict[str, Any] = Field(
@@ -64,11 +63,12 @@ class CustomOperatorTask(BaseOperatorTask):
     ) -> Operator:
         ctx: Context = context or {}
         custom_opts: dict[str, type[Operator]] = ctx["operators"]
-        if self.operator_name not in custom_opts:
+        if self.operator not in custom_opts:
             raise ValueError(
-                f"Operator need to pass to `operator` argument, {self.operator_name}, first."
+                f"Operator need to pass to `operator` argument, "
+                f"{self.operator}, first."
             )
-        op: type[Operator] = custom_opts[self.operator_name]
+        op: type[Operator] = custom_opts[self.operator]
         return op(
             dag=dag,
             task_group=task_group,

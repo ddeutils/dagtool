@@ -11,7 +11,7 @@ from .__abc import BaseOperatorTask, Context
 class BashTask(BaseOperatorTask):
     """Bash Task model that will represent to Airflow BashOperator object."""
 
-    op: Literal["bash"] = Field(description="An operator type for bash model.")
+    tool: Literal["bash"] = Field(description="An tool type for bash model.")
     command: str = Field(description="A bash command or bash file")
     env: dict[str, str] | None = Field(
         default=None,

@@ -11,8 +11,8 @@ tags:
   - "domain:ignore"
 tasks:
   - task: start
-    op: empty
+    tool: empty
 
   - task: end
     upstream: start
-    op: empty
+    tool: empty

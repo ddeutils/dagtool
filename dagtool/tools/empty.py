@@ -10,7 +10,7 @@ from .__abc import BaseOperatorTask, Context
 class EmptyTask(BaseOperatorTask):
     """Empty Task model."""
 
-    op: Literal["empty"]
+    tool: Literal["empty"]
 
     def build(
         self,
