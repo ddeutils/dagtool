@@ -2,6 +2,22 @@
 
 ## Latest Changes
 
+## 0.0.6
+
+### :black_nib: Code Changes
+
+- :test_tube: adjust testcase.
+- :construction: change name tasks to tools.
+- :construction: change the main object to Factory.
+
+### :broom: Deprecate & Clean
+
+- :recycle: remove code that do not use.
+
+### :book: Documentations
+
+- :page_facing_up: update docs-string on tool module.
+
 ## 0.0.5
 
 ### :bug: Bug fixes
