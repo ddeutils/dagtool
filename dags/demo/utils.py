@@ -5,20 +5,23 @@ from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-from dagtool.tasks import BaseTask, Context
+from dagtool.tasks import Context, TaskModel
 from dagtool.tasks.debug import DebugOperator
 
 
 def say_hi(name: Any) -> str:
+    """Custom Python function that will use with Airflow PythonOperator."""
     if not isinstance(name, str):
         logging.info(f"Hello {name.name}")
-        return name.name
+        return name.name if hasattr(name, "name") else str(name)
 
     logging.info(f"Hello {name}")
     return name
 
 
-class CustomTask(BaseTask):
+class CustomTask(TaskModel):
+    """Custom Task model."""
+
     name: str
 
     def build(

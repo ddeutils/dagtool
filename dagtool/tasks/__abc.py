@@ -9,12 +9,12 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Context(TypedDict):
-    tasks: dict[str, type["BaseTask"]]
+    tasks: dict[str, type["TaskModel"]]
     operators: dict[str, type[Operator]]
     python_callers: dict[str, Callable]
 
 
-class TaskMixin(ABC):
+class ToolMixin(ABC):
     """Task Mixin Abstract class override the build method."""
 
     @abstractmethod
@@ -29,10 +29,10 @@ class TaskMixin(ABC):
         """
 
 
-class BaseTask(BaseModel, TaskMixin, ABC): ...
+class TaskModel(BaseModel, ToolMixin, ABC): ...
 
 
-class BaseAirflowTask(BaseTask, ABC):
+class BaseAirflowToolModel(TaskModel, ABC):
     """Base Task model that represent Airflow Task object."""
 
     desc: str | None = Field(
@@ -69,7 +69,7 @@ class BaseAirflowTask(BaseTask, ABC):
         """
 
 
-class BaseOperatorTask(BaseAirflowTask, ABC):
+class BaseOperatorTask(BaseAirflowToolModel, ABC):
     """Operator Task Model."""
 
     model_config = ConfigDict(use_enum_values=True)

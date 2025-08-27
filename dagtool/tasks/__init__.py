@@ -6,7 +6,7 @@ from pydantic import Discriminator, Field, Tag
 
 from dagtool.utils import TaskMapped, set_upstream
 
-from .__abc import BaseAirflowTask, BaseOperatorTask, BaseTask, Context
+from .__abc import BaseAirflowToolModel, BaseOperatorTask, Context, TaskModel
 from .bash import BashTask
 from .custom import CustomOperatorTask, CustomTask
 from .debug import DebugTask, RaiseTask
@@ -30,7 +30,7 @@ Task = Annotated[
 ]
 
 
-class GroupTask(BaseAirflowTask):
+class GroupTask(BaseAirflowToolModel):
     """Group of Task model that will represent Airflow Task Group object."""
 
     group: str = Field(description="A task group name.")
@@ -80,6 +80,9 @@ class GroupTask(BaseAirflowTask):
 
 
 def any_task_discriminator(v: Any) -> str | None:
+    """Any task discriminator function for AnyTask type that dynamic validate
+    with DagModel.
+    """
     if isinstance(v, dict):
         if "group" in v:
             return "Group"

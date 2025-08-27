@@ -121,6 +121,7 @@ On the `dag-transaction.yml` file:
 name: transaction
 schedule: "@daily"
 owner: "de-oncall@email.com,de@email.com"
+start_date: "{{ vars('start_date') }}"
 catchup: "{{ vars('catchup') }}"
 tags:
   - "domain:sales"
@@ -137,21 +138,21 @@ tasks:
         op: python
         caller: get_api_data
         params:
-          path: gcs://{{ vars("PROJECT_ID") }}/sales/master/date/{ exec_date:%y }
+          path: gcs://{{ vars("project_id") }}/sales/master/date/{{ exec_date | fmt('%y') }}
 
       - task: transform
         upstream: extract
         op: operator
-        uses: gcs_transform_data
+        operator_name: gcs_transform_data
         params:
-          path: gcs://{{ vars("PROJECT_ID") }}/landing/master/date/{ exec_date:%y }
+          path: gcs://{{ vars("project_id") }}/landing/master/date/{{ exec_date | fmt('%y') }}
 
       - task: sink
         upstream: transform
         op: custom
         uses: write_iceberg
         params:
-          path: gcs://{{ vars("PROJECT_ID") }}
+          path: gcs://{{ vars("project_id") }}
 
   - task: end
     upstream: etl_master
@@ -168,7 +169,7 @@ via DuckDB engine.
 
 > This DAG is the temp DAG for ingest data to GCP.
 """
-from dagtool import DagTool, BaseTask, Context
+from dagtool import Factory, TaskModel, Context
 
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
@@ -176,15 +177,18 @@ from airflow.utils.task_group import TaskGroup
 from airflow.operators.empty import EmptyOperator
 
 # NOTE: Some external provider operator object.
-from airflow.providers.google.cloud.operators import GCSTransformData
+from airflow.providers.google.cloud.operators import MockGCSTransformData
+from pydantic import Field
 
 # NOTE: Some function that want to use with PythonOperator
-def get_api_data(path: str):
-    return {}
+def get_api_data(path: str) -> dict[str, list[str]]:
+    return {"data": [f"src://{path}/table/1", f"src://{path}/table/2"]}
 
 # NOTE: Some custom task that create any Airflow Task instance object.
-class WriteIceberg(BaseTask):
-    path: str
+class WriteIceberg(TaskModel):
+    """Custom Task for user defined inside of template path."""
+
+    path: str = Field(description="An Iceberg path.")
 
     def build(
         self,
@@ -203,15 +207,15 @@ class WriteIceberg(BaseTask):
         return tg
 
 
-tool = DagTool(
+factory = Factory(
     name="sales",
     path=__file__,
     docs=__doc__,
-    operators={"gcs_transform_data": GCSTransformData},
+    operators={"gcs_transform_data": MockGCSTransformData},
     python_callers={"get_api_data": get_api_data},
     tasks={"write_iceberg": WriteIceberg},
 )
-tool.build_airflow_dags_to_globals(
+factory.build_airflow_dags_to_globals(
     gb=globals(),
     default_args={"start_date": days_ago(2)},
 )
@@ -220,6 +224,19 @@ tool.build_airflow_dags_to_globals(
 **Output**:
 
 The DAG that was built from this package will have the name is, `sales_transaction`.
+
+> [!NOTE]
+> On the `variables.yml` file:
+> ```yaml
+> type: variable
+> variables:
+>   - key: transaction
+>     stages:
+>       dev:
+>         start_date: "2025-01-01"
+>         catchup: false
+>         project_id: "sales_project_dev"
+> ```
 
 ## 💬 Contribute
 

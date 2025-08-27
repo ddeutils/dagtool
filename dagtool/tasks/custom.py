@@ -5,7 +5,7 @@ from airflow.models import Operator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import BaseOperatorTask, BaseTask, Context
+from .__abc import BaseOperatorTask, Context, TaskModel
 
 
 class CustomTask(BaseOperatorTask):
@@ -29,13 +29,13 @@ class CustomTask(BaseOperatorTask):
     ) -> Operator | TaskGroup:
         """Build with Custom builder function."""
         ctx: Context = context or {}
-        custom_tasks: dict[str, type[BaseTask]] = ctx["tasks"]
+        custom_tasks: dict[str, type[TaskModel]] = ctx["tasks"]
         if self.uses not in custom_tasks:
             raise ValueError(
                 f"Custom task need to pass to `tasks` argument, {self.uses}, first."
             )
-        op: type[BaseTask] = custom_tasks[self.uses]
-        model: BaseTask = op.model_validate(self.params)
+        op: type[TaskModel] = custom_tasks[self.uses]
+        model: TaskModel = op.model_validate(self.params)
         return model.build(
             dag=dag,
             task_group=task_group,

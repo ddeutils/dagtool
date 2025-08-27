@@ -11,10 +11,10 @@ from pydantic import ValidationError
 
 from .conf import YamlConf
 from .models import DagModel, pull_vars
-from .tasks import BaseTask, Context
+from .tasks import Context, TaskModel
 
 
-class DagTool:
+class Factory:
     """DAG Tool Object that is the main interface for retrieve config data from
     the current path and generate Airflow DAG object to global.
 
@@ -25,7 +25,7 @@ class DagTool:
         > If enabled, Airflow will only scan files containing both DAG and
         > airflow (case-insensitive).
 
-        Add this statement on the top of DagTool factory file.
+        Add this statement on the top of the Factory file.
         >>> # from airflow import DAG
 
     Attributes:
@@ -51,7 +51,7 @@ class DagTool:
         *,
         docs: str | None = None,
         operators: dict[str, type[Operator]] | None = None,
-        tasks: dict[str, type[BaseTask]] | None = None,
+        tasks: dict[str, type[TaskModel]] | None = None,
         python_callers: dict[str, Callable] | None = None,
         # NOTE: Extended Airflow params.
         # ---
@@ -67,10 +67,10 @@ class DagTool:
             name (str): A prefix name of final DAG.
             path (str | Path): A current filepath that can receive with string
                 value or Path object.
-            docs (dict[str, Any]): A docs string for this DagTool will use to
+            docs (dict[str, Any]): A docs string for this Factory will use to
                 be the header of full docs.
-            operators (dict[str, type[BaseTask]]): A mapping of name and sub-model
-                of BaseTask model.
+            operators (dict[str, type[TaskModel]]): A mapping of name and sub-model
+                of TaskModel model.
             python_callers (dict[str, Callable]): A mapping of name and function
                 that want to use with Airflow PythonOperator.
             template_searchpath (list[str | Path]): A list of Jinja template
@@ -102,7 +102,7 @@ class DagTool:
 
         # NOTE: Define tasks that able map to template.
         self.operators: dict[str, type[Operator]] = operators or {}
-        self.tasks: dict[str, type[BaseTask]] = tasks or {}
+        self.tasks: dict[str, type[TaskModel]] = tasks or {}
         self.python_callers: dict[str, Any] = python_callers or {}
 
         # NOTE: Fetching config data from template path.

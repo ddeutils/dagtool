@@ -15,12 +15,12 @@ from airflow.providers.google.cloud.operators.bigquery import (
 )
 from airflow.providers.google.cloud.transfers.gcs_to_gcs import GCSToGCSOperator
 
-from dagtool import DagTool
+from dagtool import Factory
 
 logger = logging.getLogger("dagtool.dag.stock")
 
 
-tool = DagTool(
+factory = Factory(
     name="stock",
     path=__file__,
     docs=__doc__,
@@ -31,7 +31,7 @@ tool = DagTool(
     },
     user_defined_filters={"unnested_list": ...},
 )
-tool.build_airflow_dags_to_globals(
+factory.build_airflow_dags_to_globals(
     gb=globals(),
     default_args={},
 )
