@@ -7,7 +7,7 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import Context, OperatorTask
+from .__abc import BaseOperatorTask, Context
 
 
 class DataReader:
@@ -17,7 +17,7 @@ class DataReader:
         self.name = data
 
 
-class PythonTask(OperatorTask):
+class PythonTask(BaseOperatorTask):
     """Python Task model."""
 
     op: Literal["python"]

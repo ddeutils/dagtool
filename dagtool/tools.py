@@ -79,8 +79,10 @@ class DagTool:
                 template filters that will add to Jinja environment.
             user_defined_macros (dict[str, Callable | str]): An user defined
                 Jinja template macros that will add to Jinja environment.
-            on_success_callback:
-            on_failure_callback:
+            on_success_callback: An on success event callback object that want
+                to use on each DAG that was built from template path.
+            on_failure_callback: An on failure event callback object that want
+                to use on each DAG that was built from template path.
         """
         self.name: str = name
         self.path: Path = p.parent if (p := Path(path)).is_file() else p
@@ -107,7 +109,12 @@ class DagTool:
         self.refresh_conf()
 
     def refresh_conf(self) -> None:
-        """Read config from the path argument and reload to the conf."""
+        """Read config from the path argument and reload to the conf.
+
+            This method will render Jinja template to the DagModel fields raw
+        value that match key with the template_fields before start validate the
+        model.
+        """
         # NOTE: Reset previous if it exists.
         if self.conf:
             self.conf: dict[str, DagModel] = {}
@@ -194,8 +201,10 @@ class DagTool:
         to the DagModel parameters before create Airflow DAG.
 
         Args:
-            user_defined_filters:
-            user_defined_macros:
+            user_defined_filters (dict[str, Callable]): An user defined Jinja
+                template filters that will add to Jinja environment.
+            user_defined_macros (dict[str, Callable | str]): An user defined
+                Jinja template macros that will add to Jinja environment.
         """
         env: Environment = NativeEnvironment()
         udf_macros: dict[str, Any] = self.user_defined_macros | (

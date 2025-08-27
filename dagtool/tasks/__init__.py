@@ -6,7 +6,7 @@ from pydantic import Discriminator, Field, Tag
 
 from dagtool.utils import TaskMapped, set_upstream
 
-from .__abc import BaseAirflowTask, BaseTask, Context, OperatorTask
+from .__abc import BaseAirflowTask, BaseOperatorTask, BaseTask, Context
 from .bash import BashTask
 from .custom import CustomOperatorTask, CustomTask
 from .debug import DebugTask, RaiseTask

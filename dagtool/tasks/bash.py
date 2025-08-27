@@ -5,10 +5,10 @@ from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import Context, OperatorTask
+from .__abc import BaseOperatorTask, Context
 
 
-class BashTask(OperatorTask):
+class BashTask(BaseOperatorTask):
     """Bash Task model that will represent to Airflow BashOperator object."""
 
     op: Literal["bash"] = Field(description="An operator type for bash model.")

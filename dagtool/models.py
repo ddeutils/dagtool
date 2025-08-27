@@ -23,7 +23,7 @@ from .utils import FILTERS, TaskMapped, set_upstream
 class DefaultArgs(BaseModel):
     """Default Args Model that will use with the `default_args` field."""
 
-    owner: str | None = Field(default=None)
+    owner: str | None = Field(default=None, description="An owner name.")
     depends_on_past: bool = Field(default=False)
     retries: int = Field(default=1, description="A retry count.")
     retry_delay: dict[str, int] | None = Field(default=None)
@@ -312,7 +312,12 @@ def get_variable_stage(path: Path, name: str) -> dict[str, Any]:
 
     Args:
         path (Path): A template path.
-        name (str):
+        name (str): A key name that want to get from Variable model.
+
+    Returns:
+        dict[str, Any]: A mapping of variables that set on the current stage.
+            It will return empty dict if it raises FileNotFoundError and
+            ValueError exceptions.
     """
     try:
         return (

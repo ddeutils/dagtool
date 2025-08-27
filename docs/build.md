@@ -53,4 +53,8 @@ Start provision Airflow application via Docker Compose file.
 
 ### LocalExecutor
 
+> Does not set yet.
+
 ### CeleryExecutor
+
+> Does not set yet.

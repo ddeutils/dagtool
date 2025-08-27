@@ -5,10 +5,10 @@ from airflow.models import Operator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import BaseTask, Context, OperatorTask
+from .__abc import BaseOperatorTask, BaseTask, Context
 
 
-class CustomTask(OperatorTask):
+class CustomTask(BaseOperatorTask):
     """Custom Task model."""
 
     op: Literal["custom_task"]
@@ -43,7 +43,7 @@ class CustomTask(OperatorTask):
         )
 
 
-class CustomOperatorTask(OperatorTask):
+class CustomOperatorTask(BaseOperatorTask):
     op: Literal["operator"]
     operator_name: str = Field(
         alias="from",

@@ -4,10 +4,10 @@ from airflow.models import DAG, Operator
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-from .__abc import Context, OperatorTask
+from .__abc import BaseOperatorTask, Context
 
 
-class EmptyTask(OperatorTask):
+class EmptyTask(BaseOperatorTask):
     """Empty Task model."""
 
     op: Literal["empty"]

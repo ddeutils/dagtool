@@ -22,7 +22,7 @@ class YamlConf:
     def __init__(self, path: Path | str) -> None:
         self.path: Path = Path(path)
 
-    def read_vars(self):
+    def read_vars(self) -> dict[str, Any]:
         """Get Variable value with an input stage name."""
         search_files: list[Path] = list(
             self.path.rglob(f"{VARIABLE_FILENAME}.y*ml")
@@ -30,12 +30,20 @@ class YamlConf:
         if not search_files:
             raise FileNotFoundError("Does not found variables file.")
         try:
-            return safe_load(
+            raw_data = safe_load(
                 min(
                     search_files,
                     key=lambda f: len(str(f.absolute())),
                 ).open(mode="rt", encoding="utf-8")
             )
+            if not raw_data:
+                raise ValueError("Variable file does not contain any content.")
+            elif isinstance(raw_data, list):
+                raise TypeError(
+                    "Variable file should contain only mapping data not list "
+                    "of data."
+                )
+            return raw_data
         except ParserError:
             raise
 

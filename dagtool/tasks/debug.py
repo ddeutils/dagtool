@@ -9,7 +9,7 @@ from airflow.utils.context import Context as AirflowContext
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import Context, OperatorTask
+from .__abc import BaseOperatorTask, Context
 
 
 class RaiseOperator(BaseOperator):
@@ -32,7 +32,7 @@ class RaiseOperator(BaseOperator):
         raise AirflowException(self.message)
 
 
-class RaiseTask(OperatorTask):
+class RaiseTask(BaseOperatorTask):
     op: Literal["raise"]
     message: str | None = Field(default=None)
     skipped: bool = False
@@ -83,7 +83,7 @@ class DebugOperator(BaseOperator):
         self.log.info(json.dumps(ctx, indent=2, default=str))
 
 
-class DebugTask(OperatorTask):
+class DebugTask(BaseOperatorTask):
     """Debug Task model that inherit from Operator task."""
 
     op: Literal["debug"]
