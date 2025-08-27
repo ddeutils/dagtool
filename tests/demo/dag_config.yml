@@ -1,0 +1,21 @@
+name: sales_dag
+type: dag
+start_date: "2025-01-01"
+schedule: "@daily"
+authors: ["de-team"]
+tags:
+  - sales
+  - p1
+tasks:
+  - task: start
+    tool: empty
+
+  - group: task_group
+    upstream: start
+    tasks:
+      - task: sub_task
+        tool: empty
+
+  - task: end
+    upstream: task_group
+    tool: empty

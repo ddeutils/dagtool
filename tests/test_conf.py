@@ -30,5 +30,5 @@ def test_yaml_conf_dags(test_path: Path):
     p: Path = test_path.parent / "dags/demo"
     yaml_loader = YamlConf(path=p)
     conf = yaml_loader.read_conf()
-    assert len(conf) == 3
+    assert len(conf) == 4
     print(conf[2])
