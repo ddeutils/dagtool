@@ -13,6 +13,8 @@ from .__abc import BaseOperatorTask, Context
 
 
 class RaiseOperator(BaseOperator):
+    """Airflow Raise Operator object."""
+
     ui_color: str = "#ef3a25"
     inherits_from_empty_operator: bool = False
     template_fields: Sequence[str] = ("message",)
@@ -33,6 +35,8 @@ class RaiseOperator(BaseOperator):
 
 
 class RaiseTask(BaseOperatorTask):
+    """Raise Task model."""
+
     tool: Literal["raise"]
     message: str | None = Field(default=None)
     skipped: bool = False
@@ -43,6 +47,7 @@ class RaiseTask(BaseOperatorTask):
         task_group: TaskGroup | None = None,
         context: Context | None = None,
     ) -> Operator:
+        """Build Airflow Raise Operator object."""
         return RaiseOperator(
             message=self.message,
             skipped=self.skipped,

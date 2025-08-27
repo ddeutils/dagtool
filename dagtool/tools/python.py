@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from typing import Any, Literal
 
 from airflow import DAG
@@ -8,13 +7,6 @@ from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
 from .__abc import BaseOperatorTask, Context
-
-
-class DataReader:
-    template_fields: Sequence[str] = ("name",)
-
-    def __init__(self, data: str):
-        self.name = data
 
 
 class PythonTask(BaseOperatorTask):
@@ -42,7 +34,6 @@ class PythonTask(BaseOperatorTask):
             task_group=task_group,
             dag=dag,
             python_callable=python_callers[self.caller],
-            # op_args=[DataReader(data="{{ run_id }}")],
-            op_kwargs={"name": DataReader(data="{{ run_id }}")} | self.params,
+            op_kwargs={"name": self.params},
             **self.task_kwargs(),
         )
