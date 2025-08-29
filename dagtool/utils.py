@@ -1,7 +1,7 @@
 import hashlib
 from collections.abc import Callable
 from datetime import datetime
-from typing import TypedDict
+from typing import Final, TypedDict
 
 from airflow.models import Operator
 from airflow.utils.task_group import TaskGroup
@@ -50,7 +50,7 @@ def format_dt(
 
 
 # NOTE: Defined builtin filters for this package.
-FILTERS: dict[str, Callable] = {
+FILTERS: Final[dict[str, Callable]] = {
     "tz": change_tz,
     "fmt": format_dt,
 }

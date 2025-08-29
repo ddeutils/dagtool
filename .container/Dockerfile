@@ -10,7 +10,7 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.7 /uv /uvx /bin/
 
-ARG AIRFLOW_VERSION=2.7.1
+ARG AIRFLOW_VERSION=2.11.0
 ARG PYTHON_VERSION=3.10
 
 RUN uv venv /opt/venv --python=${PYTHON_VERSION}

@@ -6,6 +6,19 @@ build-backend = "hatchling.build"
 name = "dagtool"
 description = "a friendly airflow dag build tool"
 readme = "README.md"
+classifiers = [
+    "Topic :: Utilities",
+    "Natural Language :: English",
+    "Development Status :: 4 - Beta",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 requires-python = ">=3.10"
 dependencies = [
     "pendulum<3.0.0",
@@ -25,10 +38,6 @@ dev = [
 minimum = [
     "pydantic==2.9.2",
     "apache-airflow[google]==2.7.1",
-]
-airflow2 = [
-    "pydantic==2.9.2",
-    "apache-airflow[google]>=2.8.0",
 ]
 airflow3 = [
     "pydantic==2.9.2",
