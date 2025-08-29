@@ -2,6 +2,26 @@
 
 ## Latest Changes
 
+## 0.0.8
+
+### :sparkles: Features
+
+- :dart: add support for airflow3.
+- :dart: add import support airflow version 3.
+- :dart: add dynamic kwargs of DAG object.
+
+### :black_nib: Code Changes
+
+- :art: format code for support airflow version less than 3.
+
+### :postbox: Dependencies
+
+- :pushpin: update optional deps.
+
+### :book: Documentations
+
+- :page_facing_up: update readme file.
+
 ## 0.0.7
 
 ### :black_nib: Code Changes
