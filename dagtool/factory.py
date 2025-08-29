@@ -26,11 +26,14 @@ class Factory:
         > airflow (case-insensitive).
 
         Add this statement on the top of the Factory file.
+        >>> # NOTE: Add this statement for Airflow DAG Processor.
         >>> # from airflow import DAG
 
     Attributes:
         name (str): A prefix name that will use for making DAG inside this dir.
         path (Path): A parent path for searching tempalate config files.
+        docs (str, default None): A parent document that use to add before the
+            template DAG document.
     """
 
     # NOTE: Template fields for DAG parameters that will use on different
@@ -44,6 +47,10 @@ class Factory:
         "vars",
     )
 
+    # NOTE: Builtin class variables for making custom Factory by inherit.
+    builtin_operators: dict[str, type[Operator]] = {}
+    builtin_tasks: dict[str, type[TaskModel]] = {}
+
     def __init__(
         self,
         name: str,
@@ -53,8 +60,6 @@ class Factory:
         operators: dict[str, type[Operator]] | None = None,
         tasks: dict[str, type[TaskModel]] | None = None,
         python_callers: dict[str, Callable] | None = None,
-        # NOTE: Extended Airflow params.
-        # ---
         template_searchpath: list[str | Path] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Callable | str] | None = None,
@@ -101,8 +106,12 @@ class Factory:
         self.on_failure_callback = on_failure_callback
 
         # NOTE: Define tasks that able map to template.
-        self.operators: dict[str, type[Operator]] = operators or {}
-        self.tasks: dict[str, type[TaskModel]] = tasks or {}
+        self.operators: dict[str, type[Operator]] = self.builtin_operators | (
+            operators or {}
+        )
+        self.tasks: dict[str, type[TaskModel]] = self.builtin_tasks | (
+            tasks or {}
+        )
         self.python_callers: dict[str, Any] = python_callers or {}
 
         # NOTE: Fetching config data from template path.

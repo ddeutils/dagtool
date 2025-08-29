@@ -1,9 +1,11 @@
+from typing import Final
+
 from airflow.www.utils import UIAlert
 
-DASHBOARD_UIALERTS = [
+DASHBOARD_UIALERTS: Final[list[UIAlert]] = [
     UIAlert("Welcome to Airflow Standalone Mode", category="warning"),
 ]
-STATE_COLORS = {
+STATE_COLORS: Final[dict[str, str]] = {
     "deferred": "#a9a9a9",  # Dark Gray
     "failed": "#c94c4c",  # Muted Red
     "queued": "#d3d3d3",  # Light Gray
