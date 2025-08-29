@@ -2,6 +2,21 @@
 
 ## Latest Changes
 
+## 0.0.7
+
+### :black_nib: Code Changes
+
+- :art: format code.
+- :art: change config format.
+
+### :postbox: Dependencies
+
+- :pushpin: clean and remove unnecessary package.
+
+### :book: Documentations
+
+- :page_facing_up: update readme file.
+
 ## 0.0.6
 
 ### :black_nib: Code Changes
