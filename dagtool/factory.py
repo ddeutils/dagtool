@@ -4,7 +4,7 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
-from airflow.models.dag import DAG, Operator
+from airflow.models import DAG, Operator
 from airflow.templates import NativeEnvironment
 from jinja2 import Environment, Template
 from pydantic import ValidationError
