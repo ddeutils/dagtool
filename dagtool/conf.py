@@ -16,7 +16,7 @@ class YamlConf:
     """Core Config object that use to find and map data from the current path.
 
     Attributes:
-        path (Path): A filepath.
+        path (Path): A filepath of template.
     """
 
     def __init__(self, path: Path | str) -> None:

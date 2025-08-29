@@ -25,10 +25,9 @@ RUN uv pip install "pendulum<3.0.0" && \
       --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
 
 # NOTE: Force change version of necessary version of deps package for DAG Tool.
+#   - pydantic: use minimum version for testing on local.
 RUN uv pip install \
-      "PyYAML==6.0.2" \
-      "pydantic==2.11.7" \
-      "jinja2>=3.1.2"
+      "pydantic==2.9.2"
 
 COPY ./dagtool /opt/airflow/plugins/dagtool
 

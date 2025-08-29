@@ -50,7 +50,7 @@ class TaskGroup(BaseAirflowTaskModel):
 
     def build(
         self,
-        dag: DAG | None = None,
+        dag: DAG,
         task_group: AirflowTaskGroup | None = None,
         context: Context | None = None,
     ) -> AirflowTaskGroup:

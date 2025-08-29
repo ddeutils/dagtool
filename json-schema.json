@@ -42,12 +42,18 @@
         "type": {
           "const": "task",
           "default": "task",
+          "enum": [
+            "task"
+          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "bash",
           "description": "An tool type for bash model.",
+          "enum": [
+            "bash"
+          ],
           "title": "Uses",
           "type": "string"
         },
@@ -149,7 +155,6 @@
         "executor_config": {
           "anyOf": [
             {
-              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -163,7 +168,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -178,7 +182,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -302,11 +305,17 @@
         "type": {
           "const": "task",
           "default": "task",
+          "enum": [
+            "task"
+          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "custom_task",
+          "enum": [
+            "custom_task"
+          ],
           "title": "Uses",
           "type": "string"
         },
@@ -408,7 +417,6 @@
         "executor_config": {
           "anyOf": [
             {
-              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -422,7 +430,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -437,7 +444,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -454,7 +460,6 @@
           "type": "string"
         },
         "params": {
-          "additionalProperties": true,
           "description": "A mapping of parameters that want to pass to Custom Task model before build.",
           "title": "Params",
           "type": "object"
@@ -510,11 +515,17 @@
         "type": {
           "const": "task",
           "default": "task",
+          "enum": [
+            "task"
+          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "debug",
+          "enum": [
+            "debug"
+          ],
           "title": "Uses",
           "type": "string"
         },
@@ -616,7 +627,6 @@
         "executor_config": {
           "anyOf": [
             {
-              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -630,7 +640,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -645,7 +654,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -657,7 +665,6 @@
           "type": "array"
         },
         "params": {
-          "additionalProperties": true,
           "description": "A parameters that want to logging.",
           "title": "Params",
           "type": "object"
@@ -773,11 +780,17 @@
         "type": {
           "const": "task",
           "default": "task",
+          "enum": [
+            "task"
+          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "empty",
+          "enum": [
+            "empty"
+          ],
           "title": "Uses",
           "type": "string"
         },
@@ -879,7 +892,6 @@
         "executor_config": {
           "anyOf": [
             {
-              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -893,7 +905,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -908,7 +919,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -968,11 +978,17 @@
         "type": {
           "const": "task",
           "default": "task",
+          "enum": [
+            "task"
+          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "operator",
+          "enum": [
+            "operator"
+          ],
           "title": "Uses",
           "type": "string"
         },
@@ -1074,7 +1090,6 @@
         "executor_config": {
           "anyOf": [
             {
-              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -1088,7 +1103,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -1103,7 +1117,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -1120,7 +1133,6 @@
           "type": "string"
         },
         "params": {
-          "additionalProperties": true,
           "description": "A mapping of parameters that want to pass to Airflow Operator",
           "title": "Params",
           "type": "object"
@@ -1176,11 +1188,17 @@
         "type": {
           "const": "task",
           "default": "task",
+          "enum": [
+            "task"
+          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "python",
+          "enum": [
+            "python"
+          ],
           "title": "Uses",
           "type": "string"
         },
@@ -1282,7 +1300,6 @@
         "executor_config": {
           "anyOf": [
             {
-              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -1296,7 +1313,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -1311,7 +1327,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -1323,12 +1338,11 @@
           "type": "array"
         },
         "caller": {
-          "description": "A Python function name.",
+          "description": "A Python function name that already set on the `python_callers` parameter.",
           "title": "Caller",
           "type": "string"
         },
         "params": {
-          "additionalProperties": true,
           "title": "Params",
           "type": "object"
         }
@@ -1383,11 +1397,17 @@
         "type": {
           "const": "task",
           "default": "task",
+          "enum": [
+            "task"
+          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "raise",
+          "enum": [
+            "raise"
+          ],
           "title": "Uses",
           "type": "string"
         },
@@ -1489,7 +1509,6 @@
         "executor_config": {
           "anyOf": [
             {
-              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -1503,7 +1522,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -1518,7 +1536,6 @@
           "items": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -1596,6 +1613,9 @@
         "type": {
           "const": "group",
           "default": "group",
+          "enum": [
+            "group"
+          ],
           "title": "Type",
           "type": "string"
         },
@@ -1695,6 +1715,9 @@
     "type": {
       "const": "dag",
       "description": "A type of template config.",
+      "enum": [
+        "dag"
+      ],
       "title": "Type",
       "type": "string"
     },

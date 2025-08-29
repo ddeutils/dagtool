@@ -20,12 +20,19 @@ class ToolMixin(ABC):
     @abstractmethod
     def build(
         self,
-        dag: DAG | None = None,
+        dag: DAG,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
     ) -> Operator | TaskGroup:
         """Build Any Airflow Task object. This method can return Operator or
         TaskGroup object.
+
+        Args:
+            dag (DAG): An Airflow DAG object.
+            task_group (TaskGroup, default None): An Airflow TaskGroup object
+                if this task build under the task group.
+            context (Context, default None): A Context data that was created
+                from the Factory.
         """
 
 
@@ -100,11 +107,20 @@ class BaseTask(BaseAirflowTaskModel, ABC):
     @abstractmethod
     def build(
         self,
-        dag: DAG | None = None,
+        dag: DAG,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-    ) -> Operator:
-        """Build the Airflow Operator object from this model fields."""
+    ) -> Operator | TaskGroup:
+        """Build the Airflow Operator or TaskGroup object from this model
+        field.
+
+        Args:
+            dag (DAG): An Airflow DAG object.
+            task_group (TaskGroup, default None): An Airflow TaskGroup object
+                if this task build under the task group.
+            context (Context, default None): A Context data that was created
+                from the Factory.
+        """
 
     @property
     def iden(self) -> str:
