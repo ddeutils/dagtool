@@ -1,9 +1,14 @@
 import logging
 from typing import Any
 
-from airflow import DAG
-from airflow.operators.empty import EmptyOperator
-from airflow.utils.task_group import TaskGroup
+try:
+    from airflow.providers.standard.operators.empty import EmptyOperator
+    from airflow.sdk.definitions.dag import DAG
+    from airflow.sdk.definitions.taskgroup import TaskGroup
+except ImportError:
+    from airflow.models.dag import DAG
+    from airflow.operators.empty import EmptyOperator
+    from airflow.utils.task_group import TaskGroup
 
 from dagtool.tasks import Context, TaskModel
 from dagtool.tasks.debug import DebugOperator

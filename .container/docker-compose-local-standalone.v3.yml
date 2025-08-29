@@ -17,6 +17,7 @@ services:
       PYTHONPATH: "/opt/airflow/:/opt/airflow/plugins/"
       AIRFLOW_CONFIG: "/opt/airflow/airflow.cfg"
       AIRFLOW_ENV: "${AIRFLOW_ENV:-dev}"
+      AIRFLOW__API_AUTH__JWT_SECRET: "${AIRFLOW__API_AUTH__JWT_SECRET:-}"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
       - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs

@@ -1,6 +1,6 @@
 import hashlib
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Final, TypedDict
 
 try:
@@ -86,4 +86,19 @@ def hash_sha256(data: str | bytes) -> str:
     return sha256_hash.hexdigest()
 
 
-AIRFLOW_VERSION: list[str] = airflow_version.split(".")
+def days_ago(n, hour=0, minute=0, second=0, microsecond=0):
+    """Get a datetime object representing `n` days ago. By default, the time is
+    set to midnight.
+    """
+    today = datetime.now().replace(
+        hour=hour, minute=minute, second=second, microsecond=microsecond
+    )
+    return today - timedelta(days=n)
+
+
+def parse_version(version: str) -> list[int]:
+    vs: list[str] = version.split(".")
+    return [int(vs[_]) for _ in range(3)]
+
+
+AIRFLOW_VERSION: list[int] = parse_version(airflow_version)

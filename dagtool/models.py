@@ -10,7 +10,11 @@ from airflow.configuration import conf as airflow_conf
 try:
     from airflow.sdk.definitions.dag import DAG
     from airflow.sdk.definitions.variable import Variable as AirflowVariable
+    from airflow.sdk.exceptions import AirflowRuntimeError
 except ImportError:
+    from airflow.exceptions import (
+        AirflowInternalRuntimeError as AirflowRuntimeError,
+    )
     from airflow.models import Variable as AirflowVariable
     from airflow.models.dag import DAG
 
@@ -112,7 +116,7 @@ class DagModel(BaseModel):
         default=None,
         description="A DagRun timeout in second value.",
     )
-    owner_links: dict[str, str] | None = None
+    owner_links: dict[str, str] = Field(default_factory=dict)
     default_args: DefaultArgs = Field(default_factory=DefaultArgs)
 
     @field_validator(
@@ -146,7 +150,11 @@ class DagModel(BaseModel):
 
         # TODO: Exclude jinja template until upgrade Airflow >= 2.9.3, This
         #   version remove template render on the `doc_md` value.
-        raw_data: str = f"{{% raw %}}{self.raw_data}{{% endraw %}}"
+        if AIRFLOW_VERSION <= [2, 9, 3]:
+            raw_data: str = f"{{% raw %}}{self.raw_data}{{% endraw %}}"
+        else:
+            raw_data: str = self.raw_data
+
         if docs:
             docs += f"\n\n### YAML Template\n\n````yaml\n{raw_data}\n````"
         else:
@@ -158,10 +166,11 @@ class DagModel(BaseModel):
         version.
         """
         kw: dict[str, Any] = {}
-        if int(AIRFLOW_VERSION[0]) >= 2 and int(AIRFLOW_VERSION[1]) >= 9:
-            kw.update({"dag_display_name": self.display_name})
+        if AIRFLOW_VERSION >= [2, 9, 0]:
+            if self.display_name:
+                kw.update({"dag_display_name": self.display_name})
 
-        if int(AIRFLOW_VERSION[0]) < 3:
+        if AIRFLOW_VERSION < [3, 0, 0]:
             if self.concurrency:
                 kw.update({"concurrency": self.concurrency})
             kw.update({"default_view": "graph"})
@@ -324,6 +333,8 @@ def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
         var: dict[str, Any] = safe_load(raw_var)
         return var
     except KeyError:
+        pass
+    except AirflowRuntimeError:  # NOTE: Raise from Airflow version >= 3.0.0
         pass
 
     try:
