@@ -45,10 +45,10 @@
           "title": "Type",
           "type": "string"
         },
-        "tool": {
+        "uses": {
           "const": "bash",
           "description": "An tool type for bash model.",
-          "title": "Tool",
+          "title": "Uses",
           "type": "string"
         },
         "trigger_rule": {
@@ -254,217 +254,10 @@
       },
       "required": [
         "task",
-        "tool",
+        "uses",
         "command"
       ],
       "title": "BashTask",
-      "type": "object"
-    },
-    "CustomOperatorTask": {
-      "properties": {
-        "desc": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "A Airflow task description",
-          "title": "Desc"
-        },
-        "upstream": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "A list of upstream task name or only task name of this task.",
-          "title": "Upstream"
-        },
-        "task": {
-          "description": "A task name.",
-          "title": "Task",
-          "type": "string"
-        },
-        "type": {
-          "const": "task",
-          "default": "task",
-          "title": "Type",
-          "type": "string"
-        },
-        "tool": {
-          "const": "operator",
-          "title": "Tool",
-          "type": "string"
-        },
-        "trigger_rule": {
-          "$ref": "#/$defs/TriggerRule",
-          "default": "all_success",
-          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
-        },
-        "owner": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Owner"
-        },
-        "email": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Email"
-        },
-        "email_on_failure": {
-          "default": false,
-          "title": "Email On Failure",
-          "type": "boolean"
-        },
-        "email_on_retry": {
-          "default": false,
-          "title": "Email On Retry",
-          "type": "boolean"
-        },
-        "depends_on_past": {
-          "default": false,
-          "title": "Depends On Past",
-          "type": "boolean"
-        },
-        "pool": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Pool"
-        },
-        "retries": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "A retry count.",
-          "title": "Retries"
-        },
-        "retry_delay": {
-          "anyOf": [
-            {
-              "additionalProperties": {
-                "type": "integer"
-              },
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Retry Delay"
-        },
-        "retry_exponential_backoff": {
-          "default": false,
-          "title": "Retry Exponential Backoff",
-          "type": "boolean"
-        },
-        "executor_config": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Executor Config"
-        },
-        "inlets": {
-          "items": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          },
-          "title": "Inlets",
-          "type": "array"
-        },
-        "outlets": {
-          "items": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          },
-          "title": "Outlets",
-          "type": "array"
-        },
-        "operator": {
-          "description": "An Airflow operator that import from external provider.",
-          "title": "Operator",
-          "type": "string"
-        },
-        "params": {
-          "additionalProperties": true,
-          "description": "A mapping of parameters that want to pass to Airflow Operator",
-          "title": "Params",
-          "type": "object"
-        }
-      },
-      "required": [
-        "task",
-        "tool",
-        "operator"
-      ],
-      "title": "CustomOperatorTask",
       "type": "object"
     },
     "CustomTask": {
@@ -512,9 +305,9 @@
           "title": "Type",
           "type": "string"
         },
-        "tool": {
+        "uses": {
           "const": "custom_task",
-          "title": "Tool",
+          "title": "Uses",
           "type": "string"
         },
         "trigger_rule": {
@@ -655,9 +448,9 @@
           "title": "Outlets",
           "type": "array"
         },
-        "uses": {
+        "name": {
           "description": "A custom building function name.",
-          "title": "Uses",
+          "title": "Name",
           "type": "string"
         },
         "params": {
@@ -669,8 +462,8 @@
       },
       "required": [
         "task",
-        "tool",
-        "uses"
+        "uses",
+        "name"
       ],
       "title": "CustomTask",
       "type": "object"
@@ -720,9 +513,9 @@
           "title": "Type",
           "type": "string"
         },
-        "tool": {
+        "uses": {
           "const": "debug",
-          "title": "Tool",
+          "title": "Uses",
           "type": "string"
         },
         "trigger_rule": {
@@ -872,7 +665,7 @@
       },
       "required": [
         "task",
-        "tool"
+        "uses"
       ],
       "title": "DebugTask",
       "type": "object"
@@ -983,9 +776,9 @@
           "title": "Type",
           "type": "string"
         },
-        "tool": {
+        "uses": {
           "const": "empty",
-          "title": "Tool",
+          "title": "Uses",
           "type": "string"
         },
         "trigger_rule": {
@@ -1129,13 +922,12 @@
       },
       "required": [
         "task",
-        "tool"
+        "uses"
       ],
       "title": "EmptyTask",
       "type": "object"
     },
-    "GroupTask": {
-      "description": "Group of Task model that will represent Airflow Task Group object.",
+    "OperatorTask": {
       "properties": {
         "desc": {
           "anyOf": [
@@ -1168,79 +960,178 @@
           "description": "A list of upstream task name or only task name of this task.",
           "title": "Upstream"
         },
-        "group": {
-          "description": "A task group name.",
-          "title": "Group",
+        "task": {
+          "description": "A task name.",
+          "title": "Task",
           "type": "string"
         },
         "type": {
-          "const": "group",
-          "default": "group",
+          "const": "task",
+          "default": "task",
           "title": "Type",
           "type": "string"
         },
-        "tooltip": {
-          "default": "",
-          "description": "A task group tooltip that will display on the UI.",
-          "title": "Tooltip",
+        "uses": {
+          "const": "operator",
+          "title": "Uses",
           "type": "string"
         },
-        "tasks": {
-          "description": "A list of Any Task model.",
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "default": false,
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "default": false,
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
+        "depends_on_past": {
+          "default": false,
+          "title": "Depends On Past",
+          "type": "boolean"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool"
+        },
+        "retries": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A retry count.",
+          "title": "Retries"
+        },
+        "retry_delay": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Delay"
+        },
+        "retry_exponential_backoff": {
+          "default": false,
+          "title": "Retry Exponential Backoff",
+          "type": "boolean"
+        },
+        "executor_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Config"
+        },
+        "inlets": {
           "items": {
-            "description": "An any task type that able operator task or group task.",
-            "oneOf": [
+            "anyOf": [
               {
-                "description": "All supported Operator Tasks.",
-                "discriminator": {
-                  "mapping": {
-                    "bash": "#/$defs/BashTask",
-                    "custom_task": "#/$defs/CustomTask",
-                    "debug": "#/$defs/DebugTask",
-                    "empty": "#/$defs/EmptyTask",
-                    "operator": "#/$defs/CustomOperatorTask",
-                    "python": "#/$defs/PythonTask",
-                    "raise": "#/$defs/RaiseTask"
-                  },
-                  "propertyName": "tool"
-                },
-                "oneOf": [
-                  {
-                    "$ref": "#/$defs/EmptyTask"
-                  },
-                  {
-                    "$ref": "#/$defs/DebugTask"
-                  },
-                  {
-                    "$ref": "#/$defs/BashTask"
-                  },
-                  {
-                    "$ref": "#/$defs/PythonTask"
-                  },
-                  {
-                    "$ref": "#/$defs/CustomTask"
-                  },
-                  {
-                    "$ref": "#/$defs/CustomOperatorTask"
-                  },
-                  {
-                    "$ref": "#/$defs/RaiseTask"
-                  }
-                ]
+                "additionalProperties": true,
+                "type": "object"
               },
               {
-                "$ref": "#/$defs/GroupTask"
+                "type": "string"
               }
             ]
           },
-          "title": "Tasks",
+          "title": "Inlets",
           "type": "array"
+        },
+        "outlets": {
+          "items": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Outlets",
+          "type": "array"
+        },
+        "name": {
+          "description": "An Airflow operator that import from external provider.",
+          "title": "Name",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "A mapping of parameters that want to pass to Airflow Operator",
+          "title": "Params",
+          "type": "object"
         }
       },
       "required": [
-        "group"
+        "task",
+        "uses",
+        "name"
       ],
-      "title": "GroupTask",
+      "title": "OperatorTask",
       "type": "object"
     },
     "PythonTask": {
@@ -1288,9 +1179,9 @@
           "title": "Type",
           "type": "string"
         },
-        "tool": {
+        "uses": {
           "const": "python",
-          "title": "Tool",
+          "title": "Uses",
           "type": "string"
         },
         "trigger_rule": {
@@ -1444,13 +1335,14 @@
       },
       "required": [
         "task",
-        "tool",
+        "uses",
         "caller"
       ],
       "title": "PythonTask",
       "type": "object"
     },
     "RaiseTask": {
+      "description": "Raise Task model.",
       "properties": {
         "desc": {
           "anyOf": [
@@ -1494,9 +1386,9 @@
           "title": "Type",
           "type": "string"
         },
-        "tool": {
+        "uses": {
           "const": "raise",
-          "title": "Tool",
+          "title": "Uses",
           "type": "string"
         },
         "trigger_rule": {
@@ -1657,9 +1549,118 @@
       },
       "required": [
         "task",
-        "tool"
+        "uses"
       ],
       "title": "RaiseTask",
+      "type": "object"
+    },
+    "TaskGroup": {
+      "description": "Group of Task model that will represent Airflow Task Group object.",
+      "properties": {
+        "desc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A Airflow task description",
+          "title": "Desc"
+        },
+        "upstream": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A list of upstream task name or only task name of this task.",
+          "title": "Upstream"
+        },
+        "group": {
+          "description": "A task group name.",
+          "title": "Group",
+          "type": "string"
+        },
+        "type": {
+          "const": "group",
+          "default": "group",
+          "title": "Type",
+          "type": "string"
+        },
+        "tooltip": {
+          "default": "",
+          "description": "A task group tooltip that will display on the UI.",
+          "title": "Tooltip",
+          "type": "string"
+        },
+        "tasks": {
+          "description": "A list of Any Task model.",
+          "items": {
+            "description": "An any task type that able operator task or group task.",
+            "oneOf": [
+              {
+                "description": "All supported Operator Tasks.",
+                "discriminator": {
+                  "mapping": {
+                    "bash": "#/$defs/BashTask",
+                    "custom_task": "#/$defs/CustomTask",
+                    "debug": "#/$defs/DebugTask",
+                    "empty": "#/$defs/EmptyTask",
+                    "operator": "#/$defs/OperatorTask",
+                    "python": "#/$defs/PythonTask",
+                    "raise": "#/$defs/RaiseTask"
+                  },
+                  "propertyName": "uses"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/EmptyTask"
+                  },
+                  {
+                    "$ref": "#/$defs/DebugTask"
+                  },
+                  {
+                    "$ref": "#/$defs/BashTask"
+                  },
+                  {
+                    "$ref": "#/$defs/PythonTask"
+                  },
+                  {
+                    "$ref": "#/$defs/CustomTask"
+                  },
+                  {
+                    "$ref": "#/$defs/OperatorTask"
+                  },
+                  {
+                    "$ref": "#/$defs/RaiseTask"
+                  }
+                ]
+              },
+              {
+                "$ref": "#/$defs/TaskGroup"
+              }
+            ]
+          },
+          "title": "Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "group"
+      ],
+      "title": "TaskGroup",
       "type": "object"
     },
     "TriggerRule": {
@@ -1750,11 +1751,11 @@
                 "custom_task": "#/$defs/CustomTask",
                 "debug": "#/$defs/DebugTask",
                 "empty": "#/$defs/EmptyTask",
-                "operator": "#/$defs/CustomOperatorTask",
+                "operator": "#/$defs/OperatorTask",
                 "python": "#/$defs/PythonTask",
                 "raise": "#/$defs/RaiseTask"
               },
-              "propertyName": "tool"
+              "propertyName": "uses"
             },
             "oneOf": [
               {
@@ -1773,7 +1774,7 @@
                 "$ref": "#/$defs/CustomTask"
               },
               {
-                "$ref": "#/$defs/CustomOperatorTask"
+                "$ref": "#/$defs/OperatorTask"
               },
               {
                 "$ref": "#/$defs/RaiseTask"
@@ -1781,7 +1782,7 @@
             ]
           },
           {
-            "$ref": "#/$defs/GroupTask"
+            "$ref": "#/$defs/TaskGroup"
           }
         ]
       },

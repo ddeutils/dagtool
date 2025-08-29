@@ -4,13 +4,13 @@ from airflow.models import DAG, Operator
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-from .__abc import BaseOperatorTask, Context
+from dagtool.tasks.__abc import BaseTask, Context
 
 
-class EmptyTask(BaseOperatorTask):
+class EmptyTask(BaseTask):
     """Empty Task model."""
 
-    tool: Literal["empty"]
+    uses: Literal["empty"]
 
     def build(
         self,

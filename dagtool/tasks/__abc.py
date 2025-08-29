@@ -69,14 +69,14 @@ class BaseAirflowTaskModel(TaskModel, ABC):
         """
 
 
-class BaseOperatorTask(BaseAirflowTaskModel, ABC):
+class BaseTask(BaseAirflowTaskModel, ABC):
     """Operator Task Model."""
 
     model_config = ConfigDict(use_enum_values=True)
 
     task: str = Field(description="A task name.")
     type: Literal["task"] = Field(default="task")
-    tool: str = Field(description="An tool type of this task.")
+    uses: str = Field(description="An tool type of this task.")
     trigger_rule: TriggerRule = Field(
         default=TriggerRule.ALL_SUCCESS,
         description=(
@@ -114,7 +114,7 @@ class BaseOperatorTask(BaseAirflowTaskModel, ABC):
         return self.task
 
     def task_kwargs(self) -> dict[str, Any]:
-        """Prepare Airflow BaseOperator kwargs from BaseOperatorTask fields.
+        """Prepare Airflow BaseOperator kwargs from BaseTask fields.
 
             This method will make key when any field was pass to model and do
         avoid if it is None or default value.

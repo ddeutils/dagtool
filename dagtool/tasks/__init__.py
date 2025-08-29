@@ -1,17 +1,21 @@
 from typing import Annotated, Any, Literal, Union
 
 from airflow.models import DAG, Operator
-from airflow.utils.task_group import TaskGroup
+from airflow.utils.task_group import TaskGroup as AirflowTaskGroup
 from pydantic import Discriminator, Field, Tag
 
+from dagtool.tasks.__abc import (
+    BaseAirflowTaskModel,
+    BaseTask,
+    Context,
+    TaskModel,
+)
+from dagtool.tasks.bash import BashTask
+from dagtool.tasks.custom import CustomTask, OperatorTask
+from dagtool.tasks.debug import DebugTask, RaiseTask
+from dagtool.tasks.empty import EmptyTask
+from dagtool.tasks.python import PythonTask
 from dagtool.utils import TaskMapped, set_upstream
-
-from .__abc import BaseAirflowTaskModel, BaseOperatorTask, Context, TaskModel
-from .bash import BashTask
-from .custom import CustomTask, OperatorTask
-from .debug import DebugTask, RaiseTask
-from .empty import EmptyTask
-from .python import PythonTask
 
 Task = Annotated[
     Union[
@@ -24,13 +28,13 @@ Task = Annotated[
         RaiseTask,
     ],
     Field(
-        discriminator="tool",
+        discriminator="uses",
         description="All supported Operator Tasks.",
     ),
 ]
 
 
-class GroupTask(BaseAirflowTaskModel):
+class TaskGroup(BaseAirflowTaskModel):
     """Group of Task model that will represent Airflow Task Group object."""
 
     group: str = Field(description="A task group name.")
@@ -47,11 +51,11 @@ class GroupTask(BaseAirflowTaskModel):
     def build(
         self,
         dag: DAG | None = None,
-        task_group: TaskGroup | None = None,
+        task_group: AirflowTaskGroup | None = None,
         context: Context | None = None,
-    ) -> TaskGroup:
+    ) -> AirflowTaskGroup:
         """Build Airflow Task Group object."""
-        task_group = TaskGroup(
+        task_group = AirflowTaskGroup(
             group_id=self.group,
             prefix_group_id=False,
             tooltip=self.tooltip,
@@ -61,7 +65,7 @@ class GroupTask(BaseAirflowTaskModel):
         )
         tasks: dict[str, TaskMapped] = {}
         for task in self.tasks:
-            task_airflow: Operator | TaskGroup = task.build(
+            task_airflow: Operator | AirflowTaskGroup = task.build(
                 dag=dag,
                 task_group=task_group,
                 context=context,
@@ -100,7 +104,7 @@ def any_task_discriminator(v: Any) -> str | None:
 AnyTask = Annotated[
     Union[
         Annotated[Task, Tag("Task")],
-        Annotated[GroupTask, Tag("Group")],
+        Annotated[TaskGroup, Tag("Group")],
     ],
     Field(
         discriminator=Discriminator(discriminator=any_task_discriminator),

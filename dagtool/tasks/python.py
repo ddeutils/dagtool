@@ -6,14 +6,19 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import BaseOperatorTask, Context
+from dagtool.tasks.__abc import BaseTask, Context
 
 
-class PythonTask(BaseOperatorTask):
+class PythonTask(BaseTask):
     """Python Task model."""
 
-    tool: Literal["python"]
-    caller: str = Field(description="A Python function name.")
+    uses: Literal["python"]
+    caller: str = Field(
+        description=(
+            "A Python function name that already set on the `python_callers` "
+            "parameter."
+        )
+    )
     params: dict[str, Any] = Field(default_factory=dict)
 
     def build(
@@ -34,6 +39,6 @@ class PythonTask(BaseOperatorTask):
             task_group=task_group,
             dag=dag,
             python_callable=python_callers[self.caller],
-            op_kwargs={"name": self.params},
+            op_kwargs=self.params,
             **self.task_kwargs(),
         )

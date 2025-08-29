@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import hashlib
 from collections.abc import Callable
 from datetime import datetime
@@ -18,7 +16,7 @@ class TaskMapped(TypedDict):
 
 
 def set_upstream(tasks: dict[str, TaskMapped]) -> None:
-    """Set Upstream Task for each tools in mapping.
+    """Set Upstream Task for each tasks in mapping.
 
     Args:
         tasks: A mapping of task_id and TaskMapped dict object.

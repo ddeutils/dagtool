@@ -9,7 +9,7 @@ from airflow.utils.context import Context as AirflowContext
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import BaseOperatorTask, Context
+from dagtool.tasks.__abc import BaseTask, Context
 
 
 class RaiseOperator(BaseOperator):
@@ -34,10 +34,10 @@ class RaiseOperator(BaseOperator):
         raise AirflowException(self.message)
 
 
-class RaiseTask(BaseOperatorTask):
+class RaiseTask(BaseTask):
     """Raise Task model."""
 
-    tool: Literal["raise"]
+    uses: Literal["raise"]
     message: str | None = Field(default=None)
     skipped: bool = False
 
@@ -60,7 +60,7 @@ class RaiseTask(BaseOperatorTask):
 class DebugOperator(BaseOperator):
     """Operator that does literally nothing.
 
-    It can be used to group tools in a DAG.
+    It can be used to group tasks in a DAG.
     The task is evaluated by the scheduler but never processed by the executor.
     """
 
@@ -88,10 +88,10 @@ class DebugOperator(BaseOperator):
         self.log.info(json.dumps(ctx, indent=2, default=str))
 
 
-class DebugTask(BaseOperatorTask):
+class DebugTask(BaseTask):
     """Debug Task model that inherit from Operator task."""
 
-    tool: Literal["debug"]
+    uses: Literal["debug"]
     params: dict[str, Any] = Field(
         default_factory=dict,
         description="A parameters that want to logging.",

@@ -3,11 +3,11 @@ from airflow.exceptions import AirflowException
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.trigger_rule import TriggerRule
 
-from dagtool.tools.empty import EmptyTask
+from dagtool.tasks.empty import EmptyTask
 
 
 def test_tool_empty():
-    task = EmptyTask(task="demo", tool="empty")
+    task = EmptyTask(task="demo", uses="empty")
     assert task.upstream == []
     assert task.task_kwargs() == {
         "task_id": "demo",
@@ -17,7 +17,7 @@ def test_tool_empty():
 
 
 def test_tool_empty_build():
-    task = EmptyTask(task="demo", tool="empty")
+    task = EmptyTask(task="demo", uses="empty")
     op = task.build()
     assert isinstance(op, EmptyOperator)
     assert op.task_id == "demo"

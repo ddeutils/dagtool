@@ -5,14 +5,14 @@ from airflow.models import Operator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import BaseOperatorTask, Context, TaskModel
+from dagtool.tasks.__abc import BaseTask, Context, TaskModel
 
 
-class CustomTask(BaseOperatorTask):
+class CustomTask(BaseTask):
     """Custom Task model."""
 
-    tool: Literal["custom_task"]
-    uses: str = Field(description="A custom building function name.")
+    uses: Literal["custom_task"]
+    name: str = Field(description="A custom building function name.")
     params: dict[str, Any] = Field(
         default_factory=dict,
         description=(
@@ -30,11 +30,11 @@ class CustomTask(BaseOperatorTask):
         """Build with Custom builder function."""
         ctx: Context = context or {}
         custom_tasks: dict[str, type[TaskModel]] = ctx["tasks"]
-        if self.uses not in custom_tasks:
+        if self.name not in custom_tasks:
             raise ValueError(
-                f"Custom task need to pass to `tasks` argument, {self.uses}, first."
+                f"Custom task need to pass to `tasks` argument, {self.name}, first."
             )
-        op: type[TaskModel] = custom_tasks[self.uses]
+        op: type[TaskModel] = custom_tasks[self.name]
         model: TaskModel = op.model_validate(self.params)
         return model.build(
             dag=dag,
@@ -43,9 +43,9 @@ class CustomTask(BaseOperatorTask):
         )
 
 
-class OperatorTask(BaseOperatorTask):
-    tool: Literal["operator"]
-    operator: str = Field(
+class OperatorTask(BaseTask):
+    uses: Literal["operator"]
+    name: str = Field(
         description="An Airflow operator that import from external provider.",
     )
     params: dict[str, Any] = Field(
@@ -63,12 +63,12 @@ class OperatorTask(BaseOperatorTask):
     ) -> Operator:
         ctx: Context = context or {}
         custom_opts: dict[str, type[Operator]] = ctx["operators"]
-        if self.operator not in custom_opts:
+        if self.name not in custom_opts:
             raise ValueError(
-                f"Operator need to pass to `operator` argument, "
-                f"{self.operator}, first."
+                f"Operator need to pass to `operators` argument, "
+                f"{self.name}, first."
             )
-        op: type[Operator] = custom_opts[self.operator]
+        op: type[Operator] = custom_opts[self.name]
         return op(
             dag=dag,
             task_group=task_group,

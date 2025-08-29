@@ -15,9 +15,9 @@ from typing_extensions import Self
 from yaml import safe_load
 from yaml.parser import ParserError
 
-from .conf import ASSET_DIR, YamlConf
-from .tools import AnyTask, Context
-from .utils import FILTERS, TaskMapped, set_upstream
+from dagtool.conf import ASSET_DIR, YamlConf
+from dagtool.tasks import AnyTask, Context
+from dagtool.utils import FILTERS, TaskMapped, set_upstream
 
 
 class DefaultArgs(BaseModel):

@@ -5,7 +5,7 @@ from typing import Any, Final
 from yaml import safe_load
 from yaml.parser import ParserError
 
-from .utils import hash_sha256
+from dagtool.utils import hash_sha256
 
 DAG_FILENAME_PREFIX: Final[str] = "dag"
 VARIABLE_FILENAME: Final[str] = "variables"

@@ -5,13 +5,13 @@ from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from .__abc import BaseOperatorTask, Context
+from dagtool.tasks.__abc import BaseTask, Context
 
 
-class BashTask(BaseOperatorTask):
+class BashTask(BaseTask):
     """Bash Task model that will represent to Airflow BashOperator object."""
 
-    tool: Literal["bash"] = Field(description="An tool type for bash model.")
+    uses: Literal["bash"] = Field(description="An tool type for bash model.")
     command: str = Field(description="A bash command or bash file")
     env: dict[str, str] | None = Field(
         default=None,

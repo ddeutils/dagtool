@@ -18,7 +18,7 @@ RUN uv venv /opt/venv --python=${PYTHON_VERSION}
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# NOTE: Install pendulum first because airflow version 2.7 does not compatible
+# WARNING: Install pendulum first because Airflow version 2.7 does not compatible
 #   if it more than 3.0.0
 RUN uv pip install "pendulum<3.0.0" && \
     uv pip install "apache-airflow[google]==${AIRFLOW_VERSION}" \

@@ -5,12 +5,13 @@ from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-from dagtool.tools import Context, TaskModel
-from dagtool.tools.debug import DebugOperator
+from dagtool.tasks import Context, TaskModel
+from dagtool.tasks.debug import DebugOperator
 
 
 def say_hi(name: Any) -> str:
     """Custom Python function that will use with Airflow PythonOperator."""
+    logging.info(f"Input: {name}")
     if not isinstance(name, str):
         logging.info(f"Hello {name.name}")
         return name.name if hasattr(name, "name") else str(name)

@@ -5,7 +5,7 @@ from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 
 from dagtool.models import get_variable_stage
-from dagtool.tools.debug import DebugOperator
+from dagtool.tasks.debug import DebugOperator
 from ignore.utils import sequence_pool
 
 dag = DAG(

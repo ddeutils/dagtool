@@ -11,15 +11,15 @@ docs: |
 start_date: "2025-01-01"
 tags:
   - "group:demo"
-  - "tool:true"
+  - "uses:true"
   - "domain:demo"
 tasks:
   - task: start
-    tool: empty
+    uses: empty
 
   - task: debug
     upstream: start
-    tool: debug
+    uses: debug
     params:
       foo: bar
       custom: "{{ custom_macros }}"
@@ -28,9 +28,9 @@ tasks:
 
   - task: force_raise
     upstream: debug
-    tool: raise
+    uses: raise
 
   - task: end
     upstream: force_raise
     trigger_rule: one_failed
-    tool: empty
+    uses: empty

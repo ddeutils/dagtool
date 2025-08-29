@@ -8,19 +8,19 @@ start_date: "{{ vars('start_date') }}"
 catchup: "{{ vars('catchup') }}"
 tags:
   - "group:demo"
-  - "tool:true"
+  - "uses:true"
   - "domain:demo"
 vars:
   gcs_path: "gcs://{{ vars('project_id') }}/{{ vars('bucket_name') }}/data"
 tasks:
   - task: start
-    tool: debug
+    uses: debug
     params:
       custom_macros: "{{ custom_macros }}"
 
   - task: macros
     upstream: start
-    tool: debug
+    uses: debug
     params:
       variable_00: "{{ vars('project_id') }}"
       variable_01: "{{ vars('bucket_name') }}"
@@ -40,19 +40,19 @@ tasks:
 
   - task: combine_macros
     upstream: macros
-    tool: debug
+    uses: debug
     params:
       variable_combine: "{{ gcs_path }}"
 
   - task: filter
     upstream: macros
-    tool: debug
+    uses: debug
     params:
       convert_dt: "{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('%Y-%m-%d %H:00:00%z') }}"
 
   - task: custom_filter
     upstream: filter
-    tool: debug
+    uses: debug
     params:
       convert_dt_filter_01: "{{ data_interval_start | fmt('%Y-%m-%d %H:00:00%z') }}"
       convert_dt_filter_02: "{{ data_interval_start | fmt('%Y-%m-%d') }}"

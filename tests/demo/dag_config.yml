@@ -8,14 +8,14 @@ tags:
   - p1
 tasks:
   - task: start
-    tool: empty
+    uses: empty
 
   - group: task_group
     upstream: start
     tasks:
       - task: sub_task
-        tool: empty
+        uses: empty
 
   - task: end
     upstream: task_group
-    tool: empty
+    uses: empty

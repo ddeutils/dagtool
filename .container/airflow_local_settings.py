@@ -1,7 +1,7 @@
 from airflow.www.utils import UIAlert
 
 DASHBOARD_UIALERTS = [
-    UIAlert("Welcome to Airflow", category="warning"),
+    UIAlert("Welcome to Airflow Standalone Mode", category="warning"),
 ]
 STATE_COLORS = {
     "deferred": "#a9a9a9",  # Dark Gray
