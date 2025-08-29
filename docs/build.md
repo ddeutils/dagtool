@@ -18,6 +18,9 @@ This is a building document for local testing when I want to develop features.
     AIRFLOW_ENV=dev
     ```
 
+> [!WARNING]
+> For Airflow3, you should set `AIRFLOW__API_AUTH__JWT_SECRET` in dotenv file.
+
 ## Docker Image
 
 Build only Docker image (Optional):
