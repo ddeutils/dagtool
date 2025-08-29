@@ -1,7 +1,20 @@
 from typing import Annotated, Any, Literal, Union
 
-from airflow.models import DAG, Operator
-from airflow.utils.task_group import TaskGroup as AirflowTaskGroup
+try:
+    from airflow.sdk.bases.operator import BaseOperator
+    from airflow.sdk.definitions.dag import DAG
+    from airflow.sdk.definitions.mappedoperator import MappedOperator
+    from airflow.sdk.definitions.taskgroup import TaskGroup as AirflowTaskGroup
+
+    Operator = BaseOperator | MappedOperator
+except ImportError:
+    from airflow.models.baseoperator import BaseOperator
+    from airflow.models.dag import DAG
+    from airflow.models.mappedoperator import MappedOperator
+    from airflow.utils.task_group import TaskGroup as AirflowTaskGroup
+
+    Operator = BaseOperator | MappedOperator
+
 from pydantic import Discriminator, Field, Tag
 
 from dagtool.tasks.__abc import (

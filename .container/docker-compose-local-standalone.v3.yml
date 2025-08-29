@@ -1,13 +1,13 @@
 name: dagtool
 services:
   airflow:
-    image: airflow-standalone-local
+    image: airflow-standalone-local-v3
     container_name: airflow-dev
     build:
       context: ..
-      dockerfile: ./.container/Dockerfile
+      dockerfile: ./.container/v3.Dockerfile
       args:
-        AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.7.1}
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION:-3.0.4}
         PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
     ports:
       - "8080:8080"
@@ -20,8 +20,7 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
       - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
-      - ${AIRFLOW_PROJ_DIR:-.}/.container/airflow.standalone.cfg:/opt/airflow/airflow.cfg
-      - ${AIRFLOW_PROJ_DIR:-.}/.container/airflow_local_settings.py:/opt/airflow/config/airflow_local_settings.py
+      - ${AIRFLOW_PROJ_DIR:-.}/.container/airflow.standalone.v3.cfg:/opt/airflow/airflow.cfg
       # NOTE: Mount tool package suppose as it use GitSync on production instead
       #   of install via Python package.
       - ${AIRFLOW_PROJ_DIR:-.}/dagtool:/opt/airflow/plugins/dagtool

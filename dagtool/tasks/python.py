@@ -1,12 +1,13 @@
 from typing import Any, Literal
 
-from airflow import DAG
-from airflow.models import Operator
-from airflow.operators.python import PythonOperator
-from airflow.utils.task_group import TaskGroup
+try:
+    from airflow.providers.standard.operators.python import PythonOperator
+except ImportError:
+    from airflow.operators.python import PythonOperator
+
 from pydantic import Field
 
-from dagtool.tasks.__abc import BaseTask, Context
+from dagtool.tasks.__abc import DAG, BaseTask, Context, Operator, TaskGroup
 
 
 class PythonTask(BaseTask):

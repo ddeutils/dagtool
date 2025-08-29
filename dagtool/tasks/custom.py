@@ -1,11 +1,15 @@
 from typing import Any, Literal
 
-from airflow import DAG
-from airflow.models import Operator
-from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from dagtool.tasks.__abc import BaseTask, Context, TaskModel
+from dagtool.tasks.__abc import (
+    DAG,
+    BaseTask,
+    Context,
+    Operator,
+    TaskGroup,
+    TaskModel,
+)
 
 
 class CustomTask(BaseTask):

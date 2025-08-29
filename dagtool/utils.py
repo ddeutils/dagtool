@@ -3,8 +3,19 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Final, TypedDict
 
-from airflow.models import Operator
-from airflow.utils.task_group import TaskGroup
+try:
+    from airflow.sdk.bases.operator import BaseOperator
+    from airflow.sdk.definitions.mappedoperator import MappedOperator
+    from airflow.sdk.definitions.taskgroup import TaskGroup
+
+    Operator = BaseOperator | MappedOperator
+except ImportError:
+    from airflow.models.baseoperator import BaseOperator
+    from airflow.models.mappedoperator import MappedOperator
+    from airflow.utils.task_group import TaskGroup
+
+    Operator = BaseOperator | MappedOperator
+
 from airflow.version import version as airflow_version
 from pendulum import DateTime
 

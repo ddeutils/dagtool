@@ -6,8 +6,14 @@ from pathlib import Path
 from typing import Any, Literal, Union
 
 from airflow.configuration import conf as airflow_conf
-from airflow.models import DAG
-from airflow.models import Variable as AirflowVariable
+
+try:
+    from airflow.sdk.definitions.dag import DAG
+    from airflow.sdk.definitions.variable import Variable as AirflowVariable
+except ImportError:
+    from airflow.models import Variable as AirflowVariable
+    from airflow.models.dag import DAG
+
 from pendulum import parse, timezone
 from pydantic import BaseModel, Field, ValidationError
 from pydantic.functional_validators import field_validator
@@ -153,7 +159,12 @@ class DagModel(BaseModel):
         """
         kw: dict[str, Any] = {}
         if int(AIRFLOW_VERSION[0]) >= 2 and int(AIRFLOW_VERSION[1]) >= 9:
-            kw.update({"display_name": self.display_name})
+            kw.update({"dag_display_name": self.display_name})
+
+        if int(AIRFLOW_VERSION[0]) < 3:
+            if self.concurrency:
+                kw.update({"concurrency": self.concurrency})
+            kw.update({"default_view": "graph"})
         return kw
 
     def build(
@@ -201,13 +212,12 @@ class DagModel(BaseModel):
         }
         dag = DAG(
             dag_id=name,
-            tags=self.tags,
+            tags=set(self.tags),
             description=self.desc,
             doc_md=self.build_docs(docs),
             schedule=self.schedule,
             start_date=self.start_date,
             end_date=self.end_date,
-            concurrency=self.concurrency,
             max_active_runs=self.max_active_runs,
             max_active_tasks=self.max_active_tasks,
             dagrun_timeout=(
@@ -224,7 +234,6 @@ class DagModel(BaseModel):
             + (template_searchpath or []),
             user_defined_macros=macros | (user_defined_macros or {}),
             user_defined_filters=FILTERS | (user_defined_filters or {}),
-            default_view="graph",
             render_template_as_native_obj=True,
             is_paused_upon_creation=self.is_paused_upon_creation,
             on_success_callback=on_success_callback,

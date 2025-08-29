@@ -1,11 +1,16 @@
 from typing import Literal
 
-from airflow.models import DAG, Operator
-from airflow.operators.bash import BashOperator
+try:
+    from airflow.providers.standard.operators.bash import BashOperator
+    from airflow.sdk.definitions.dag import DAG
+except ImportError:
+    from airflow.models.dag import DAG
+    from airflow.operators.bash import BashOperator
+
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from dagtool.tasks.__abc import BaseTask, Context
+from dagtool.tasks.__abc import BaseTask, Context, Operator
 
 
 class BashTask(BaseTask):

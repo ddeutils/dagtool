@@ -4,9 +4,21 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
-from airflow.models import DAG, Operator
-from airflow.templates import NativeEnvironment
+try:
+    from airflow.sdk.bases.operator import BaseOperator
+    from airflow.sdk.definitions.dag import DAG
+    from airflow.sdk.definitions.mappedoperator import MappedOperator
+
+    Operator = BaseOperator | MappedOperator
+except ImportError:
+    from airflow.models.baseoperator import BaseOperator
+    from airflow.models.dag import DAG
+    from airflow.models.mappedoperator import MappedOperator
+
+    Operator = BaseOperator | MappedOperator
+
 from jinja2 import Environment, Template
+from jinja2.nativetypes import NativeEnvironment
 from pydantic import ValidationError
 
 from dagtool.conf import YamlConf

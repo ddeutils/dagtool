@@ -1,10 +1,11 @@
 from typing import Literal
 
-from airflow.models import DAG, Operator
-from airflow.operators.empty import EmptyOperator
-from airflow.utils.task_group import TaskGroup
+try:
+    from airflow.providers.standard.operators.empty import EmptyOperator
+except ImportError:
+    from airflow.operators.empty import EmptyOperator
 
-from dagtool.tasks.__abc import BaseTask, Context
+from dagtool.tasks.__abc import DAG, BaseTask, Context, Operator, TaskGroup
 
 
 class EmptyTask(BaseTask):
