@@ -5,6 +5,7 @@ from typing import Final, TypedDict
 
 from airflow.models import Operator
 from airflow.utils.task_group import TaskGroup
+from airflow.version import version as airflow_version
 from pendulum import DateTime
 
 
@@ -72,3 +73,6 @@ def hash_sha256(data: str | bytes) -> str:
     sha256_hash = hashlib.sha256()
     sha256_hash.update(data)
     return sha256_hash.hexdigest()
+
+
+AIRFLOW_VERSION: list[str] = airflow_version.split(".")
