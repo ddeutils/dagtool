@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 class Context(TypedDict):
     path: Path
     yaml_loader: YamlConf
+    vars: dict[str, Any]
     tasks: dict[str, type[TaskModel]]
     operators: dict[str, type[Operator]]
     python_callers: dict[str, Callable]

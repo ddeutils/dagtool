@@ -26,9 +26,9 @@ from typing_extensions import Self
 from yaml import safe_load
 from yaml.parser import ParserError as YamlParserError
 
-from dagtool.conf import ASSET_DIR, YamlConf
+from dagtool.conf import YamlConf
 from dagtool.tasks import AnyTask, Context
-from dagtool.utils import AIRFLOW_VERSION, FILTERS, TaskMapped, set_upstream
+from dagtool.utils import AIRFLOW_VERSION, TaskMapped, set_upstream
 
 
 class DefaultArgs(BaseModel):
@@ -96,12 +96,17 @@ class DagModel(BaseModel):
     )
 
     # NOTE: Airflow DAG parameters.
-    owner: str = Field(default="dagtool")
+    owner: str = Field(default="dagtool", description="An owner name.")
     tags: list[str] = Field(default_factory=list, description="A list of tags.")
     schedule: str | None = Field(default=None)
     start_date: datetime | str | None = Field(default=None)
     end_date: datetime | str | None = Field(default=None)
-    concurrency: int | None = Field(default=None)
+    concurrency: int | None = Field(
+        default=None,
+        description=(
+            "A concurrency value that deprecate when upgrade to Airflow3."
+        ),
+    )
     is_paused_upon_creation: bool = Field(default=True)
     max_active_tasks: int = Field(
         default_factory=partial(
@@ -152,7 +157,7 @@ class DagModel(BaseModel):
             d: str = docs.rstrip("\n")
             docs: str = f"{d}\n\n{self.docs}"
 
-        # TODO: Exclude jinja template until upgrade Airflow >= 2.9.3, This
+        # NOTE: Exclude jinja template until upgrade Airflow >= 2.9.3, This
         #   version remove template render on the `doc_md` value.
         if AIRFLOW_VERSION <= [2, 9, 3]:
             raw_data: str = f"{{% raw %}}{self.raw_data}{{% endraw %}}"
@@ -243,10 +248,9 @@ class DagModel(BaseModel):
                 | self.default_args.to_dict()
                 | DefaultArgs.model_validate(default_args or {}).to_dict()
             ),
-            template_searchpath=[str((self.parent_dir / ASSET_DIR).absolute())]
-            + (template_searchpath or []),
+            template_searchpath=(template_searchpath or []),
             user_defined_macros=macros | (user_defined_macros or {}),
-            user_defined_filters=FILTERS | (user_defined_filters or {}),
+            user_defined_filters=(user_defined_filters or {}),
             render_template_as_native_obj=True,
             is_paused_upon_creation=self.is_paused_upon_creation,
             on_success_callback=on_success_callback,
@@ -295,9 +299,7 @@ class Key(BaseModel):
 class Variable(BaseModel):
     """Variable Model."""
 
-    type: Literal["variable"] = Field(
-        description="A type of this variable model."
-    )
+    type: Literal["variable"] = Field(description="A type of this variable.")
     variables: list[Key] = Field(description="A list of Key model.")
 
     @classmethod
@@ -329,7 +331,8 @@ def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
         prefix (str, default None): A prefix name that use to combine with name.
 
     Returns:
-        dict[str, Any]: A variable mapping
+        dict[str, Any]: A variable mapping. This method will return empty dict
+            if it gets any exceptions.
     """
     try:
         _name: str = f"{prefix}_{name}" if prefix else name
@@ -338,7 +341,8 @@ def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
         return var
     except KeyError:
         pass
-    except AirflowRuntimeError:  # NOTE: Raise from Airflow version >= 3.0.0
+    # NOTE: Raise from Airflow version >= 3.0.0 instead of KeyError.
+    except AirflowRuntimeError:
         pass
     except ImportError as err:  # NOTE: Raise from Airflow version >= 3.0.0
         if "cannot import name 'SUPERVISOR_COMMS'" not in str(err):

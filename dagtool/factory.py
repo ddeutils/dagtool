@@ -2,28 +2,27 @@ import logging
 import os
 from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 try:
     from airflow.sdk.bases.operator import BaseOperator
     from airflow.sdk.definitions.dag import DAG
     from airflow.sdk.definitions.mappedoperator import MappedOperator
-
-    Operator = BaseOperator | MappedOperator
 except ImportError:
     from airflow.models.baseoperator import BaseOperator
     from airflow.models.dag import DAG
     from airflow.models.mappedoperator import MappedOperator
 
-    Operator = BaseOperator | MappedOperator
-
 from jinja2 import Environment, Template
 from jinja2.nativetypes import NativeEnvironment
 from pydantic import ValidationError
 
-from dagtool.conf import YamlConf
+from dagtool.conf import ASSET_DIR, YamlConf
 from dagtool.models import DagModel, pull_vars
 from dagtool.tasks import Context, TaskModel
+from dagtool.utils import FILTERS
+
+Operator = BaseOperator | MappedOperator
 
 
 class Factory:
@@ -41,6 +40,14 @@ class Factory:
         >>> # NOTE: Add this statement for Airflow DAG Processor.
         >>> # from airflow import DAG
 
+    Examples:
+        Create the Custom factory that use standard with your operators.
+        >>> from dagtool import Factory
+        >>> class CustomFactory(Factory):
+        ...     builtin_operators = {
+        ...         "some-operator-name": ...,
+        ...     }
+
     Attributes:
         name (str): A prefix name that will use for making DAG inside this dir.
         path (Path): A parent path for searching tempalate config files.
@@ -50,18 +57,20 @@ class Factory:
 
     # NOTE: Template fields for DAG parameters that will use on different
     #   stages like `catchup` parameter that should disable when deploy to dev.
-    template_fields: Sequence[str] = (
+    template_fields: ClassVar[Sequence[str]] = (
         "schedule",
         "start_date",
         "end_date",
         "catchup",
+        "tags",
+        "max_active_tasks",
         "max_active_runs",
         "vars",
     )
 
     # NOTE: Builtin class variables for making custom Factory by inherit.
-    builtin_operators: dict[str, type[Operator]] = {}
-    builtin_tasks: dict[str, type[TaskModel]] = {}
+    builtin_operators: ClassVar[dict[str, type[Operator]]] = {}
+    builtin_tasks: ClassVar[dict[str, type[TaskModel]]] = {}
 
     def __init__(
         self,
@@ -107,12 +116,12 @@ class Factory:
         self.conf: dict[str, DagModel] = {}
         self.yaml_loader = YamlConf(path=self.path)
 
-        # NOTE: Set Extended Airflow params.
+        # NOTE: Set Extended Airflow params with necessary values.
         self.template_searchpath: list[str] = [
             str(p.absolute()) if isinstance(p, Path) else p
             for p in (template_searchpath or [])
-        ]
-        self.user_defined_filters = user_defined_filters or {}
+        ] + [str((self.path / ASSET_DIR).absolute())]
+        self.user_defined_filters = FILTERS | (user_defined_filters or {})
         self.user_defined_macros = user_defined_macros or {}
         self.on_success_callback = on_success_callback
         self.on_failure_callback = on_failure_callback
@@ -158,14 +167,16 @@ class Factory:
             except ValidationError:
                 continue
 
-    def set_context(self) -> Context:
+    def set_context(self, custom_vars: dict[str, Any] | None = None) -> Context:
         """Set context data that bypass to the build method."""
+        _vars: dict[str, Any] = custom_vars or {}
         return {
             "path": self.path,
             "yaml_loader": self.yaml_loader,
             "tasks": self.tasks,
             "operators": self.operators,
             "python_callers": self.python_callers,
+            "vars": _vars,
         }
 
     def render_template(self, data: Any, env: Environment) -> Any:
@@ -261,9 +272,11 @@ class Factory:
                 default_args=default_args,
                 user_defined_macros=self.user_defined_macros | model.vars,
                 user_defined_filters=self.user_defined_filters,
+                template_searchpath=self.template_searchpath,
                 on_success_callback=self.on_success_callback,
                 on_failure_callback=self.on_failure_callback,
-                context=context,
+                # NOTE: Copy the Context data and add the current custom vars.
+                context=context | {"vars": model.vars},
             )
             logging.info(f"({name}) Building DAG: {dag}")
             dags.append(dag)
