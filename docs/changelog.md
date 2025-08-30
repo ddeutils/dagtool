@@ -2,6 +2,24 @@
 
 ## Latest Changes
 
+## 0.0.9
+
+### :sparkles: Features
+
+- :dart: add name logging on factory.
+- :dart: add context extras for dynamic value to build method.
+
+### :bug: Bug fixes
+
+- :gear: fix type tags does not valid.
+- :gear: add custom filter on factory instread of models.
+
+### :black_nib: Code Changes
+
+- :construction: change function to classmethod on variable model.
+- :art: add AIR rule on ruff.
+- :test_tube: update testcase support version change.
+
 ## 0.0.8
 
 ### :sparkles: Features
