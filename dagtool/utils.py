@@ -1,7 +1,7 @@
 import hashlib
 from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Final, TypedDict
+from typing import Any, Final, TypedDict
 
 try:
     from airflow.sdk.bases.operator import BaseOperator
@@ -102,3 +102,8 @@ def parse_version(version: str) -> list[int]:
 
 
 AIRFLOW_VERSION: list[int] = parse_version(airflow_version)
+
+
+def clear_globals(gb: dict[str, Any]) -> dict[str, Any]:
+    """Clear Globals variable support keeping necessary values only."""
+    return {k: gb[k] for k in gb if k not in ("__builtins__", "__cached__")}

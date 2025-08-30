@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 from collections.abc import Callable, Sequence
@@ -22,7 +23,9 @@ from pydantic import ValidationError
 from dagtool.conf import ASSET_DIR, YamlConf
 from dagtool.models import DagModel, pull_vars
 from dagtool.tasks import Context, TaskModel
-from dagtool.utils import FILTERS
+from dagtool.utils import FILTERS, clear_globals
+
+logger = logging.getLogger("dagtool.factory")
 
 Operator = BaseOperator | MappedOperator
 
@@ -276,6 +279,7 @@ class Factory:
         Returns:
             list[DAG]: A list of Airflow DAG object.
         """
+        logger.info("Start build DAG from Template config data.")
         dags: list[DAG] = []
         context: Context = self.set_context(extras=context_extras)
         for name, model in self.conf.items():
@@ -291,7 +295,7 @@ class Factory:
                 # NOTE: Copy the Context data and add the current custom vars.
                 context=context | {"vars": model.vars},
             )
-            logging.info(f"({name}) Building DAG: {dag}")
+            logger.info(f"({name}) Building DAG: {dag}")
             dags.append(dag)
         return dags
 
@@ -314,7 +318,12 @@ class Factory:
             default_args (dict[str, Any]): An override default args value.
             context_extras (dict[str, Any]): A context extras.
         """
+        if gb:
+            logger.debug("DEBUG: The current globals variables before build.")
+            logger.debug(json.dumps(clear_globals(gb), default=str, indent=1))
+
         for dag in self.build(
-            default_args=default_args, context_extras=context_extras
+            default_args=default_args,
+            context_extras=context_extras,
         ):
             gb[dag.dag_id] = dag

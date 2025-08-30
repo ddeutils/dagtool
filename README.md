@@ -87,9 +87,11 @@ uv pip install -U dagtool
 
 | Airflow Version | Supported | Noted                                                          |
 |:---------------:|:---------:|----------------------------------------------------------------|
-|     `2.7.1`     |     ✅     | This is the first Airflow version that this project supported. |
 | `>2.7.1,<3.0.0` |     ✅     | Common version support for Airflow version `2.x.x`             |
 |    `>=3.x.x`    |     ✅     | Common version support for Airflow version `3.x.x`             |
+
+> [!NOTE]
+> I recommend to use Airflow2 util Airflow3 stable.
 
 ## 🎯 Usage
 

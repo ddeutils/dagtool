@@ -11,6 +11,8 @@ DAG_FILENAME_PREFIX: Final[str] = "dag"
 VARIABLE_FILENAME: Final[str] = "variables"
 ASSET_DIR: Final[str] = "assets"
 
+logger = logging.getLogger("dagtool.conf")
+
 
 class YamlConf:
     """Core Config object that use to find and map data from the current path.
@@ -66,10 +68,10 @@ class YamlConf:
                     raw_data: str = file.read_text(encoding="utf-8")
                     data: dict[str, Any] | list[Any] = safe_load(raw_data)
                 except ParserError:
-                    logging.error(f"YAML file does not parsing, {file}.")
+                    logger.error(f"YAML file does not parsing, {file}.")
                     continue
                 except Exception as e:
-                    logging.error(f"YAML file got error, {e}, {file}.")
+                    logger.error(f"YAML file got error, {e}, {file}.")
                     continue
 
                 # VALIDATE: Does not support for empty data or list of template
@@ -94,14 +96,14 @@ class YamlConf:
                         "raw_data_hash": hash_sha256(raw_data),
                         **data,
                     }
-                    logging.info(f"Load DAG: {model['name']!r}")
+                    logger.info(f"Load DAG Template data: {model['name']!r}")
                     conf.append(model)
                 except AttributeError:
                     # NOTE: Except case data is not be `dict` type.
                     continue
 
         if len(conf) == 0:
-            logging.warning(
+            logger.warning(
                 "Read config file from this domain path does not exists"
             )
         return conf
