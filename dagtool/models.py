@@ -182,7 +182,14 @@ class DagModel(BaseModel):
         if AIRFLOW_VERSION < [3, 0, 0]:
             if self.concurrency:
                 kw.update({"concurrency": self.concurrency})
+            if self.tags:
+                kw.update({"tags": self.tags})
             kw.update({"default_view": "graph"})
+
+        if AIRFLOW_VERSION > [3, 0, 0]:
+            # NOTE: The tags parameters change to mutable set instead of list
+            if self.tags:
+                kw.update({"tags": set(self.tags)})
         return kw
 
     def build(
@@ -230,7 +237,6 @@ class DagModel(BaseModel):
         }
         dag = DAG(
             dag_id=name,
-            tags=set(self.tags),
             description=self.desc,
             doc_md=self.build_docs(docs),
             schedule=self.schedule,

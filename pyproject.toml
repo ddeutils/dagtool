@@ -35,13 +35,9 @@ dev = [
     "coverage>=7.10.0",
     "dagtool[minimum]",
 ]
-minimum = [
+base = [
     "pydantic==2.9.2",
     "apache-airflow[google]==2.7.1",
-]
-airflow3 = [
-    "pydantic==2.9.2",
-    "apache-airflow[google]>=3.0.0",
 ]
 
 [project.scripts]
