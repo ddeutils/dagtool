@@ -24,9 +24,3 @@ variables:
         transform_driver_request: 200m
         transform_driver_limit: 600m
         dp_pyspark_version: "v4.20.0"
-  - key: "campaign_discount_request"
-    stages:
-      dev:
-        project_id: 'stock-data-dev'
-      prod:
-        project_id: "stock-data-prod"

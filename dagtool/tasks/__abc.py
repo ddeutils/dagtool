@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Any, Literal, TypedDict
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 try:
     from airflow.sdk.bases.operator import BaseOperator
@@ -20,9 +23,14 @@ except ImportError:
 from airflow.utils.trigger_rule import TriggerRule
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+if TYPE_CHECKING:
+    from dagtool.conf import YamlConf
+
 
 class Context(TypedDict):
-    tasks: dict[str, type["TaskModel"]]
+    path: Path
+    yaml_loader: YamlConf
+    tasks: dict[str, type[TaskModel]]
     operators: dict[str, type[Operator]]
     python_callers: dict[str, Callable]
 

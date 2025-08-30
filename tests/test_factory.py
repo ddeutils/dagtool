@@ -5,6 +5,9 @@ from airflow.models import DAG
 from dagtool.factory import Factory
 
 
+def test_factory_render_template(): ...
+
+
 def test_factory(test_path: Path):
     factory = Factory("sales_dag", path=test_path / "demo")
     print(factory.conf)

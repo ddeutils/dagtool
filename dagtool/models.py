@@ -19,11 +19,12 @@ except ImportError:
     from airflow.models.dag import DAG
 
 from pendulum import parse, timezone
+from pendulum.parsing.exceptions import ParserError
 from pydantic import BaseModel, Field, ValidationError
 from pydantic.functional_validators import field_validator
 from typing_extensions import Self
 from yaml import safe_load
-from yaml.parser import ParserError
+from yaml.parser import ParserError as YamlParserError
 
 from dagtool.conf import ASSET_DIR, YamlConf
 from dagtool.tasks import AnyTask, Context
@@ -98,8 +99,8 @@ class DagModel(BaseModel):
     owner: str = Field(default="dagtool")
     tags: list[str] = Field(default_factory=list, description="A list of tags.")
     schedule: str | None = Field(default=None)
-    start_date: datetime | None = Field(default=None)
-    end_date: str | None = Field(default=None)
+    start_date: datetime | str | None = Field(default=None)
+    end_date: datetime | str | None = Field(default=None)
     concurrency: int | None = Field(default=None)
     is_paused_upon_creation: bool = Field(default=True)
     max_active_tasks: int = Field(
@@ -130,7 +131,10 @@ class DagModel(BaseModel):
         pendulum.Datetime object.
         """
         if data and isinstance(data, str):
-            return parse(data).in_tz(timezone("Asia/Bangkok"))
+            try:
+                return parse(data).in_tz(timezone("Asia/Bangkok"))
+            except ParserError:
+                return None
         return data
 
     def build_docs(self, docs: str | None = None) -> str:
@@ -336,11 +340,15 @@ def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
         pass
     except AirflowRuntimeError:  # NOTE: Raise from Airflow version >= 3.0.0
         pass
+    except ImportError as err:  # NOTE: Raise from Airflow version >= 3.0.0
+        if "cannot import name 'SUPERVISOR_COMMS'" not in str(err):
+            raise
+        pass
 
     try:
         var: dict[str, Any] = get_variable_stage(path, name=name)
         return var
-    except ParserError:
+    except YamlParserError:
         return {}
     except ValidationError:
         return {}
@@ -366,7 +374,7 @@ def get_variable_stage(path: Path, name: str) -> dict[str, Any]:
         )
     except FileNotFoundError:
         return {}
-    except ParserError:
+    except YamlParserError:
         raise
     except ValidationError:
         raise

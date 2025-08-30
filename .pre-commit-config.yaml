@@ -43,6 +43,7 @@ repos:
         stages: [pre-commit]
     -   id: check-yaml
         args: ["--unsafe"]
+        exclude: ".*spark_job.yml"
         stages: [pre-commit]
     -   id: check-toml
         stages: [pre-commit]

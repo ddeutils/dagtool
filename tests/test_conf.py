@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from airflow.templates import NativeEnvironment
 from jinja2 import Environment
+from jinja2.nativetypes import NativeEnvironment
 
 from dagtool.conf import YamlConf
 from dagtool.models import get_variable_stage

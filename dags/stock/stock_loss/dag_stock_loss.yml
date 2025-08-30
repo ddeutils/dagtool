@@ -30,12 +30,12 @@ default_args:
   retry_delay: { "minutes": 1 }
 tasks:
   - task: start
-    tool: empty
+    uses: empty
 
   - task: copy_last_modified_blob
     upstream: start
-    tool: operator
-    uses: gcs_copy_files_time_range_operator
+    uses: operator
+    name: gcs_copy_files_time_range_operator
     params:
       source_bucket: "pos-admin"
       source_prefix: "stock-loss/"
@@ -58,8 +58,8 @@ tasks:
     upstream: start
     tasks:
       - task: check_backfill_bq
-        tool: operator
-        uses: bigquery_insert_job_operator
+        uses: operator
+        name: bigquery_insert_job_operator
         params:
           location: "asia-southeast1"
           gcp_conn_id: "google_cloud_default"
@@ -83,8 +83,8 @@ tasks:
 
       - task: get_backfill_full_path
         upstream: check_backfill_bq
-        tool: operator
-        uses: bigquery_get_data_operator
+        uses: operator
+        name: bigquery_get_data_operator
         params:
           table_project_id: "{{ task_instance.xcom_pull(task_ids='check_backfill_bq', key='bigquery_table')['project_id'] }}"
           dataset_id: "{{ task_instance.xcom_pull(task_ids='check_backfill_bq', key='bigquery_table')['dataset_id'] }}"
@@ -97,8 +97,8 @@ tasks:
 
       - task: copy_backfill_blob_to_gcs
         upstream: get_backfill_full_path
-        tool: operator
-        uses: gcs_to_gcs
+        uses: operator
+        name: gcs_to_gcs
         params:
           source_bucket: "pos-admin"
           source_objects: "{{ task_instance.xcom_pull(task_ids='get_backfill_full_path') | unnested_list }}"
@@ -110,8 +110,8 @@ tasks:
     upstream:
       - copy_last_modified_blob
       - query_stock_loss_and_copy
-    tool: operator
-    uses: gcs_object_with_prefix_existence_sensor
+    uses: operator
+    name: gcs_object_with_prefix_existence_sensor
     trigger_rule: all_done
     params:
       bucket: "{{ vars('bucket_name') }}"
@@ -122,8 +122,8 @@ tasks:
 
   - task: concat_file_into_landing
     upstream: check_blob_exist
-    tool: operator
-    uses: concat_file_into_landing
+    uses: operator
+    name: concat_file_into_landing
     params:
       bucket: "{{ vars('bucket_name') }}"
       prefix: "pre-landing/stock_loss/{{ data_interval_start | tz('Asia/Bangkok') | fmt('year=%Y/month=%m/day=%d/hour=%H') }}"
@@ -136,8 +136,8 @@ tasks:
       - group: transforming
         tasks:
           - task: "dp_pyspark_job"
-            tool: operator
-            uses: spark_kubernetes_operator
+            uses: operator
+            name: spark_kubernetes_operator
             params:
               application_file: "stock_loss_spark_job.yml"
               params:
@@ -162,8 +162,8 @@ tasks:
 
           - task: "dp_pyspark_monitor"
             upstream: "dp_pyspark_job"
-            tool: operator
-            uses: spark_kubernetes_sensor
+            uses: operator
+            name: spark_kubernetes_sensor
             params:
               application_name: "{{ task_instance.xcom_pull(task_ids='dp_pyspark_job')['metadata']['name'] }}"
               attach_log: false
@@ -183,8 +183,8 @@ tasks:
         upstream: transforming
         tasks:
           - task: "dp_pyspark_job"
-            tool: operator
-            uses: spark_kubernetes_operator
+            uses: operator
+            name: spark_kubernetes_operator
             params:
               application_file: "stock_loss_spark_job.yml"
               params:
@@ -210,8 +210,8 @@ tasks:
 
           - task: "dp_pyspark_monitor"
             upstream: "dp_pyspark_job"
-            tool: operator
-            uses: spark_kubernetes_sensor
+            uses: operator
+            name: spark_kubernetes_sensor
             params:
               application_name: "{{ task_instance.xcom_pull(task_ids='dp_pyspark_job')['metadata']['name'] }}"
               attach_log: false
@@ -226,8 +226,8 @@ tasks:
 
       - task: sync_transforming_table_to_bigquery
         upstream: validating
-        tool: operator
-        uses: iceberg_to_bigquery
+        uses: operator
+        name: iceberg_to_bigquery
         params:
           iceberg_table_uri: "gs://{{ vars('bucket_name') }}/transforming/stock_loss"
           bigquery_full_table_name: "{{ vars('project_id') }}.stock_transforming.stock_loss"
@@ -237,4 +237,4 @@ tasks:
 
   - task: end
     upstream: stock_loss
-    tool: empty
+    uses: empty

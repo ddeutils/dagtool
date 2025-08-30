@@ -161,6 +161,8 @@ class Factory:
     def set_context(self) -> Context:
         """Set context data that bypass to the build method."""
         return {
+            "path": self.path,
+            "yaml_loader": self.yaml_loader,
             "tasks": self.tasks,
             "operators": self.operators,
             "python_callers": self.python_callers,

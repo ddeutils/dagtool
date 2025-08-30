@@ -1,9 +1,13 @@
+import os
 from pathlib import Path
 
 import pytest
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent / ".env")
+
+# NOTE: Set unittest config for Airflow.
+os.environ["AIRFLOW__CORE__UNIT_TEST_MODE"] = "true"
 
 
 @pytest.fixture(scope="package")
