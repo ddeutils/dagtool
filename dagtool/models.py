@@ -214,7 +214,7 @@ class DagModel(BaseModel):
                 template search path.
             on_success_callback:
             on_failure_callback:
-            context:
+            context: A Factory context data that use on task building method.
 
         Returns:
             DAG: An Airflow DAG object.
@@ -306,6 +306,34 @@ class Variable(BaseModel):
     def from_path(cls, path: Path) -> Self:
         return cls.model_validate(YamlConf(path=path).read_vars())
 
+    @classmethod
+    def from_path_with_key(cls, path: Path, key: str) -> dict[str, Any]:
+        """Get Variable stage from path.
+
+        Args:
+            path (Path): A template path.
+            key (str): A key name that want to get from Variable model.
+
+        Returns:
+            dict[str, Any]: A mapping of variables that set on the current stage.
+                It will return empty dict if it raises FileNotFoundError and
+                ValueError exceptions.
+        """
+        try:
+            return (
+                cls.from_path(path=path)
+                .get_key(key)
+                .stages.get(os.getenv("AIRFLOW_ENV", "NOTSET"), {})
+            )
+        except FileNotFoundError:
+            return {}
+        except YamlParserError:
+            raise
+        except ValidationError:
+            raise
+        except ValueError:
+            return {}
+
     def get_key(self, name: str) -> Key:
         """Get the Key model with an input specific key name.
 
@@ -339,10 +367,11 @@ def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
         raw_var: str = AirflowVariable.get(_name, deserialize_json=False)
         var: dict[str, Any] = safe_load(raw_var)
         return var
-    except KeyError:
-        pass
-    # NOTE: Raise from Airflow version >= 3.0.0 instead of KeyError.
-    except AirflowRuntimeError:
+    except (
+        KeyError,
+        # NOTE: Raise from Airflow version >= 3.0.0 instead of KeyError.
+        AirflowRuntimeError,
+    ):
         pass
     except ImportError as err:  # NOTE: Raise from Airflow version >= 3.0.0
         if "cannot import name 'SUPERVISOR_COMMS'" not in str(err):
@@ -350,37 +379,8 @@ def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
         pass
 
     try:
-        var: dict[str, Any] = get_variable_stage(path, name=name)
-        return var
+        return Variable.from_path_with_key(path, key=name)
     except YamlParserError:
         return {}
     except ValidationError:
-        return {}
-
-
-def get_variable_stage(path: Path, name: str) -> dict[str, Any]:
-    """Get Variable stage from path.
-
-    Args:
-        path (Path): A template path.
-        name (str): A key name that want to get from Variable model.
-
-    Returns:
-        dict[str, Any]: A mapping of variables that set on the current stage.
-            It will return empty dict if it raises FileNotFoundError and
-            ValueError exceptions.
-    """
-    try:
-        return (
-            Variable.from_path(path=path)
-            .get_key(name)
-            .stages.get(os.getenv("AIRFLOW_ENV", "NOTSET"), {})
-        )
-    except FileNotFoundError:
-        return {}
-    except YamlParserError:
-        raise
-    except ValidationError:
-        raise
-    except ValueError:
         return {}

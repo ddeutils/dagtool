@@ -10,21 +10,19 @@ try:
     from airflow.sdk.definitions.dag import DAG
     from airflow.sdk.definitions.mappedoperator import MappedOperator
     from airflow.sdk.definitions.taskgroup import TaskGroup
-
-    Operator = BaseOperator | MappedOperator
 except ImportError:
     from airflow.models.baseoperator import BaseOperator
     from airflow.models.dag import DAG
     from airflow.models.mappedoperator import MappedOperator
     from airflow.utils.task_group import TaskGroup
 
-    Operator = BaseOperator | MappedOperator
-
 from airflow.utils.trigger_rule import TriggerRule
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 if TYPE_CHECKING:
     from dagtool.conf import YamlConf
+
+Operator = BaseOperator | MappedOperator
 
 
 class Context(TypedDict):
