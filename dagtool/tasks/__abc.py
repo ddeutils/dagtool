@@ -34,6 +34,7 @@ class Context(TypedDict):
     tasks: dict[str, type[TaskModel]]
     operators: dict[str, type[Operator]]
     python_callers: dict[str, Callable]
+    extras: dict[str, Any]
 
 
 class ToolMixin(ABC):

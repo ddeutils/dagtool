@@ -167,9 +167,14 @@ class Factory:
             except ValidationError:
                 continue
 
-    def set_context(self, custom_vars: dict[str, Any] | None = None) -> Context:
+    def set_context(
+        self,
+        custom_vars: dict[str, Any] | None = None,
+        extras: dict[str, Any] | None = None,
+    ) -> Context:
         """Set context data that bypass to the build method."""
         _vars: dict[str, Any] = custom_vars or {}
+        _extras: dict[str, Any] = extras or {}
         return {
             "path": self.path,
             "yaml_loader": self.yaml_loader,
@@ -177,6 +182,7 @@ class Factory:
             "operators": self.operators,
             "python_callers": self.python_callers,
             "vars": _vars,
+            "extras": _extras,
         }
 
     def render_template(self, data: Any, env: Environment) -> Any:
@@ -253,18 +259,23 @@ class Factory:
             env.filters.update(udf_macros)
         return env
 
-    def build(self, default_args: dict[str, Any] | None = None) -> list[DAG]:
+    def build(
+        self,
+        default_args: dict[str, Any] | None = None,
+        context_extras: dict[str, Any] | None = None,
+    ) -> list[DAG]:
         """Build Airflow DAGs from template files.
 
         Args:
             default_args (dict[str, Any]): A mapping of default arguments that
                 want to override on the template config data.
+            context_extras (dict[str, Any]): A context extras.
 
         Returns:
             list[DAG]: A list of Airflow DAG object.
         """
         dags: list[DAG] = []
-        context: Context = self.set_context()
+        context: Context = self.set_context(extras=context_extras)
         for name, model in self.conf.items():
             dag: DAG = model.build(
                 prefix=self.name,
@@ -287,6 +298,7 @@ class Factory:
         gb: dict[str, Any],
         *,
         default_args: dict[str, Any] | None = None,
+        context_extras: dict[str, Any] | None = None,
     ) -> None:
         """Build Airflow DAG object and set to the globals for Airflow Dag Processor
         can discover them.
@@ -298,6 +310,9 @@ class Factory:
         Args:
             gb (dict[str, Any]): A globals object.
             default_args (dict[str, Any]): An override default args value.
+            context_extras (dict[str, Any]): A context extras.
         """
-        for dag in self.build(default_args=default_args):
+        for dag in self.build(
+            default_args=default_args, context_extras=context_extras
+        ):
             gb[dag.dag_id] = dag
