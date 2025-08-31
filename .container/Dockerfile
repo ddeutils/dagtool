@@ -1,7 +1,6 @@
 FROM rockylinux:9.3
 
-RUN dnf install -y \
-      gcc \
+RUN dnf install -y gcc \
     && dnf clean all
 
 ENV UV_COMPILE_BYTECODE=1
@@ -30,5 +29,7 @@ RUN uv pip install \
       "pydantic==2.9.2"
 
 COPY ./dagtool /opt/airflow/plugins/dagtool
+
+ENV PYTHONPATH="/opt/airflow:/opt/airflow/plugins:${PYTHONPATH}"
 
 WORKDIR /opt/airflow

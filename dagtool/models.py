@@ -32,14 +32,19 @@ from dagtool.utils import AIRFLOW_VERSION, TaskMapped, set_upstream
 
 
 class DefaultArgs(BaseModel):
-    """Default Args Model that will use with the `default_args` field."""
+    """Default Args Model that will use with the `default_args` field with the
+    Airflow DAG object.
+    """
 
     owner: str | None = Field(default=None, description="An owner name.")
-    depends_on_past: bool = Field(default=False)
-    retries: int = Field(default=1, description="A retry count.")
-    retry_delay: dict[str, int] | None = Field(default=None)
-    retry_exponential_backoff: bool = False
-    sla: Any | None = None
+    depends_on_past: bool = Field(default=False, description="")
+    retries: int = Field(default=1, description="A retry count number.")
+    retry_delay: dict[str, int] | None = Field(
+        default=None,
+        description="A retry time delay before start the next retry process.",
+    )
+    retry_exponential_backoff: bool = Field(default=False)
+    sla: Any | None = Field(default=None)
 
     def to_dict(self) -> dict[str, Any]:
         """Making Python dict object without field that use default value."""
@@ -148,7 +153,7 @@ class DagModel(BaseModel):
 
         Args:
             docs (str, default None): A parent documents that want to add on
-                the top.
+                the top of template config docs.
 
         Returns:
             str: A document markdown string that prepared with parent docs.
@@ -345,6 +350,9 @@ class Variable(BaseModel):
 
         Args:
             name (str): A key name.
+
+        Raises:
+            ValueError: If the key does not exist on this Variable model.
 
         Returns:
             Key: A Key model.

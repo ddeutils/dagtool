@@ -7,14 +7,13 @@ services:
       context: ..
       dockerfile: ./.container/Dockerfile
       args:
-        AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.7.1}
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.11.0}
         PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
     ports:
       - "8080:8080"
     command: [ "airflow", "standalone" ]
     environment:
       AIRFLOW_HOME: "/opt/airflow"
-      PYTHONPATH: "/opt/airflow/:/opt/airflow/plugins/"
       AIRFLOW_CONFIG: "/opt/airflow/airflow.cfg"
       AIRFLOW_ENV: "${AIRFLOW_ENV:-dev}"
     volumes:

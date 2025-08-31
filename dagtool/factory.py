@@ -31,8 +31,8 @@ Operator = BaseOperator | MappedOperator
 
 
 class Factory:
-    """DAG Tool Object that is the main interface for retrieve config data from
-    the current path and generate Airflow DAG object to global.
+    """Factory object that is the main interface for retrieve tempalte config
+    data from the current path and generate Airflow DAG object.
 
     Warnings:
         It is common for dags not to appear due to the `dag_discovery_safe_mode`
@@ -58,6 +58,12 @@ class Factory:
         path (Path): A parent path for searching tempalate config files.
         docs (str, default None): A parent document that use to add before the
             template DAG document.
+
+        template_searchpath (list[str | Path] , default None):
+        user_defined_filters (dict[str, Callable] , default None):
+        user_defined_macros (dict[str, Callable | str] , default None):
+        on_success_callback (list[Any] | Any , default None):
+        on_failure_callback (list[Any] | Any , default None):
     """
 
     # NOTE: Template fields for DAG parameters that will use on different
@@ -114,6 +120,11 @@ class Factory:
                 to use on each DAG that was built from template path.
             on_failure_callback: An on failure event callback object that want
                 to use on each DAG that was built from template path.
+
+        Notes:
+            After set the Factory attributes, it will load template config data
+        from the current path and skip template file if it does not read or
+        match with template config rules like include `type=dag`.
         """
         self.name: str = name
         self.path: Path = p.parent if (p := Path(path)).is_file() else p
