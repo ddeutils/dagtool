@@ -2,6 +2,32 @@
 
 ## Latest Changes
 
+## 0.0.9
+
+### :sparkles: Features
+
+- :dart: add name logging on factory.
+- :dart: add context extras for dynamic value to build method.
+
+### :bug: Bug fixes
+
+- :gear: change deps on pyproject.
+- :gear: fix type tags does not valid.
+- :gear: add custom filter on factory instread of models.
+
+### :black_nib: Code Changes
+
+- :art: add typed hint for all module.
+- :label: Bump up to version 0.0.8 -> 0.0.9.
+- :construction: change function to classmethod on variable model.
+- :art: add AIR rule on ruff.
+- :test_tube: update testcase support version change.
+
+### :package: Build & Workflow
+
+- :toolbox: change format docker file.
+- :toolbox: add python version file for track base py version.
+
 ## 0.0.8
 
 ### :sparkles: Features
