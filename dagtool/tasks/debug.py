@@ -1,19 +1,22 @@
+from __future__ import annotations
+
 import json
 from collections.abc import Sequence
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 try:
     from airflow.sdk.bases.operator import BaseOperator
-    from airflow.sdk.definitions.taskgroup import TaskGroup
 except ImportError:
     from airflow.models.baseoperator import BaseOperator
-    from airflow.utils.task_group import TaskGroup
 
 from airflow.exceptions import AirflowException, AirflowSkipException
 from airflow.utils.context import Context as AirflowContext
 from pydantic import Field
 
-from dagtool.tasks.__abc import DAG, BaseTask, Context, Operator
+from dagtool.tasks.__abc import BaseTask
+
+if TYPE_CHECKING:
+    from .__abc import DAG, Context, Operator, TaskGroup
 
 
 class RaiseOperator(BaseOperator):

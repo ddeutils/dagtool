@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import os
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import partial
 from pathlib import Path
-from typing import Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 from airflow.configuration import conf as airflow_conf
 
@@ -28,7 +30,10 @@ from yaml.parser import ParserError as YamlParserError
 
 from dagtool.conf import YamlConf
 from dagtool.tasks import AnyTask, Context
-from dagtool.utils import AIRFLOW_VERSION, TaskMapped, set_upstream
+from dagtool.utils import AIRFLOW_VERSION, set_upstream
+
+if TYPE_CHECKING:
+    from .utils import TaskMapped
 
 
 class DefaultArgs(BaseModel):

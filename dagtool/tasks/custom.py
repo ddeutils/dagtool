@@ -1,15 +1,13 @@
-from typing import Any, Literal
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field
 
-from dagtool.tasks.__abc import (
-    DAG,
-    BaseTask,
-    Context,
-    Operator,
-    TaskGroup,
-    TaskModel,
-)
+from dagtool.tasks.__abc import BaseTask
+
+if TYPE_CHECKING:
+    from .__abc import DAG, Context, Operator, TaskGroup, TaskModel
 
 
 class CustomTask(BaseTask):

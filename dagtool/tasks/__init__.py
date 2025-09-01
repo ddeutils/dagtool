@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from typing import Annotated, Any, Literal, Union
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Union
 
 try:
-    from airflow.sdk.definitions.dag import DAG
     from airflow.sdk.definitions.taskgroup import TaskGroup as AirflowTaskGroup
 except ImportError:
-    from airflow.models.dag import DAG
     from airflow.utils.task_group import TaskGroup as AirflowTaskGroup
 
 from pydantic import Discriminator, Field, Tag
@@ -24,6 +22,13 @@ from dagtool.tasks.debug import DebugTask, RaiseTask
 from dagtool.tasks.empty import EmptyTask
 from dagtool.tasks.python import PythonTask
 from dagtool.utils import TaskMapped, set_upstream
+
+if TYPE_CHECKING:
+    try:
+        from airflow.sdk.definitions.dag import DAG
+    except ImportError:
+        from airflow.models.dag import DAG
+
 
 Task = Annotated[
     Union[

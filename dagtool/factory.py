@@ -5,16 +5,7 @@ import logging
 import os
 from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Any, ClassVar
-
-try:
-    from airflow.sdk.bases.operator import BaseOperator
-    from airflow.sdk.definitions.dag import DAG
-    from airflow.sdk.definitions.mappedoperator import MappedOperator
-except ImportError:
-    from airflow.models.baseoperator import BaseOperator
-    from airflow.models.dag import DAG
-    from airflow.models.mappedoperator import MappedOperator
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from jinja2 import Environment, Template
 from jinja2.nativetypes import NativeEnvironment
@@ -25,9 +16,19 @@ from dagtool.models import DagModel, pull_vars
 from dagtool.tasks import Context, TaskModel
 from dagtool.utils import FILTERS, clear_globals
 
-logger = logging.getLogger("dagtool.factory")
+if TYPE_CHECKING:
+    try:
+        from airflow.sdk.bases.operator import BaseOperator
+        from airflow.sdk.definitions.dag import DAG
+        from airflow.sdk.definitions.mappedoperator import MappedOperator
+    except ImportError:
+        from airflow.models.baseoperator import BaseOperator
+        from airflow.models.dag import DAG
+        from airflow.models.mappedoperator import MappedOperator
 
-Operator = BaseOperator | MappedOperator
+    Operator = BaseOperator | MappedOperator
+
+logger = logging.getLogger("dagtool.factory")
 
 
 class Factory:

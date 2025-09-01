@@ -1,4 +1,6 @@
-from typing import Any, Literal
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
 
 try:
     from airflow.providers.standard.operators.python import PythonOperator
@@ -7,7 +9,10 @@ except ImportError:
 
 from pydantic import Field
 
-from dagtool.tasks.__abc import DAG, BaseTask, Context, Operator, TaskGroup
+from dagtool.tasks.__abc import BaseTask
+
+if TYPE_CHECKING:
+    from .__abc import DAG, Context, Operator, TaskGroup
 
 
 class PythonTask(BaseTask):

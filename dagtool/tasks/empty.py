@@ -1,11 +1,16 @@
-from typing import Literal
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Literal
 
 try:
     from airflow.providers.standard.operators.empty import EmptyOperator
 except ImportError:
     from airflow.operators.empty import EmptyOperator
 
-from dagtool.tasks.__abc import DAG, BaseTask, Context, Operator, TaskGroup
+from dagtool.tasks.__abc import BaseTask
+
+if TYPE_CHECKING:
+    from .__abc import DAG, Context, Operator, TaskGroup
 
 
 class EmptyTask(BaseTask):
