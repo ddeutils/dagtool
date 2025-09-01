@@ -33,7 +33,7 @@ dev = [
     "pre-commit>=4.0.0",
     "pytest>=8.4.0",
     "coverage>=7.10.0",
-    "dagtool[minimum]",
+    "dagtool[base]",
 ]
 base = [
     "pydantic==2.9.2",
