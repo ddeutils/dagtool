@@ -16,6 +16,11 @@ A **Friendly Airflow DAG Build Tool** for Data Engineer with YAML file template.
 > want to use and enhance this project, you can fork this project anytime without
 > notice me.
 
+| Airflow Version | Supported | Noted                                                          |
+|:---------------:|:---------:|----------------------------------------------------------------|
+| `>2.7.1,<3.0.0` |     ✅     | Common version support for Airflow version `2.x.x`             |
+|    `>=3.x.x`    |     ✅     | Common version support for Airflow version `3.x.x`             |
+
 **Feature Supported**:
 
 - ✅ JSON Schema Validation (Set IDE with `json-schema.json`)
@@ -84,11 +89,6 @@ S --> Template --> Pydantic Model --> DAG/Operator Objects --> Execute --> E
 ```shell
 uv pip install -U dagtool
 ```
-
-| Airflow Version | Supported | Noted                                                          |
-|:---------------:|:---------:|----------------------------------------------------------------|
-| `>2.7.1,<3.0.0` |     ✅     | Common version support for Airflow version `2.x.x`             |
-|    `>=3.x.x`    |     ✅     | Common version support for Airflow version `3.x.x`             |
 
 > [!NOTE]
 > I recommend to use Airflow2 util Airflow3 stable.
@@ -216,7 +216,8 @@ factory.build_airflow_dags_to_globals(
 The DAG that was built from this package will have the name is, `sales_transaction`.
 
 > [!NOTE]
-> On the `variables.yml` file:
+> On the `variables.yml` file that will set different stage area variables:
+>
 > ```yaml
 > type: variable
 > variables:
@@ -226,6 +227,10 @@ The DAG that was built from this package will have the name is, `sales_transacti
 >         start_date: "2025-01-01"
 >         catchup: false
 >         project_id: "sales_project_dev"
+>       prod:
+>         start_date: "2025-01-31"
+>         catchup: true
+>         project_id: "sales_project"
 > ```
 
 ## 💬 Contribute
