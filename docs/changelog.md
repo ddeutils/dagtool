@@ -2,6 +2,18 @@
 
 ## Latest Changes
 
+## 0.0.10
+
+### :black_nib: Code Changes
+
+- :construction: change common task to common module.
+- :construction: move operator to plugins component.
+
+### :book: Documentations
+
+- :page_facing_up: update readme file.
+- :page_facing_up: update docs for task abc.
+
 ## 0.0.9
 
 ### :sparkles: Features
