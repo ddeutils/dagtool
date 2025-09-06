@@ -8,7 +8,7 @@ except ImportError:
     from airflow.operators.empty import EmptyOperator
     from airflow.utils.trigger_rule import TriggerRule
 
-from dagtool.tasks.empty import EmptyTask
+from dagtool.tasks.standard.empty import EmptyTask
 from dagtool.utils import AIRFLOW_VERSION
 
 

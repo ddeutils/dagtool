@@ -4,8 +4,8 @@ from airflow.models import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 
-from dagtool.models import get_variable_stage
-from dagtool.tasks.debug import DebugOperator
+from dagtool.models import Variable
+from dagtool.tasks.standard.debug import DebugOperator
 from ignore.utils import sequence_pool
 
 dag = DAG(
@@ -16,11 +16,13 @@ dag = DAG(
     doc_md="doc.md",
     user_defined_macros={
         "custom_macros": "foo",
-        "vars": get_variable_stage(Path(__file__).parent, name="template").get,
+        "vars": Variable.from_path_with_key(
+            Path(__file__).parent, key="template"
+        ).get,
     },
 )
-task = EmptyOperator(task_id="test", dag=dag)
-task_debug = DebugOperator(
+test = EmptyOperator(task_id="test", dag=dag)
+debug = DebugOperator(
     task_id="debug",
     dag=dag,
     debug={
@@ -31,4 +33,4 @@ task_debug = DebugOperator(
     },
     pool=sequence_pool.pool,
 )
-task_debug.set_upstream(task)
+debug.set_upstream(test)

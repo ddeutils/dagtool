@@ -7,7 +7,7 @@ from pydantic import Field
 from dagtool.tasks.__abc import BaseTask
 
 if TYPE_CHECKING:
-    from .__abc import DAG, Context, Operator, TaskGroup, TaskModel
+    from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup, TaskModel
 
 
 class CustomTask(BaseTask):

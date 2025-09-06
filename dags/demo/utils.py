@@ -11,7 +11,7 @@ except ImportError:
     from airflow.utils.task_group import TaskGroup
 
 from dagtool.tasks import Context, TaskModel
-from dagtool.tasks.debug import DebugOperator
+from dagtool.tasks.standard.debug import DebugOperator
 
 
 def say_hi(name: Any) -> str:
@@ -39,11 +39,11 @@ class CustomTask(TaskModel):
         with TaskGroup(
             "custom_task_group", dag=dag, parent_group=task_group
         ) as tg:
-            t1 = EmptyOperator(task_id="start", dag=dag)
+            start = EmptyOperator(task_id="start", dag=dag)
             t2 = DebugOperator(
                 task_id=f"for_{self.name.lower()}",
                 debug={"name": self.name},
                 dag=dag,
             )
-            t1 >> t2
+            start >> t2
         return tg

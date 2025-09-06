@@ -13,7 +13,7 @@ from pydantic import Field
 from dagtool.tasks.__abc import BaseTask
 
 if TYPE_CHECKING:
-    from .__abc import DAG, Context, Operator
+    from dagtool.tasks.__abc import DAG, Context, Operator
 
 
 class BashTask(BaseTask):

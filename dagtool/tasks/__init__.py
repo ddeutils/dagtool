@@ -16,11 +16,11 @@ from dagtool.tasks.__abc import (
     Operator,
     TaskModel,
 )
-from dagtool.tasks.bash import BashTask
-from dagtool.tasks.custom import CustomTask, OperatorTask
-from dagtool.tasks.debug import DebugTask, RaiseTask
-from dagtool.tasks.empty import EmptyTask
-from dagtool.tasks.python import PythonTask
+from dagtool.tasks.standard.bash import BashTask
+from dagtool.tasks.standard.custom import CustomTask, OperatorTask
+from dagtool.tasks.standard.debug import DebugTask, RaiseTask
+from dagtool.tasks.standard.empty import EmptyTask
+from dagtool.tasks.standard.python import PythonTask
 from dagtool.utils import TaskMapped, set_upstream
 
 if TYPE_CHECKING:

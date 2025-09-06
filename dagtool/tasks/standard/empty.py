@@ -10,7 +10,7 @@ except ImportError:
 from dagtool.tasks.__abc import BaseTask
 
 if TYPE_CHECKING:
-    from .__abc import DAG, Context, Operator, TaskGroup
+    from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup
 
 
 class EmptyTask(BaseTask):
