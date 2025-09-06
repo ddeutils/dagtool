@@ -31,7 +31,8 @@ def set_upstream(tasks: dict[str, TaskMapped]) -> None:
     """Set Upstream Task for each tasks in mapping.
 
     Args:
-        tasks: A mapping of task_id and TaskMapped dict object.
+        tasks (dict[str, TaskMapped]): A mapping of task_id and TaskMapped dict
+            object.
     """
     for task in tasks:
         task_mapped: TaskMapped = tasks[task]
@@ -97,6 +98,15 @@ def days_ago(n, hour=0, minute=0, second=0, microsecond=0):
 
 
 def parse_version(version: str) -> list[int]:
+    """Simple parse version string value to list of version that cast to integer
+    type.
+
+    Args:
+        version (str): A version string.
+
+    Returns:
+        list[str]: A list of version.
+    """
     vs: list[str] = version.split(".")
     return [int(vs[_]) for _ in range(3)]
 

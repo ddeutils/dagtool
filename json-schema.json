@@ -1,7 +1,7 @@
 {
   "$defs": {
     "BashTask": {
-      "description": "Bash Task model that will represent to Airflow BashOperator object.",
+      "description": "Bash Task model.",
       "properties": {
         "desc": {
           "anyOf": [
@@ -13,7 +13,7 @@
             }
           ],
           "default": null,
-          "description": "A Airflow task description",
+          "description": "A Airflow task description that will pass to the `doc` argument.",
           "title": "Desc"
         },
         "upstream": {
@@ -42,6 +42,7 @@
         "type": {
           "const": "task",
           "default": "task",
+          "description": "A task type.",
           "enum": [
             "task"
           ],
@@ -276,7 +277,7 @@
             }
           ],
           "default": null,
-          "description": "A Airflow task description",
+          "description": "A Airflow task description that will pass to the `doc` argument.",
           "title": "Desc"
         },
         "upstream": {
@@ -305,6 +306,7 @@
         "type": {
           "const": "task",
           "default": "task",
+          "description": "A task type.",
           "enum": [
             "task"
           ],
@@ -313,6 +315,7 @@
         },
         "uses": {
           "const": "custom_task",
+          "description": "A custom task name.",
           "enum": [
             "custom_task"
           ],
@@ -486,7 +489,7 @@
             }
           ],
           "default": null,
-          "description": "A Airflow task description",
+          "description": "A Airflow task description that will pass to the `doc` argument.",
           "title": "Desc"
         },
         "upstream": {
@@ -515,6 +518,7 @@
         "type": {
           "const": "task",
           "default": "task",
+          "description": "A task type.",
           "enum": [
             "task"
           ],
@@ -523,6 +527,7 @@
         },
         "uses": {
           "const": "debug",
+          "description": "A debug task name.",
           "enum": [
             "debug"
           ],
@@ -678,7 +683,7 @@
       "type": "object"
     },
     "DefaultArgs": {
-      "description": "Default Args Model that will use with the `default_args` field.",
+      "description": "Default Args Model that will use with the `default_args` field with the\nAirflow DAG object.",
       "properties": {
         "owner": {
           "anyOf": [
@@ -695,12 +700,13 @@
         },
         "depends_on_past": {
           "default": false,
+          "description": "",
           "title": "Depends On Past",
           "type": "boolean"
         },
         "retries": {
           "default": 1,
-          "description": "A retry count.",
+          "description": "A retry count number.",
           "title": "Retries",
           "type": "integer"
         },
@@ -717,6 +723,7 @@
             }
           ],
           "default": null,
+          "description": "A retry time delay before start the next retry process.",
           "title": "Retry Delay"
         },
         "retry_exponential_backoff": {
@@ -739,7 +746,7 @@
       "type": "object"
     },
     "EmptyTask": {
-      "description": "Empty Task model.",
+      "description": "Empty Task model.\n\nThis task model will build the Airflow EmptyOperator instance only.",
       "properties": {
         "desc": {
           "anyOf": [
@@ -751,7 +758,7 @@
             }
           ],
           "default": null,
-          "description": "A Airflow task description",
+          "description": "A Airflow task description that will pass to the `doc` argument.",
           "title": "Desc"
         },
         "upstream": {
@@ -780,6 +787,7 @@
         "type": {
           "const": "task",
           "default": "task",
+          "description": "A task type.",
           "enum": [
             "task"
           ],
@@ -788,6 +796,7 @@
         },
         "uses": {
           "const": "empty",
+          "description": "An empty task name.",
           "enum": [
             "empty"
           ],
@@ -938,6 +947,7 @@
       "type": "object"
     },
     "OperatorTask": {
+      "description": "Operator Task model.",
       "properties": {
         "desc": {
           "anyOf": [
@@ -949,7 +959,7 @@
             }
           ],
           "default": null,
-          "description": "A Airflow task description",
+          "description": "A Airflow task description that will pass to the `doc` argument.",
           "title": "Desc"
         },
         "upstream": {
@@ -978,6 +988,7 @@
         "type": {
           "const": "task",
           "default": "task",
+          "description": "A task type.",
           "enum": [
             "task"
           ],
@@ -986,6 +997,7 @@
         },
         "uses": {
           "const": "operator",
+          "description": "An operator task name.",
           "enum": [
             "operator"
           ],
@@ -1159,7 +1171,7 @@
             }
           ],
           "default": null,
-          "description": "A Airflow task description",
+          "description": "A Airflow task description that will pass to the `doc` argument.",
           "title": "Desc"
         },
         "upstream": {
@@ -1188,6 +1200,7 @@
         "type": {
           "const": "task",
           "default": "task",
+          "description": "A task type.",
           "enum": [
             "task"
           ],
@@ -1196,6 +1209,7 @@
         },
         "uses": {
           "const": "python",
+          "description": "A Python task name.",
           "enum": [
             "python"
           ],
@@ -1343,6 +1357,7 @@
           "type": "string"
         },
         "params": {
+          "description": "A parameters that will pass to the `op_kwargs` argument.",
           "title": "Params",
           "type": "object"
         }
@@ -1368,7 +1383,7 @@
             }
           ],
           "default": null,
-          "description": "A Airflow task description",
+          "description": "A Airflow task description that will pass to the `doc` argument.",
           "title": "Desc"
         },
         "upstream": {
@@ -1397,6 +1412,7 @@
         "type": {
           "const": "task",
           "default": "task",
+          "description": "A task type.",
           "enum": [
             "task"
           ],
@@ -1405,6 +1421,7 @@
         },
         "uses": {
           "const": "raise",
+          "description": "A raise task name.",
           "enum": [
             "raise"
           ],
@@ -1584,7 +1601,7 @@
             }
           ],
           "default": null,
-          "description": "A Airflow task description",
+          "description": "A Airflow task description that will pass to the `doc` argument.",
           "title": "Desc"
         },
         "upstream": {
@@ -1612,7 +1629,7 @@
         },
         "type": {
           "const": "group",
-          "default": "group",
+          "default": "A group type.",
           "enum": [
             "group"
           ],
@@ -1720,6 +1737,19 @@
       ],
       "title": "Type",
       "type": "string"
+    },
+    "display_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A DAG display name that support on Airflow version >= 2.9.0",
+      "title": "Display Name"
     },
     "desc": {
       "anyOf": [
@@ -1895,6 +1925,7 @@
     },
     "owner": {
       "default": "dagtool",
+      "description": "An owner name.",
       "title": "Owner",
       "type": "string"
     },
@@ -1960,6 +1991,7 @@
         }
       ],
       "default": null,
+      "description": "A concurrency value that deprecate when upgrade to Airflow3.",
       "title": "Concurrency"
     },
     "is_paused_upon_creation": {
@@ -1989,19 +2021,11 @@
       "title": "Dagrun Timeout Sec"
     },
     "owner_links": {
-      "anyOf": [
-        {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "type": "object"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Owner Links"
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Owner Links",
+      "type": "object"
     },
     "default_args": {
       "$ref": "#/$defs/DefaultArgs"

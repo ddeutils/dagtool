@@ -14,11 +14,11 @@ try:
     from airflow.sdk.definitions.variable import Variable as AirflowVariable
     from airflow.sdk.exceptions import AirflowRuntimeError
 except ImportError:
-    from airflow.exceptions import (
-        AirflowInternalRuntimeError as AirflowRuntimeError,
-    )
     from airflow.models import Variable as AirflowVariable
     from airflow.models.dag import DAG
+
+    # NOTE: Mock AirflowRuntimeError with RuntimeError.
+    AirflowRuntimeError = RuntimeError
 
 from pendulum import parse, timezone
 from pendulum.parsing.exceptions import ParserError
@@ -183,8 +183,13 @@ class DagModel(BaseModel):
     def dag_dynamic_kwargs(self) -> dict[str, Any]:
         """Prepare Airflow DAG parameters that do not use for all Airflow
         version.
+
+        Returns:
+            dict[str, Any]: A mapping kwargs parameters that depend on the
+                Airflow version.
         """
         kw: dict[str, Any] = {}
+
         if AIRFLOW_VERSION >= [2, 9, 0]:
             if self.display_name:
                 kw.update({"dag_display_name": self.display_name})

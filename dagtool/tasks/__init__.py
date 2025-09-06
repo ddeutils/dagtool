@@ -16,8 +16,9 @@ from dagtool.tasks.__abc import (
     Operator,
     TaskModel,
 )
-from dagtool.tasks.common.custom import CustomTask, OperatorTask
+from dagtool.tasks.common.custom import CustomTask
 from dagtool.tasks.common.debug import DebugTask, RaiseTask
+from dagtool.tasks.common.operator import OperatorTask
 from dagtool.tasks.standard.bash import BashTask
 from dagtool.tasks.standard.empty import EmptyTask
 from dagtool.tasks.standard.python import PythonTask
@@ -51,7 +52,7 @@ class TaskGroup(BaseAirflowTaskModel):
     """Group of Task model that will represent Airflow Task Group object."""
 
     group: str = Field(description="A task group name.")
-    type: Literal["group"] = Field(default="group")
+    type: Literal["group"] = Field(default="A group type.")
     tooltip: str = Field(
         default="",
         description="A task group tooltip that will display on the UI.",
@@ -96,19 +97,19 @@ class TaskGroup(BaseAirflowTaskModel):
         return self.group
 
 
-def any_task_discriminator(v: Any) -> str | None:
+def any_task_discriminator(value: Any) -> str | None:
     """Any task discriminator function for AnyTask type that dynamic validate
     with DagModel.
     """
-    if isinstance(v, dict):
-        if "group" in v:
+    if isinstance(value, dict):
+        if "group" in value:
             return "Group"
-        elif "task" in v:
+        elif "task" in value:
             return "Task"
         return None
-    if hasattr(v, "group"):
+    if hasattr(value, "group"):
         return "Group"
-    elif hasattr(v, "task"):
+    elif hasattr(value, "task"):
         return "Task"
     # NOTE: Return None if the discriminator value isn't found
     return None

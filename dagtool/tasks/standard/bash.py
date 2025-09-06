@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class BashTask(BaseTask):
-    """Bash Task model that will represent to Airflow BashOperator object."""
+    """Bash Task model."""
 
     uses: Literal["bash"] = Field(description="An tool type for bash model.")
     command: str = Field(description="A bash command or bash file")
@@ -35,19 +35,27 @@ class BashTask(BaseTask):
 
     def build(
         self,
-        dag: DAG | None = None,
+        dag: DAG,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
     ) -> Operator:
-        """Build Airflow Bash Operator object."""
+        """Build Airflow Bash Operator object.
+
+        Args:
+            dag (DAG): An Airflow DAG object.
+            task_group (TaskGroup, default None): An Airflow TaskGroup object
+                if this task build under the task group.
+            context (Context, default None): A Context data that was created
+                from the Factory.
+        """
         return BashOperator(
+            dag=dag,
+            task_group=task_group,
             bash_command=self.command,
             env=self.env,
             append_env=self.append_env,
             output_encoding=self.output_encoding,
             skip_on_exit_code=self.skip_on_exit_code,
             cwd=self.cwd,
-            dag=dag,
-            task_group=task_group,
             **self.task_kwargs(),
         )

@@ -25,7 +25,10 @@ class PythonTask(BaseTask):
             "parameter."
         )
     )
-    params: dict[str, Any] = Field(default_factory=dict)
+    params: dict[str, Any] = Field(
+        default_factory=dict,
+        description="A parameters that will pass to the `op_kwargs` argument.",
+    )
 
     def build(
         self,
@@ -53,8 +56,8 @@ class PythonTask(BaseTask):
                 f"{self.caller}, first."
             )
         return PythonOperator(
-            task_group=task_group,
             dag=dag,
+            task_group=task_group,
             python_callable=python_callers[self.caller],
             op_kwargs=self.params,
             **self.task_kwargs(),

@@ -211,6 +211,9 @@ class Factory:
             env (Environment): A Jinja environment.
         """
         for key in data:
+
+            # NOTE: Start nested render the Jinja template the key equal
+            #   `default_args` value.
             if key == "default_args":
                 data[key] = self.render_template(data[key], env=env)
                 continue
@@ -262,6 +265,9 @@ class Factory:
                 template filters that will add to Jinja environment.
             user_defined_macros (dict[str, Callable | str]): An user defined
                 Jinja template macros that will add to Jinja environment.
+
+        Returns:
+            Environment: A Jinja Environment object.
         """
         env: Environment = NativeEnvironment()
         udf_macros: dict[str, Any] = self.user_defined_macros | (
@@ -294,7 +300,7 @@ class Factory:
         logger.info("Start build DAG from Template config data.")
         dags: list[DAG] = []
         context: Context = self.set_context(extras=context_extras)
-        for name, model in self.conf.items():
+        for i, (name, model) in enumerate(self.conf.items(), start=1):
             dag: DAG = model.build(
                 prefix=self.name,
                 docs=self.docs,
@@ -307,7 +313,7 @@ class Factory:
                 # NOTE: Copy the Context data and add the current custom vars.
                 context=context | {"vars": model.vars},
             )
-            logger.info(f"({name}) Building DAG: {dag}")
+            logger.info(f"({i}) Building DAG: {name}")
             dags.append(dag)
         return dags
 

@@ -124,7 +124,7 @@ class BaseTask(BaseAirflowTaskModel, ABC):
 
     task: str = Field(description="A task name.")
     type: Literal["task"] = Field(default="task", description="A task type.")
-    uses: str = Field(description="An tool type of this task.")
+    uses: str = Field(description="A tool type name.")
     trigger_rule: TriggerRule = Field(
         default=TriggerRule.ALL_SUCCESS,
         description=(
@@ -133,14 +133,14 @@ class BaseTask(BaseAirflowTaskModel, ABC):
         ),
     )
     owner: str | None = Field(default=None)
-    email: str | list[str] | None = None
-    email_on_failure: bool = False
-    email_on_retry: bool = False
-    depends_on_past: bool = False
-    pool: str | None = None
+    email: str | list[str] | None = Field(default=None)
+    email_on_failure: bool = Field(default=False)
+    email_on_retry: bool = Field(default=False)
+    depends_on_past: bool = Field(default=False)
+    pool: str | None = Field(default=None)
     retries: int | None = Field(default=None, description="A retry count.")
     retry_delay: dict[str, int] | None = Field(default=None)
-    retry_exponential_backoff: bool = False
+    retry_exponential_backoff: bool = Field(default=False)
     executor_config: dict[str, Any] | None = Field(default=None)
     inlets: list[dict[str, Any] | str] = Field(default_factory=list)
     outlets: list[dict[str, Any] | str] = Field(default_factory=list)

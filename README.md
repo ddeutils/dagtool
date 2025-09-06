@@ -21,6 +21,9 @@ A **Friendly Airflow DAG Build Tool** for Data Engineer with YAML file template.
 | `>2.7.1,<3.0.0` |     ✅     | Common version support for Airflow version `2.x.x`             |
 |    `>=3.x.x`    |     ✅     | Common version support for Airflow version `3.x.x`             |
 
+> [!NOTE]
+> I recommend to use Airflow2 until Airflow3 stable.
+
 **Feature Supported**:
 
 - ✅ JSON Schema Validation (Set IDE with `json-schema.json`)
@@ -89,9 +92,6 @@ S --> Template --> Pydantic Model --> DAG/Operator Objects --> Execute --> E
 ```shell
 uv pip install -U dagtool
 ```
-
-> [!NOTE]
-> I recommend to use Airflow2 util Airflow3 stable.
 
 ## 🎯 Usage
 
@@ -221,6 +221,8 @@ The DAG that was built from this package will have the name is, `sales_transacti
 > ```yaml
 > type: variable
 > variables:
+>   # NOTE: The key name that will get from the Airflow Variable or the local
+>   #   variable file.
 >   - key: transaction
 >     stages:
 >       dev:
