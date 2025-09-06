@@ -57,7 +57,12 @@ class ToolMixin(ABC):
         """
 
 
-class TaskModel(BaseModel, ToolMixin, ABC): ...
+class TaskModel(BaseModel, ToolMixin, ABC):
+    """Task Model.
+
+    This model will use to be the abstract model for any Task model that it want
+    to use with a specific use case like CustomTask, etc.
+    """
 
 
 class BaseAirflowTaskModel(TaskModel, ABC):
@@ -103,7 +108,7 @@ class BaseTask(BaseAirflowTaskModel, ABC):
     model_config = ConfigDict(use_enum_values=True)
 
     task: str = Field(description="A task name.")
-    type: Literal["task"] = Field(default="task")
+    type: Literal["task"] = Field(default="task", description="A task type.")
     uses: str = Field(description="An tool type of this task.")
     trigger_rule: TriggerRule = Field(
         default=TriggerRule.ALL_SUCCESS,
