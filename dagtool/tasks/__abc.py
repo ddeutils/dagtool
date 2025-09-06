@@ -17,7 +17,8 @@ except ImportError:
     from airflow.utils.task_group import TaskGroup
 
 from airflow.utils.trigger_rule import TriggerRule
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.functional_validators import field_validator
 
 if TYPE_CHECKING:
     from dagtool.conf import YamlConf
@@ -26,6 +27,10 @@ Operator = BaseOperator | MappedOperator
 
 
 class Context(TypedDict):
+    """Context type dict that wat generated from the Factory object before start
+    building Airflow DAG from template config.
+    """
+
     path: Path
     yaml_loader: YamlConf
     vars: dict[str, Any]
@@ -54,6 +59,10 @@ class ToolMixin(ABC):
                 if this task build under the task group.
             context (Context, default None): A Context data that was created
                 from the Factory.
+
+        Returns:
+            Operator | TaskGroup: This method can return depend on building
+                logic that already pass the DAG instance from the parent.
         """
 
 
@@ -69,7 +78,10 @@ class BaseAirflowTaskModel(TaskModel, ABC):
     """Base Task model that represent Airflow Task object."""
 
     desc: str | None = Field(
-        default=None, description="A Airflow task description"
+        default=None,
+        description=(
+            "A Airflow task description that will pass to the `doc` argument."
+        ),
     )
     upstream: list[str] = Field(
         default_factory=list,
@@ -87,6 +99,9 @@ class BaseAirflowTaskModel(TaskModel, ABC):
     def __prepare_upstream(cls, data: Any) -> Any:
         """Prepare upstream value that passing to validate with string value
         instead of list of string. This function will create list of this value.
+
+        Args:
+            data (Any): An any upstream data that pass before validating.
         """
         if data is None:
             return []
@@ -156,7 +171,7 @@ class BaseTask(BaseAirflowTaskModel, ABC):
         return self.task
 
     def task_kwargs(self) -> dict[str, Any]:
-        """Prepare Airflow BaseOperator kwargs from BaseTask fields.
+        """Prepare the Airflow BaseOperator kwargs from BaseTask fields.
 
             This method will make key when any field was pass to model and do
         avoid if it is None or default value.

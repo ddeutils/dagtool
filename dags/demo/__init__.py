@@ -4,7 +4,7 @@ The demo DAGs that generate from template config file.
 """
 
 from dagtool import Factory
-from dagtool.tasks.standard.debug import DebugOperator
+from dagtool.tasks.common.debug import DebugOperator
 from dagtool.utils import days_ago
 
 from .utils import CustomTask, say_hi

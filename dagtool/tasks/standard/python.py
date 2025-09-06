@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class PythonTask(BaseTask):
     """Python Task model."""
 
-    uses: Literal["python"]
+    uses: Literal["python"] = Field(description="A Python task name.")
     caller: str = Field(
         description=(
             "A Python function name that already set on the `python_callers` "
@@ -29,11 +29,22 @@ class PythonTask(BaseTask):
 
     def build(
         self,
-        dag: DAG | None = None,
+        dag: DAG,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
     ) -> Operator:
-        """Build Airflow Python Operator object."""
+        """Build Airflow Python Operator object.
+
+        Args:
+            dag (DAG): An Airflow DAG object.
+            task_group (TaskGroup, default None): An Airflow TaskGroup object
+                if this task build under the task group.
+            context (Context, default None): A Context data that was created
+                from the Factory.
+
+        Returns:
+            Operator: An Airflow PythonOperator instance.
+        """
         ctx: dict[str, Any] = context or {}
         python_callers: dict[str, Any] = ctx["python_callers"]
         if self.caller not in python_callers:

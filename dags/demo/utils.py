@@ -11,7 +11,7 @@ except ImportError:
     from airflow.utils.task_group import TaskGroup
 
 from dagtool.tasks import Context, TaskModel
-from dagtool.tasks.standard.debug import DebugOperator
+from dagtool.tasks.common.debug import DebugOperator
 
 
 def say_hi(name: Any) -> str:
