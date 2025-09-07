@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field
 
-from dagtool.plugins.operators.debug import DebugOperator
-from dagtool.plugins.operators.error import RaiseOperator
+from dagtool.plugins.custom.operators.debug import DebugOperator
+from dagtool.plugins.custom.operators.error import RaiseOperator
 from dagtool.tasks.__abc import BaseTask
 
 if TYPE_CHECKING:
