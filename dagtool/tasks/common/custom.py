@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 class CustomTask(BaseTask):
     """Custom Task model."""
 
-    uses: Literal["custom_task"] = Field(description="A custom task name.")
-    name: str = Field(description="A custom building function name.")
+    uses: Literal["custom_task"] = Field(description="A common task name.")
+    name: str = Field(description="A common building function name.")
     params: dict[str, Any] = Field(
         default_factory=dict,
         description=(

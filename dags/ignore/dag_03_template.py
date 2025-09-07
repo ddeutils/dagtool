@@ -27,7 +27,7 @@ debug = DebugOperator(
     dag=dag,
     debug={
         "test": "Hello World",
-        "custom": "{{ custom_macros }}",
+        "common": "{{ custom_macros }}",
         "variable_1": "{{ vars('schedule_interval') }}",
         "variable_2": "{{ vars('project_id') }}",
     },

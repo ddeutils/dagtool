@@ -81,7 +81,7 @@ class Factory:
         "vars",
     )
 
-    # NOTE: Builtin class variables for making custom Factory by inherit.
+    # NOTE: Builtin class variables for making common Factory by inherit.
     builtin_operators: ClassVar[dict[str, type[Operator]]] = {}
     builtin_tasks: ClassVar[dict[str, type[TaskModel]]] = {}
 
@@ -199,7 +199,7 @@ class Factory:
         """Set context data that bypass to the build method.
 
         Args:
-            custom_vars (dict[str, Any]): A custom variables.
+            custom_vars (dict[str, Any]): A common variables.
             extras (dict[str, Any]): An extra parameters.
         """
         _vars: dict[str, Any] = custom_vars or {}
@@ -338,7 +338,7 @@ class Factory:
                 template_searchpath=self.template_searchpath,
                 on_success_callback=self.on_success_callback,
                 on_failure_callback=self.on_failure_callback,
-                # NOTE: Copy the Context data and add the current custom vars.
+                # NOTE: Copy the Context data and add the current common vars.
                 context=context | {"vars": model.vars},
             )
             logger.info(f"({i}) Building DAG: {name}")

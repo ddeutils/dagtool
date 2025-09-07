@@ -87,7 +87,7 @@ class DefaultArgs(BaseModel):
 
 class DagModel(BaseModel):
     """Base Dag Model for validate template config data support DagTool object.
-    This model will include necessary field for Airflow DAG object and custom
+    This model will include necessary field for Airflow DAG object and common
     field for DagTool object together.
     """
 

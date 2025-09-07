@@ -139,7 +139,7 @@ tasks:
 
       - task: sink
         upstream: transform
-        op: custom
+        op: common
         uses: write_iceberg
         params:
           path: gcs://{{ vars("project_id") }}
@@ -174,7 +174,7 @@ from pydantic import Field
 def get_api_data(path: str) -> dict[str, list[str]]:
     return {"data": [f"src://{path}/table/1", f"src://{path}/table/2"]}
 
-# NOTE: Some custom task that create any Airflow Task instance object.
+# NOTE: Some common task that create any Airflow Task instance object.
 class WriteIceberg(TaskModel):
     """Custom Task for user defined inside of template path."""
 
