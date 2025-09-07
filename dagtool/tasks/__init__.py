@@ -18,7 +18,7 @@ from dagtool.tasks.__abc import (
 )
 from dagtool.tasks.common.custom import CustomTask
 from dagtool.tasks.common.debug import DebugTask, RaiseTask
-from dagtool.tasks.common.operator import OperatorTask
+from dagtool.tasks.common.direct_operator import OperatorTask
 from dagtool.tasks.standard.bash import BashTask
 from dagtool.tasks.standard.empty import EmptyTask
 from dagtool.tasks.standard.python import PythonTask

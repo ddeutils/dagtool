@@ -44,25 +44,65 @@ class DefaultArgs(BaseModel):
 
     owner: str | None = Field(default=None, description="An owner name.")
     depends_on_past: bool = Field(default=False, description="")
-    # start_date = ...
-    # end_date = ...
-    # email = ...
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    email: str | list[str] | None = Field(
+        default=None,
+        description=(
+            "the 'to' email address(es) used in email alerts. This can be a "
+            "single email or multiple ones. Multiple addresses can be "
+            "specified as a comma or semicolon separated string or by passing "
+            "a list of strings."
+        ),
+    )
     email_on_failure: bool = Field(
-        default=False,
+        default_factory=partial(
+            airflow_conf.getboolean,
+            "email",
+            "default_email_on_failure",
+            fallback=True,
+        ),
         description=(
             "Indicates whether email alerts should be sent when a task failed"
         ),
     )
     email_on_retry: bool = Field(
-        default=False,
+        default_factory=partial(
+            airflow_conf.getboolean,
+            "email",
+            "default_email_on_retry",
+            fallback=True,
+        ),
     )
-    retries: int = Field(default=1, description="A retry count number.")
+    retries: int = Field(
+        default_factory=partial(
+            airflow_conf.getint,
+            "core",
+            "default_task_retries",
+            fallback=0,
+        ),
+        description="A retry count number.",
+    )
     retry_delay: dict[str, int] | None = Field(
-        default=None,
+        default_factory=partial(
+            timedelta,
+            seconds=airflow_conf.getint(
+                "core",
+                "default_task_retry_delay",
+                fallback=300,
+            ),
+        ),
         description="A retry time delay before start the next retry process.",
     )
-    retry_exponential_backoff: bool = Field(default=False)
-    # max_retry_delay = ...
+    retry_exponential_backoff: bool = Field(
+        default=False,
+        description=(
+            "allow progressively longer waits between retries by using "
+            "exponential backoff algorithm on retry delay (delay will be "
+            "converted into seconds)."
+        ),
+    )
+    max_retry_delay: float | None = None
     # queue = ...
     # pool = ...
     # priority_weight = ...
@@ -75,6 +115,8 @@ class DefaultArgs(BaseModel):
     # on_retry_callback = ...
     sla: Any | None = Field(default=None)
     # sla_miss_callback = ...
+    # executor_config = ...
+    do_xcom_push: bool = Field(default=True)
 
     def to_dict(self) -> dict[str, Any]:
         """Making Python dict object without field that use default value.
