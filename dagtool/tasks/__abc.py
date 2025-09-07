@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
@@ -16,6 +17,7 @@ except ImportError:
     from airflow.models.mappedoperator import MappedOperator
     from airflow.utils.task_group import TaskGroup
 
+from airflow.configuration import conf as airflow_conf
 from airflow.utils.trigger_rule import TriggerRule
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.functional_validators import field_validator
@@ -118,7 +120,11 @@ class BaseAirflowTaskModel(TaskModel, ABC):
 
 
 class BaseTask(BaseAirflowTaskModel, ABC):
-    """Operator Task Model."""
+    """Base Task Model.
+
+    This model will add necessary field that use with the Airflow BaseOperator
+    object.
+    """
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -132,18 +138,62 @@ class BaseTask(BaseAirflowTaskModel, ABC):
             "https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         ),
     )
-    owner: str | None = Field(default=None)
-    email: str | list[str] | None = Field(default=None)
-    email_on_failure: bool = Field(default=False)
-    email_on_retry: bool = Field(default=False)
+    owner: str | None = Field(default=None, description="An owner name.")
+    email: str | list[str] | None = Field(
+        default=None,
+        description=(
+            "the 'to' email address(es) used in email alerts. This can be a "
+            "single email or multiple ones. Multiple addresses can be "
+            "specified as a comma or semicolon separated string or by passing "
+            "a list of strings."
+        ),
+    )
+    email_on_failure: bool = Field(
+        default_factory=partial(
+            airflow_conf.getboolean,
+            "email",
+            "default_email_on_failure",
+            fallback=True,
+        ),
+        description=(
+            "Indicates whether email alerts should be sent when a task failed"
+        ),
+    )
+    email_on_retry: bool = Field(
+        default_factory=partial(
+            airflow_conf.getboolean,
+            "email",
+            "default_email_on_retry",
+            fallback=True,
+        ),
+    )
     depends_on_past: bool = Field(default=False)
-    pool: str | None = Field(default=None)
+    pool: str | None = Field(
+        default=None,
+        description=(
+            "the slot pool this task should run in, slot pools are a "
+            "way to limit concurrency for certain tasks."
+        ),
+    )
+    pool_slots: int | None = Field(
+        default=None,
+        description=(
+            "the number of pool slots this task should use (>= 1) "
+            "Values less than 1 are not allowed."
+        ),
+    )
     retries: int | None = Field(default=None, description="A retry count.")
     retry_delay: dict[str, int] | None = Field(default=None)
     retry_exponential_backoff: bool = Field(default=False)
     executor_config: dict[str, Any] | None = Field(default=None)
-    inlets: list[dict[str, Any] | str] = Field(default_factory=list)
-    outlets: list[dict[str, Any] | str] = Field(default_factory=list)
+    inlets: list[dict[str, Any] | str] = Field(
+        default_factory=list,
+        description="A list of inlets or inlet value.",
+    )
+    outlets: list[dict[str, Any] | str] = Field(
+        default_factory=list,
+        description="A list of outlets or outlet value.",
+    )
 
     @abstractmethod
     def build(
@@ -195,4 +245,8 @@ class BaseTask(BaseAirflowTaskModel, ABC):
             kws.update({"retry_delay": self.retry_delay})
         if self.owner:
             kws.update({"owner": self.owner})
+        if self.pool:
+            kws.update({"pill": self.pool})
+        if self.pool_slots:
+            kws.update({"pool_slots": self.pool_slots})
         return kws

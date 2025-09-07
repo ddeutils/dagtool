@@ -7,8 +7,6 @@ from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Union
 
-from airflow.configuration import conf as airflow_conf
-
 try:
     from airflow.sdk.definitions.dag import DAG
     from airflow.sdk.definitions.variable import Variable as AirflowVariable
@@ -20,9 +18,11 @@ except ImportError:
     # NOTE: Mock AirflowRuntimeError with RuntimeError.
     AirflowRuntimeError = RuntimeError
 
+from airflow.configuration import conf as airflow_conf
+from airflow.utils.trigger_rule import TriggerRule
 from pendulum import parse, timezone
 from pendulum.parsing.exceptions import ParserError
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from pydantic.functional_validators import field_validator
 from typing_extensions import Self
 from yaml import safe_load
@@ -41,6 +41,8 @@ class DefaultArgs(BaseModel):
     Airflow DAG object. These field reference arguments from the BaseOperator
     object.
     """
+
+    model_config = ConfigDict(use_enum_values=True)
 
     owner: str | None = Field(default=None, description="An owner name.")
     depends_on_past: bool = Field(default=False, description="")
@@ -108,7 +110,13 @@ class DefaultArgs(BaseModel):
     # priority_weight = ...
     # weight_rule = ...
     # wait_for_downstream = ...
-    # trigger_rule = ...
+    trigger_rule: TriggerRule = Field(
+        default=TriggerRule.ALL_SUCCESS,
+        description=(
+            "Task trigger rule. Read more detail, "
+            "https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
+        ),
+    )
     # execution_timeout = ...
     # on_failure_callback = ...
     # on_success_callback = ...
