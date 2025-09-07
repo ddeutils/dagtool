@@ -2,6 +2,26 @@
 
 ## Latest Changes
 
+## 0.0.11
+
+### :sparkles: Features
+
+- :dart: update more field on tasks model.
+- :dart: add jinja env kwargs.
+- :dart: update default argument field that supported.
+- :dart: update dag argument that supported.
+- :dart: update main cli.
+
+### :bug: Bug fixes
+
+- :gear: change module name.
+
+### :black_nib: Code Changes
+
+- :construction: change custom to common.
+- :construction: move plugin to specific providers.
+- :art: update docs-string format and add contributing docs.
+
 ## 0.0.10
 
 ### :black_nib: Code Changes
