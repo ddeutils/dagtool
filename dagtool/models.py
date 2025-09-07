@@ -183,6 +183,10 @@ class DagModel(BaseModel):
             '{"dag_owner": "https://airflow.apache.org/"}'
         ),
     )
+    fail_stop: bool = Field(
+        default=False,
+        description="Fails currently running tasks when task in DAG fails.",
+    )
     default_args: DefaultArgs = Field(default_factory=DefaultArgs)
 
     @field_validator(
@@ -347,7 +351,7 @@ class DagModel(BaseModel):
             on_failure_callback=on_failure_callback,
             owner_links=self.owner_links,
             # auto_register=...,
-            # fail_stop=...,
+            fail_stop=self.fail_stop,
             **self.dag_dynamic_kwargs(),
         )
 

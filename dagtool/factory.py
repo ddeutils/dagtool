@@ -7,7 +7,7 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 
-from jinja2 import Environment, Template
+from jinja2 import Environment, Template, Undefined
 from jinja2.nativetypes import NativeEnvironment
 from pydantic import ValidationError
 
@@ -95,6 +95,7 @@ class Factory:
         tasks: dict[str, type[TaskModel]] | None = None,
         python_callers: dict[str, Callable] | None = None,
         template_searchpath: list[str | Path] | None = None,
+        jinja_environment_kwargs: dict[str, Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Callable | str] | None = None,
         on_success_callback: list[Any] | Any | None = None,
@@ -139,6 +140,7 @@ class Factory:
             str(p.absolute()) if isinstance(p, Path) else p
             for p in (template_searchpath or [])
         ] + [str((self.path / ASSET_DIR).absolute())]
+        self.jinja_environment_kwargs = jinja_environment_kwargs or {}
         self.user_defined_filters = FILTERS | (user_defined_filters or {})
         self.user_defined_macros = user_defined_macros or {}
         self.on_success_callback = on_success_callback
@@ -167,16 +169,20 @@ class Factory:
         if self.conf:
             self.conf: dict[str, DagModel] = {}
 
+        env: Environment = self.get_template_env(
+            user_defined_macros={"env": os.getenv} | self.user_defined_macros,
+            user_defined_filters=self.user_defined_filters,
+            jinja_environment_kwargs=self.jinja_environment_kwargs,
+        )
+
         # NOTE: For loop DAG config that store inside this template path.
         for c in self.yaml_loader.read_conf():
             name: str = c["name"]
-            env: Environment = self.get_template_env(
-                user_defined_macros={
-                    "vars": pull_vars(name, self.path, prefix=self.name).get,
-                    "env": os.getenv,
-                }
-                | self.user_defined_macros,
-                user_defined_filters=self.user_defined_filters,
+
+            # NOTE: Override or add the vars macro to the current Jinja
+            #   environment object.
+            env.globals.update(
+                {"vars": pull_vars(name, self.path, prefix=self.name).get},
             )
             self.render_template(c, env=env)
             try:
@@ -268,6 +274,7 @@ class Factory:
         *,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Callable | str] | None = None,
+        jinja_environment_kwargs: dict[str, Any] | None = None,
     ) -> Environment:
         """Return Jinja Template Native Environment object for render template
         to the DagModel parameters before create Airflow DAG.
@@ -277,11 +284,20 @@ class Factory:
                 template filters that will add to Jinja environment.
             user_defined_macros (dict[str, Callable | str]): An user defined
                 Jinja template macros that will add to Jinja environment.
+            jinja_environment_kwargs: Additional configuration options to be
+                passed to Jinja `Environment` for template rendering.
 
         Returns:
             Environment: A Jinja Environment object.
         """
-        env: Environment = NativeEnvironment()
+        jinja_env_options: dict[str, Any] = {
+            "undefined": Undefined,
+            "extensions": ["jinja2.ext.do"],
+            "cache_size": 0,
+        }
+        env: Environment = NativeEnvironment(
+            **(jinja_env_options | (jinja_environment_kwargs or {}))
+        )
         udf_macros: dict[str, Any] = self.user_defined_macros | (
             user_defined_macros or {}
         )
