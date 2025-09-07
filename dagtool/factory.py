@@ -5,7 +5,7 @@ import logging
 import os
 from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 
 from jinja2 import Environment, Template
 from jinja2.nativetypes import NativeEnvironment
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
         from airflow.models.mappedoperator import MappedOperator
 
     Operator = BaseOperator | MappedOperator
+    T = TypeVar("T")
 
 logger = logging.getLogger("dagtool.factory")
 
@@ -189,7 +190,12 @@ class Factory:
         custom_vars: dict[str, Any] | None = None,
         extras: dict[str, Any] | None = None,
     ) -> Context:
-        """Set context data that bypass to the build method."""
+        """Set context data that bypass to the build method.
+
+        Args:
+            custom_vars (dict[str, Any]): A custom variables.
+            extras (dict[str, Any]): An extra parameters.
+        """
         _vars: dict[str, Any] = custom_vars or {}
         _extras: dict[str, Any] = extras or {}
         return {
@@ -210,6 +216,9 @@ class Factory:
             data (Any): Any data that want to render Jinja template.
             env (Environment): A Jinja environment.
         """
+        if not isinstance(data, dict):
+            return self._render(data, env=env)
+
         for key in data:
 
             # NOTE: Start nested render the Jinja template the key equal
@@ -233,6 +242,9 @@ class Factory:
         Args:
             value (Any): An any value.
             env (Environment): A Jinja environment object.
+
+        Returns:
+            Any: The value that was rendered if it is string type.
         """
         if isinstance(value, str):
             template: Template = env.from_string(value)

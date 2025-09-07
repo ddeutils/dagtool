@@ -121,18 +121,32 @@ class DagModel(BaseModel):
     max_active_tasks: int = Field(
         default_factory=partial(
             airflow_conf.getint, "core", "max_active_tasks_per_dag"
-        )
+        ),
+        description="the number of task instances allowed to run concurrently",
     )
     max_active_runs: int = Field(
         default_factory=partial(
             airflow_conf.getint, "core", "max_active_runs_per_dag"
-        )
+        ),
+        description=(
+            "maximum number of active DAG runs, beyond this number of DAG "
+            "runs in a running state, the scheduler won't create "
+            "new active DAG runs."
+        ),
     )
     dagrun_timeout_sec: int | None = Field(
         default=None,
         description="A DagRun timeout in second value.",
     )
-    owner_links: dict[str, str] = Field(default_factory=dict)
+    owner_links: dict[str, str] = Field(
+        default_factory=dict,
+        description=(
+            "Dict of owners and their links, that will be clickable on the DAGs "
+            "view UI. Can be used as an HTTP link (for example the link to "
+            "your Slack channel), or a mailto link. e.g: "
+            '{"dag_owner": "https://airflow.apache.org/"}'
+        ),
+    )
     default_args: DefaultArgs = Field(default_factory=DefaultArgs)
 
     @field_validator(
@@ -184,6 +198,10 @@ class DagModel(BaseModel):
         """Prepare Airflow DAG parameters that do not use for all Airflow
         version.
 
+        Notes:
+            default_view:
+            orientation:
+
         Returns:
             dict[str, Any]: A mapping kwargs parameters that depend on the
                 Airflow version.
@@ -195,11 +213,22 @@ class DagModel(BaseModel):
                 kw.update({"dag_display_name": self.display_name})
 
         if AIRFLOW_VERSION < [3, 0, 0]:
+
+            # Reference: The 'DAG.concurrency' attribute is deprecated. Please
+            #   use 'DAG.max_active_tasks'.
             if self.concurrency:
                 kw.update({"concurrency": self.concurrency})
+
             if self.tags:
                 kw.update({"tags": self.tags})
+
+            # NOTE: Specify DAG default view (grid, graph, duration, gantt,
+            #   landing_times), default grid.
             kw.update({"default_view": "graph"})
+
+            # NOTE: Specify DAG orientation in graph view (LR, TB, RL, BT),
+            #   default LR
+            kw.update({"orientation": "LR"})
 
         if AIRFLOW_VERSION > [3, 0, 0]:
             # NOTE: The tags parameters change to mutable set instead of list
@@ -270,13 +299,19 @@ class DagModel(BaseModel):
                 | DefaultArgs.model_validate(default_args or {}).to_dict()
             ),
             template_searchpath=(template_searchpath or []),
+            # template_undefined=...,
+            # sla_miss_callback=...,
+            # access_control=...,
             user_defined_macros=macros | (user_defined_macros or {}),
             user_defined_filters=(user_defined_filters or {}),
-            render_template_as_native_obj=True,
             is_paused_upon_creation=self.is_paused_upon_creation,
+            # jinja_environment_kwargs=...,
+            render_template_as_native_obj=True,
             on_success_callback=on_success_callback,
             on_failure_callback=on_failure_callback,
             owner_links=self.owner_links,
+            # auto_register=...,
+            # fail_stop=...,
             **self.dag_dynamic_kwargs(),
         )
 
