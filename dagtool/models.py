@@ -38,21 +38,50 @@ if TYPE_CHECKING:
 
 class DefaultArgs(BaseModel):
     """Default Args Model that will use with the `default_args` field with the
-    Airflow DAG object.
+    Airflow DAG object. These field reference arguments from the BaseOperator
+    object.
     """
 
     owner: str | None = Field(default=None, description="An owner name.")
     depends_on_past: bool = Field(default=False, description="")
+    # start_date = ...
+    # end_date = ...
+    # email = ...
+    email_on_failure: bool = Field(
+        default=False,
+        description=(
+            "Indicates whether email alerts should be sent when a task failed"
+        ),
+    )
+    email_on_retry: bool = Field(
+        default=False,
+    )
     retries: int = Field(default=1, description="A retry count number.")
     retry_delay: dict[str, int] | None = Field(
         default=None,
         description="A retry time delay before start the next retry process.",
     )
     retry_exponential_backoff: bool = Field(default=False)
+    # max_retry_delay = ...
+    # queue = ...
+    # pool = ...
+    # priority_weight = ...
+    # weight_rule = ...
+    # wait_for_downstream = ...
+    # trigger_rule = ...
+    # execution_timeout = ...
+    # on_failure_callback = ...
+    # on_success_callback = ...
+    # on_retry_callback = ...
     sla: Any | None = Field(default=None)
+    # sla_miss_callback = ...
 
     def to_dict(self) -> dict[str, Any]:
-        """Making Python dict object without field that use default value."""
+        """Making Python dict object without field that use default value.
+
+        Returns:
+            dict[str, Any]: A mapping of this default args values.
+        """
         return self.model_dump(exclude_defaults=True)
 
 
@@ -75,7 +104,14 @@ class DagModel(BaseModel):
         default=None,
         description="A DAG document that allow to pass with markdown syntax.",
     )
-    params: dict[str, str] = Field(default_factory=dict)
+    params: dict[str, str] = Field(
+        default_factory=dict,
+        description=(
+            "a dictionary of DAG level parameters that are made "
+            "accessible in templates, namespaced under `params`. These "
+            "params can be overridden at the task level."
+        ),
+    )
     vars: dict[str, str] = Field(default_factory=dict)
     tasks: list[AnyTask] = Field(
         default_factory=list,

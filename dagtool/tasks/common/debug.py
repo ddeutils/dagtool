@@ -44,7 +44,7 @@ class RaiseTask(BaseTask):
 
 
 class DebugTask(BaseTask):
-    """Debug Task model that inherit from Operator task."""
+    """Debug Task model."""
 
     uses: Literal["debug"] = Field(description="A debug task name.")
     params: dict[str, Any] = Field(
