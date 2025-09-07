@@ -13,9 +13,25 @@ I start design folder structure base on these objectives:
 **The Core Components**:
 
 1. DAG Factory Code will store at `__init__.py`
-2. DAG template will store at `dag-{ name }.yml`
+2. DAG template will store at `dag_{ name }.yml`
 3. Business logic store in assets store of each DAG at `assets/`
 4. Dynamic environment and resource variables will store at `variables.yml`
+
+**Other Components**:
+
+- `dags/pipelines/`
+  - `dags/pipelines/domain/__init__.py`
+  - `dags/pipelines/domain/sub-domain/__init__.py`
+- `dags/management`
+  - `dags/management/monitor/{propose}`
+  - `dags/management/iceberg/{propose}`
+  - `dags/management/actions/{propose}`
+- `dags/utils/`
+  - `dags/utils/plugins/google/operators`
+  - `dags/utils/plugins/google/sensors`
+  - `dags/utils/plugins/common/sensors`
+  - `dags/utils/reusable`
+- `plugins/callbacks`
 
 ### Type 01: Standalone DAG
 
@@ -24,9 +40,9 @@ dags/
 ├── { domain }/
 │     ├── { module-dags }/
 │     │     ├── __init__.py                             <--- ⚙️ DAG Factory
-│     │     ├── dag.yml
-│     │     ├── variables.yml
-│     │     └── assets/
+│     │     ├── dag.yml                                 <--- DAG Template
+│     │     ├── variables.yml                           <--- Variables
+│     │     └── assets/                                 <--- Assets
 │     │         ├── dag-schema-mapping.json
 │     │         └── dag-transform-query.sql
 │     │
@@ -41,17 +57,17 @@ dags/
 ├── { domain }/
 │     ├── { module-dags }/
 │     │     ├── __init__.py                             <--- ⚙️ DAG Factory
-│     │     ├── dag-{ name-1 }.yml
-│     │     ├── dag-{ name-2 }.yml
-│     │     ├── variables.yml
-│     │     └── assets/
+│     │     ├── dag-{ name-1 }.yml                      <--- DAG Template
+│     │     ├── dag-{ name-2 }.yml                      <--- DAG Template
+│     │     ├── variables.yml                           <--- Variables
+│     │     └── assets/                                 <--- Assets
 │     │         ├── dag-{ name-1 }-schema-mapping.json
 │     │         ├── dag-{ name-1 }-transform-query.sql
 │     │         ├── dag-{ name-2 }-schema-mapping.json
 │     │         └── dag-{ name-2 }-transform-query.sql
 │     │
 │     └── { module-dags }/
-│           ├── __init__.py
+│           ├── __init__.py                             <--- ⚙️ DAG Factory
 ```
 
 The DAG name will generate with:
