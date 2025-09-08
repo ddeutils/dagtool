@@ -1,6 +1,6 @@
 # Designed
 
-A designed document of this project.
+A designed document of this project for the production policy.
 
 ## DAG File Structure:
 
@@ -30,7 +30,8 @@ I start design folder structure base on these objectives:
   - `dags/utils/plugins/google/operators`
   - `dags/utils/plugins/google/sensors`
   - `dags/utils/plugins/common/sensors`
-  - `dags/utils/reusable`
+  - `dags/utils/tasks/common/{propost}`
+  - `dags/utils/reusables/{propose}`
 - `plugins/callbacks`
 
 ### Type 01: Standalone DAG

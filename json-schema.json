@@ -73,6 +73,7 @@
             }
           ],
           "default": null,
+          "description": "An owner name.",
           "title": "Owner"
         },
         "email": {
@@ -91,15 +92,15 @@
             }
           ],
           "default": null,
+          "description": "the 'to' email address(es) used in email alerts. This can be a single email or multiple ones. Multiple addresses can be specified as a comma or semicolon separated string or by passing a list of strings.",
           "title": "Email"
         },
         "email_on_failure": {
-          "default": false,
+          "description": "Indicates whether email alerts should be sent when a task failed",
           "title": "Email On Failure",
           "type": "boolean"
         },
         "email_on_retry": {
-          "default": false,
           "title": "Email On Retry",
           "type": "boolean"
         },
@@ -118,7 +119,21 @@
             }
           ],
           "default": null,
+          "description": "the slot pool this task should run in, slot pools are a way to limit concurrency for certain tasks.",
           "title": "Pool"
+        },
+        "pool_slots": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the number of pool slots this task should use (>= 1) Values less than 1 are not allowed.",
+          "title": "Pool Slots"
         },
         "retries": {
           "anyOf": [
@@ -166,6 +181,7 @@
           "title": "Executor Config"
         },
         "inlets": {
+          "description": "A list of inlets or inlet value.",
           "items": {
             "anyOf": [
               {
@@ -180,6 +196,7 @@
           "type": "array"
         },
         "outlets": {
+          "description": "A list of outlets or outlet value.",
           "items": {
             "anyOf": [
               {
@@ -315,7 +332,7 @@
         },
         "uses": {
           "const": "custom_task",
-          "description": "A custom task name.",
+          "description": "A common task name.",
           "enum": [
             "custom_task"
           ],
@@ -337,6 +354,7 @@
             }
           ],
           "default": null,
+          "description": "An owner name.",
           "title": "Owner"
         },
         "email": {
@@ -355,15 +373,15 @@
             }
           ],
           "default": null,
+          "description": "the 'to' email address(es) used in email alerts. This can be a single email or multiple ones. Multiple addresses can be specified as a comma or semicolon separated string or by passing a list of strings.",
           "title": "Email"
         },
         "email_on_failure": {
-          "default": false,
+          "description": "Indicates whether email alerts should be sent when a task failed",
           "title": "Email On Failure",
           "type": "boolean"
         },
         "email_on_retry": {
-          "default": false,
           "title": "Email On Retry",
           "type": "boolean"
         },
@@ -382,7 +400,21 @@
             }
           ],
           "default": null,
+          "description": "the slot pool this task should run in, slot pools are a way to limit concurrency for certain tasks.",
           "title": "Pool"
+        },
+        "pool_slots": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the number of pool slots this task should use (>= 1) Values less than 1 are not allowed.",
+          "title": "Pool Slots"
         },
         "retries": {
           "anyOf": [
@@ -430,6 +462,7 @@
           "title": "Executor Config"
         },
         "inlets": {
+          "description": "A list of inlets or inlet value.",
           "items": {
             "anyOf": [
               {
@@ -444,6 +477,7 @@
           "type": "array"
         },
         "outlets": {
+          "description": "A list of outlets or outlet value.",
           "items": {
             "anyOf": [
               {
@@ -458,7 +492,7 @@
           "type": "array"
         },
         "name": {
-          "description": "A custom building function name.",
+          "description": "A common building function name.",
           "title": "Name",
           "type": "string"
         },
@@ -477,7 +511,7 @@
       "type": "object"
     },
     "DebugTask": {
-      "description": "Debug Task model that inherit from Operator task.",
+      "description": "Debug Task model.",
       "properties": {
         "desc": {
           "anyOf": [
@@ -549,6 +583,7 @@
             }
           ],
           "default": null,
+          "description": "An owner name.",
           "title": "Owner"
         },
         "email": {
@@ -567,15 +602,15 @@
             }
           ],
           "default": null,
+          "description": "the 'to' email address(es) used in email alerts. This can be a single email or multiple ones. Multiple addresses can be specified as a comma or semicolon separated string or by passing a list of strings.",
           "title": "Email"
         },
         "email_on_failure": {
-          "default": false,
+          "description": "Indicates whether email alerts should be sent when a task failed",
           "title": "Email On Failure",
           "type": "boolean"
         },
         "email_on_retry": {
-          "default": false,
           "title": "Email On Retry",
           "type": "boolean"
         },
@@ -594,7 +629,21 @@
             }
           ],
           "default": null,
+          "description": "the slot pool this task should run in, slot pools are a way to limit concurrency for certain tasks.",
           "title": "Pool"
+        },
+        "pool_slots": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the number of pool slots this task should use (>= 1) Values less than 1 are not allowed.",
+          "title": "Pool Slots"
         },
         "retries": {
           "anyOf": [
@@ -642,6 +691,7 @@
           "title": "Executor Config"
         },
         "inlets": {
+          "description": "A list of inlets or inlet value.",
           "items": {
             "anyOf": [
               {
@@ -656,6 +706,7 @@
           "type": "array"
         },
         "outlets": {
+          "description": "A list of outlets or outlet value.",
           "items": {
             "anyOf": [
               {
@@ -683,7 +734,7 @@
       "type": "object"
     },
     "DefaultArgs": {
-      "description": "Default Args Model that will use with the `default_args` field with the\nAirflow DAG object.",
+      "description": "Default Args Model that will use with the `default_args` field with the\nAirflow DAG object. These field reference arguments from the BaseOperator\nobject.",
       "properties": {
         "owner": {
           "anyOf": [
@@ -704,8 +755,61 @@
           "title": "Depends On Past",
           "type": "boolean"
         },
+        "start_date": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Date"
+        },
+        "end_date": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Date"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the 'to' email address(es) used in email alerts. This can be a single email or multiple ones. Multiple addresses can be specified as a comma or semicolon separated string or by passing a list of strings.",
+          "title": "Email"
+        },
+        "email_on_failure": {
+          "description": "Indicates whether email alerts should be sent when a task failed",
+          "title": "Email On Failure",
+          "type": "boolean"
+        },
+        "email_on_retry": {
+          "title": "Email On Retry",
+          "type": "boolean"
+        },
         "retries": {
-          "default": 1,
           "description": "A retry count number.",
           "title": "Retries",
           "type": "integer"
@@ -722,14 +826,31 @@
               "type": "null"
             }
           ],
-          "default": null,
           "description": "A retry time delay before start the next retry process.",
           "title": "Retry Delay"
         },
         "retry_exponential_backoff": {
           "default": false,
+          "description": "allow progressively longer waits between retries by using exponential backoff algorithm on retry delay (delay will be converted into seconds).",
           "title": "Retry Exponential Backoff",
           "type": "boolean"
+        },
+        "max_retry_delay": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Retry Delay"
+        },
+        "trigger_rule": {
+          "$ref": "#/$defs/TriggerRule",
+          "default": "all_success",
+          "description": "Task trigger rule. Read more detail, https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
         },
         "sla": {
           "anyOf": [
@@ -740,6 +861,11 @@
           ],
           "default": null,
           "title": "Sla"
+        },
+        "do_xcom_push": {
+          "default": true,
+          "title": "Do Xcom Push",
+          "type": "boolean"
         }
       },
       "title": "DefaultArgs",
@@ -818,6 +944,7 @@
             }
           ],
           "default": null,
+          "description": "An owner name.",
           "title": "Owner"
         },
         "email": {
@@ -836,15 +963,15 @@
             }
           ],
           "default": null,
+          "description": "the 'to' email address(es) used in email alerts. This can be a single email or multiple ones. Multiple addresses can be specified as a comma or semicolon separated string or by passing a list of strings.",
           "title": "Email"
         },
         "email_on_failure": {
-          "default": false,
+          "description": "Indicates whether email alerts should be sent when a task failed",
           "title": "Email On Failure",
           "type": "boolean"
         },
         "email_on_retry": {
-          "default": false,
           "title": "Email On Retry",
           "type": "boolean"
         },
@@ -863,7 +990,21 @@
             }
           ],
           "default": null,
+          "description": "the slot pool this task should run in, slot pools are a way to limit concurrency for certain tasks.",
           "title": "Pool"
+        },
+        "pool_slots": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the number of pool slots this task should use (>= 1) Values less than 1 are not allowed.",
+          "title": "Pool Slots"
         },
         "retries": {
           "anyOf": [
@@ -911,6 +1052,7 @@
           "title": "Executor Config"
         },
         "inlets": {
+          "description": "A list of inlets or inlet value.",
           "items": {
             "anyOf": [
               {
@@ -925,6 +1067,7 @@
           "type": "array"
         },
         "outlets": {
+          "description": "A list of outlets or outlet value.",
           "items": {
             "anyOf": [
               {
@@ -1019,6 +1162,7 @@
             }
           ],
           "default": null,
+          "description": "An owner name.",
           "title": "Owner"
         },
         "email": {
@@ -1037,15 +1181,15 @@
             }
           ],
           "default": null,
+          "description": "the 'to' email address(es) used in email alerts. This can be a single email or multiple ones. Multiple addresses can be specified as a comma or semicolon separated string or by passing a list of strings.",
           "title": "Email"
         },
         "email_on_failure": {
-          "default": false,
+          "description": "Indicates whether email alerts should be sent when a task failed",
           "title": "Email On Failure",
           "type": "boolean"
         },
         "email_on_retry": {
-          "default": false,
           "title": "Email On Retry",
           "type": "boolean"
         },
@@ -1064,7 +1208,21 @@
             }
           ],
           "default": null,
+          "description": "the slot pool this task should run in, slot pools are a way to limit concurrency for certain tasks.",
           "title": "Pool"
+        },
+        "pool_slots": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the number of pool slots this task should use (>= 1) Values less than 1 are not allowed.",
+          "title": "Pool Slots"
         },
         "retries": {
           "anyOf": [
@@ -1112,6 +1270,7 @@
           "title": "Executor Config"
         },
         "inlets": {
+          "description": "A list of inlets or inlet value.",
           "items": {
             "anyOf": [
               {
@@ -1126,6 +1285,7 @@
           "type": "array"
         },
         "outlets": {
+          "description": "A list of outlets or outlet value.",
           "items": {
             "anyOf": [
               {
@@ -1231,6 +1391,7 @@
             }
           ],
           "default": null,
+          "description": "An owner name.",
           "title": "Owner"
         },
         "email": {
@@ -1249,15 +1410,15 @@
             }
           ],
           "default": null,
+          "description": "the 'to' email address(es) used in email alerts. This can be a single email or multiple ones. Multiple addresses can be specified as a comma or semicolon separated string or by passing a list of strings.",
           "title": "Email"
         },
         "email_on_failure": {
-          "default": false,
+          "description": "Indicates whether email alerts should be sent when a task failed",
           "title": "Email On Failure",
           "type": "boolean"
         },
         "email_on_retry": {
-          "default": false,
           "title": "Email On Retry",
           "type": "boolean"
         },
@@ -1276,7 +1437,21 @@
             }
           ],
           "default": null,
+          "description": "the slot pool this task should run in, slot pools are a way to limit concurrency for certain tasks.",
           "title": "Pool"
+        },
+        "pool_slots": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the number of pool slots this task should use (>= 1) Values less than 1 are not allowed.",
+          "title": "Pool Slots"
         },
         "retries": {
           "anyOf": [
@@ -1324,6 +1499,7 @@
           "title": "Executor Config"
         },
         "inlets": {
+          "description": "A list of inlets or inlet value.",
           "items": {
             "anyOf": [
               {
@@ -1338,6 +1514,7 @@
           "type": "array"
         },
         "outlets": {
+          "description": "A list of outlets or outlet value.",
           "items": {
             "anyOf": [
               {
@@ -1443,6 +1620,7 @@
             }
           ],
           "default": null,
+          "description": "An owner name.",
           "title": "Owner"
         },
         "email": {
@@ -1461,15 +1639,15 @@
             }
           ],
           "default": null,
+          "description": "the 'to' email address(es) used in email alerts. This can be a single email or multiple ones. Multiple addresses can be specified as a comma or semicolon separated string or by passing a list of strings.",
           "title": "Email"
         },
         "email_on_failure": {
-          "default": false,
+          "description": "Indicates whether email alerts should be sent when a task failed",
           "title": "Email On Failure",
           "type": "boolean"
         },
         "email_on_retry": {
-          "default": false,
           "title": "Email On Retry",
           "type": "boolean"
         },
@@ -1488,7 +1666,21 @@
             }
           ],
           "default": null,
+          "description": "the slot pool this task should run in, slot pools are a way to limit concurrency for certain tasks.",
           "title": "Pool"
+        },
+        "pool_slots": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the number of pool slots this task should use (>= 1) Values less than 1 are not allowed.",
+          "title": "Pool Slots"
         },
         "retries": {
           "anyOf": [
@@ -1536,6 +1728,7 @@
           "title": "Executor Config"
         },
         "inlets": {
+          "description": "A list of inlets or inlet value.",
           "items": {
             "anyOf": [
               {
@@ -1550,6 +1743,7 @@
           "type": "array"
         },
         "outlets": {
+          "description": "A list of outlets or outlet value.",
           "items": {
             "anyOf": [
               {
@@ -1722,7 +1916,7 @@
       "type": "string"
     }
   },
-  "description": "Base Dag Model for validate template config data support DagTool object.\nThis model will include necessary field for Airflow DAG object and custom\nfield for DagTool object together.",
+  "description": "Base Dag Model for validate template config data support DagTool object.\nThis model will include necessary field for Airflow DAG object and common\nfield for DagTool object together.",
   "properties": {
     "name": {
       "description": "A DAG name.",
@@ -1781,6 +1975,7 @@
       "additionalProperties": {
         "type": "string"
       },
+      "description": "a dictionary of DAG level parameters that are made accessible in templates, namespaced under `params`. These params can be overridden at the task level.",
       "title": "Params",
       "type": "object"
     },
@@ -2000,10 +2195,12 @@
       "type": "boolean"
     },
     "max_active_tasks": {
+      "description": "the number of task instances allowed to run concurrently",
       "title": "Max Active Tasks",
       "type": "integer"
     },
     "max_active_runs": {
+      "description": "maximum number of active DAG runs, beyond this number of DAG runs in a running state, the scheduler won't create new active DAG runs.",
       "title": "Max Active Runs",
       "type": "integer"
     },
@@ -2024,8 +2221,15 @@
       "additionalProperties": {
         "type": "string"
       },
+      "description": "Dict of owners and their links, that will be clickable on the DAGs view UI. Can be used as an HTTP link (for example the link to your Slack channel), or a mailto link. e.g: {\"dag_owner\": \"https://airflow.apache.org/\"}",
       "title": "Owner Links",
       "type": "object"
+    },
+    "fail_stop": {
+      "default": false,
+      "description": "Fails currently running tasks when task in DAG fails.",
+      "title": "Fail Stop",
+      "type": "boolean"
     },
     "default_args": {
       "$ref": "#/$defs/DefaultArgs"

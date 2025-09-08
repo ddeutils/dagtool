@@ -78,22 +78,13 @@ dags/
 > │           ├── __init__.py
 > ```
 
-**Execution Flow**:
-
-The flow of this project provide the interface Pydantic Model before
-passing it to Airflow objects.
-
-```text
-S --> Template --> Pydantic Model --> DAG/Operator Objects --> Execute --> E
-```
-
 ## 📦 Installation
 
 ```shell
 uv pip install -U dagtool
 ```
 
-## 🎯 Usage
+## 📍 Usage
 
 This DAG generator engine need you define the `dag.yml` file and set engine
 object to get the current path on `__init__.py` file.
@@ -234,6 +225,13 @@ The DAG that was built from this package will have the name is, `sales_transacti
 >         catchup: true
 >         project_id: "sales_project"
 > ```
+
+## 🎯 Roadmaps
+
+- [ ] Support Airflow Parameter
+- [ ] Support Airflow Asset
+- [ ] Support Backfill for Hotfix
+- [ ] Support Declarative template
 
 ## 💬 Contribute
 
