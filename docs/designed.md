@@ -19,20 +19,30 @@ I start design folder structure base on these objectives:
 
 **Other Components**:
 
-- `dags/pipelines/`
-  - `dags/pipelines/domain/__init__.py`
-  - `dags/pipelines/domain/sub-domain/__init__.py`
-- `dags/management`
-  - `dags/management/monitor/{propose}`
-  - `dags/management/iceberg/{propose}`
-  - `dags/management/actions/{propose}`
-- `dags/utils/`
-  - `dags/utils/plugins/google/operators`
-  - `dags/utils/plugins/google/sensors`
-  - `dags/utils/plugins/common/sensors`
-  - `dags/utils/tasks/common/{propost}`
-  - `dags/utils/reusables/{propose}`
-- `plugins/callbacks`
+```text
+├── dags/
+│   ├── pipelines/
+│   │    └── { domain }/
+│   ├── management/
+│   └── utils/
+├── tests/
+```
+
+> [!NOTE]
+> - `dags/pipelines/`
+>   - `dags/pipelines/domain/__init__.py`
+>   - `dags/pipelines/domain/sub-domain/__init__.py`
+> - `dags/managements/`
+>   - `dags/management/monitor/{propose}`
+>   - `dags/management/iceberg/{propose}`
+>   - `dags/management/actions/{propose}`
+> - `dags/utils/`
+>   - `dags/utils/plugins/google/operators`
+>   - `dags/utils/plugins/google/sensors`
+>   - `dags/utils/plugins/common/sensors`
+>   - `dags/utils/tasks/common/{propost}`
+>   - `dags/utils/reusables/{propose}`
+> - `plugins/callbacks`
 
 ### Type 01: Standalone DAG
 
