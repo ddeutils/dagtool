@@ -9,13 +9,13 @@ except ImportError:
 
 from pydantic import Field
 
-from dagtool.tasks.__abc import BaseTask
+from dagtool.tasks.__abc import TaskModel
 
 if TYPE_CHECKING:
     from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup
 
 
-class PythonTask(BaseTask):
+class PythonTask(TaskModel):
     """Python Task model."""
 
     uses: Literal["python"] = Field(description="A Python task name.")

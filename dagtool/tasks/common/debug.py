@@ -6,13 +6,13 @@ from pydantic import Field
 
 from dagtool.plugins.common.operators.debug import DebugOperator
 from dagtool.plugins.common.operators.error import RaiseOperator
-from dagtool.tasks.__abc import BaseTask
+from dagtool.tasks.__abc import TaskModel
 
 if TYPE_CHECKING:
     from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup
 
 
-class RaiseTask(BaseTask):
+class RaiseTask(TaskModel):
     """Raise Task model."""
 
     uses: Literal["raise"] = Field(description="A raise task name.")
@@ -43,7 +43,7 @@ class RaiseTask(BaseTask):
         )
 
 
-class DebugTask(BaseTask):
+class DebugTask(TaskModel):
     """Debug Task model."""
 
     uses: Literal["debug"] = Field(description="A debug task name.")

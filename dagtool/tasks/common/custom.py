@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field
 
-from dagtool.tasks.__abc import BaseTask
+from dagtool.tasks.__abc import TaskModel
 
 if TYPE_CHECKING:
-    from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup, TaskModel
+    from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup, ToolModel
 
 
-class CustomTask(BaseTask):
+class CustomTask(TaskModel):
     """Custom Task model."""
 
     uses: Literal["custom_task"] = Field(description="A common task name.")
@@ -39,14 +39,14 @@ class CustomTask(BaseTask):
                 from the Factory.
         """
         ctx: Context = context or {}
-        custom_tasks: dict[str, type[TaskModel]] = ctx["tasks"]
+        custom_tasks: dict[str, type[ToolModel]] = ctx["tasks"]
         if self.name not in custom_tasks:
             raise ValueError(
                 f"Custom task need to pass to `tasks` argument, {self.name}, "
                 f"first."
             )
-        op: type[TaskModel] = custom_tasks[self.name]
-        model: TaskModel = op.model_validate(self.params)
+        op: type[ToolModel] = custom_tasks[self.name]
+        model: ToolModel = op.model_validate(self.params)
         return model.build(
             dag=dag,
             task_group=task_group,

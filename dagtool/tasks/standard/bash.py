@@ -10,13 +10,13 @@ except ImportError:
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from dagtool.tasks.__abc import BaseTask
+from dagtool.tasks.__abc import TaskModel
 
 if TYPE_CHECKING:
     from dagtool.tasks.__abc import DAG, Context, Operator
 
 
-class BashTask(BaseTask):
+class BashTask(TaskModel):
     """Bash Task model."""
 
     uses: Literal["bash"] = Field(description="An tool type for bash model.")

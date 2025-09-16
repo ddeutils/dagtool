@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field
 
-from dagtool.tasks.__abc import BaseTask
+from dagtool.tasks.__abc import TaskModel
 
 if TYPE_CHECKING:
     from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup
 
 
-class OperatorTask(BaseTask):
+class OperatorTask(TaskModel):
     """Operator Task model."""
 
     uses: Literal["operator"] = Field(description="An operator task name.")

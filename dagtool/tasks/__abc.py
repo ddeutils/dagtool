@@ -36,7 +36,7 @@ class Context(TypedDict):
     path: Path
     yaml_loader: YamlConf
     vars: dict[str, Any]
-    tasks: dict[str, type[TaskModel]]
+    tasks: dict[str, type[ToolModel]]
     operators: dict[str, type[Operator]]
     python_callers: dict[str, Callable]
     extras: dict[str, Any]
@@ -68,15 +68,15 @@ class ToolMixin(ABC):
         """
 
 
-class TaskModel(BaseModel, ToolMixin, ABC):
-    """Task Model.
+class ToolModel(BaseModel, ToolMixin, ABC):
+    """Tool Model.
 
     This model will use to be the abstract model for any Task model that it want
     to use with a specific use case like CustomTask, etc.
     """
 
 
-class BaseAirflowTaskModel(TaskModel, ABC):
+class BaseTask(ToolModel, ABC):
     """Base Task model that represent Airflow Task object."""
 
     desc: str | None = Field(
@@ -119,7 +119,7 @@ class BaseAirflowTaskModel(TaskModel, ABC):
         """
 
 
-class BaseTask(BaseAirflowTaskModel, ABC):
+class TaskModel(BaseTask, ABC):
     """Base Task Model.
 
     This model will add necessary field that use with the Airflow BaseOperator
@@ -221,7 +221,7 @@ class BaseTask(BaseAirflowTaskModel, ABC):
         return self.task
 
     def task_kwargs(self) -> dict[str, Any]:
-        """Prepare the Airflow BaseOperator kwargs from BaseTask fields.
+        """Prepare the Airflow BaseOperator kwargs from TaskModel fields.
 
             This method will make key when any field was pass to model and do
         avoid if it is None or default value.

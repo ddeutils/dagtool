@@ -10,7 +10,9 @@ except ImportError:
     from airflow.operators.empty import EmptyOperator
     from airflow.utils.task_group import TaskGroup
 
-from dagtool.tasks import Context, TaskModel
+from pydantic import Field
+
+from dagtool.tasks import Context, ToolModel
 from dagtool.tasks.common.debug import DebugOperator
 
 
@@ -25,10 +27,10 @@ def say_hi(name: Any) -> str:
     return name
 
 
-class CustomTask(TaskModel):
+class CustomTask(ToolModel):
     """Custom Task model."""
 
-    name: str
+    name: str = Field(description="A name.")
 
     def build(
         self,
@@ -37,7 +39,9 @@ class CustomTask(TaskModel):
         context: Context | None = None,
     ) -> TaskGroup:
         with TaskGroup(
-            "custom_task_group", dag=dag, parent_group=task_group
+            "custom_task_group",
+            dag=dag,
+            parent_group=task_group,
         ) as tg:
             start = EmptyOperator(task_id="start", dag=dag)
             t2 = DebugOperator(

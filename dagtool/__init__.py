@@ -6,5 +6,5 @@ from .conf import (
     YamlConf,
 )
 from .factory import Factory
-from .tasks import Context, TaskModel
+from .tasks import Context, ToolModel
 from .utils import TaskMapped, set_upstream

@@ -13,7 +13,7 @@ from pydantic import ValidationError
 
 from dagtool.conf import ASSET_DIR, YamlConf
 from dagtool.models import DagModel, pull_vars
-from dagtool.tasks import Context, TaskModel
+from dagtool.tasks import Context, ToolModel
 from dagtool.utils import FILTERS, clear_globals
 
 if TYPE_CHECKING:
@@ -83,16 +83,16 @@ class Factory:
 
     # NOTE: Builtin class variables for making common Factory by inherit.
     builtin_operators: ClassVar[dict[str, type[Operator]]] = {}
-    builtin_tasks: ClassVar[dict[str, type[TaskModel]]] = {}
+    builtin_tasks: ClassVar[dict[str, type[ToolModel]]] = {}
 
     def __init__(
         self,
-        name: str,
         path: str | Path,
         *,
+        name: str | None = None,
         docs: str | None = None,
         operators: dict[str, type[Operator]] | None = None,
-        tasks: dict[str, type[TaskModel]] | None = None,
+        tasks: dict[str, type[ToolModel]] | None = None,
         python_callers: dict[str, Callable] | None = None,
         template_searchpath: list[str | Path] | None = None,
         jinja_environment_kwargs: dict[str, Any] | None = None,
@@ -104,13 +104,13 @@ class Factory:
         """Main construct method.
 
         Args:
-            name (str): A prefix name of final DAG.
             path (str | Path): A current filepath that can receive with string
                 value or Path object.
+            name (str, default None): A prefix name of final DAG ID.
             docs (dict[str, Any]): A docs string for this Factory will use to
                 be the header of full docs.
-            operators (dict[str, type[TaskModel]]): A mapping of name and sub-model
-                of TaskModel model.
+            operators (dict[str, type[ToolModel]]): A mapping of name and sub-model
+                of ToolModel model.
             python_callers (dict[str, Callable]): A mapping of name and function
                 that want to use with Airflow PythonOperator.
             template_searchpath (list[str | Path]): A list of Jinja template
@@ -129,8 +129,8 @@ class Factory:
         from the current path and skip template file if it does not read or
         match with template config rules like include `type=dag`.
         """
-        self.name: str = name
         self.path: Path = p.parent if (p := Path(path)).is_file() else p
+        self.name: str | None = name
         self.docs: str | None = docs
         self.conf: dict[str, DagModel] = {}
         self.yaml_loader = YamlConf(path=self.path)
@@ -150,7 +150,7 @@ class Factory:
         self.operators: dict[str, type[Operator]] = self.builtin_operators | (
             operators or {}
         )
-        self.tasks: dict[str, type[TaskModel]] = self.builtin_tasks | (
+        self.tasks: dict[str, type[ToolModel]] = self.builtin_tasks | (
             tasks or {}
         )
         self.python_callers: dict[str, Any] = python_callers or {}

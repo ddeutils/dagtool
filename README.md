@@ -150,7 +150,7 @@ via DuckDB engine.
 
 > This DAG is the temp DAG for ingest data to GCP.
 """
-from dagtool import Factory, TaskModel, Context
+from dagtool import Factory, ToolModel, Context
 
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
@@ -166,7 +166,7 @@ def get_api_data(path: str) -> dict[str, list[str]]:
     return {"data": [f"src://{path}/table/1", f"src://{path}/table/2"]}
 
 # NOTE: Some common task that create any Airflow Task instance object.
-class WriteIceberg(TaskModel):
+class WriteIceberg(ToolModel):
     """Custom Task for user defined inside of template path."""
 
     path: str = Field(description="An Iceberg path.")

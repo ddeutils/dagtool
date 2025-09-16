@@ -9,13 +9,13 @@ try:
 except ImportError:
     from airflow.operators.empty import EmptyOperator
 
-from dagtool.tasks.__abc import BaseTask
+from dagtool.tasks.__abc import TaskModel
 
 if TYPE_CHECKING:
     from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup
 
 
-class EmptyTask(BaseTask):
+class EmptyTask(TaskModel):
     """Empty Task model.
 
     This task model will build the Airflow EmptyOperator instance only.

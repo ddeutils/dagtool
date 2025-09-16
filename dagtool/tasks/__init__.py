@@ -10,11 +10,11 @@ except ImportError:
 from pydantic import Discriminator, Field, Tag
 
 from dagtool.tasks.__abc import (
-    BaseAirflowTaskModel,
     BaseTask,
     Context,
     Operator,
     TaskModel,
+    ToolModel,
 )
 from dagtool.tasks.common.custom import CustomTask
 from dagtool.tasks.common.debug import DebugTask, RaiseTask
@@ -48,7 +48,7 @@ Task = Annotated[
 ]
 
 
-class TaskGroup(BaseAirflowTaskModel):
+class TaskGroup(BaseTask):
     """Group of Task model that will represent Airflow Task Group object."""
 
     group: str = Field(description="A task group name.")
