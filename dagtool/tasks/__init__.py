@@ -9,20 +9,20 @@ except ImportError:
 
 from pydantic import Discriminator, Field, Tag
 
-from dagtool.tasks.__abc import (
+from ..utils import TaskMapped, set_upstream
+from .__abc import (
     BaseTask,
     Context,
     Operator,
     TaskModel,
     ToolModel,
 )
-from dagtool.tasks.common.custom import CustomTask
-from dagtool.tasks.common.debug import DebugTask, RaiseTask
-from dagtool.tasks.common.direct_operator import OperatorTask
-from dagtool.tasks.standard.bash import BashTask
-from dagtool.tasks.standard.empty import EmptyTask
-from dagtool.tasks.standard.python import PythonTask
-from dagtool.utils import TaskMapped, set_upstream
+from .common.custom import CustomTask
+from .common.debug import DebugTask, RaiseTask
+from .common.direct_operator import OperatorTask
+from .standard.bash import BashTask
+from .standard.empty import EmptyTask
+from .standard.python import PythonTask
 
 if TYPE_CHECKING:
     try:
@@ -98,7 +98,7 @@ class TaskGroup(BaseTask):
 
 
 def any_task_discriminator(value: Any) -> str | None:
-    """Any task discriminator function for AnyTask type that dynamic validate
+    """Any task discriminator function for AnyTask type that dynamic validates
     with Dag.
     """
     if isinstance(value, dict):
@@ -122,7 +122,7 @@ AnyTask = Annotated[
     ],
     Field(
         discriminator=Discriminator(discriminator=any_task_discriminator),
-        description="An any task type that able operator task or group task.",
+        description="An any task type that able be task or task group model.",
     ),
     # Archive: Keep for optional discriminator.
     # Discriminator(discriminator=any_task_discriminator)
