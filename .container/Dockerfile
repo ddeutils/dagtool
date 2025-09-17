@@ -28,8 +28,8 @@ RUN uv pip install "pendulum<3.0.0" && \
 RUN uv pip install \
       "pydantic==2.9.2"
 
-COPY ./dagtool /opt/airflow/plugins/dagtool
+COPY ./dagtool /opt/airflow/dagtool
 
-ENV PYTHONPATH="/opt/airflow:/opt/airflow/plugins:${PYTHONPATH}"
+ENV PYTHONPATH="/opt/airflow:/opt/airflow/dagtool:${PYTHONPATH}"
 
 WORKDIR /opt/airflow

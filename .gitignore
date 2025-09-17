@@ -208,3 +208,7 @@ __marimo__/
 
 # Airflow
 logs/
+standalone_admin_password.txt
+
+# MACOS
+.DS_Store

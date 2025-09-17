@@ -23,4 +23,5 @@ services:
       - ${AIRFLOW_PROJ_DIR:-.}/.container/airflow_local_settings.py:/opt/airflow/config/airflow_local_settings.py
       # NOTE: Mount tool package suppose as it use GitSync on production instead
       #   of install via Python package.
-      - ${AIRFLOW_PROJ_DIR:-.}/dagtool:/opt/airflow/plugins/dagtool
+      - ${AIRFLOW_PROJ_DIR:-.}/dagtool:/opt/airflow/dagtool
+      - ${AIRFLOW_PROJ_DIR:-.}/standalone_admin_password.txt:/opt/airflow/standalone_admin_password.txt
