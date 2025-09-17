@@ -233,9 +233,12 @@ class Dag(BaseModel):
             '{"dag_owner": "https://airflow.apache.org/"}'
         ),
     )
-    fail_stop: bool = Field(
-        default=False,
-        description="Fails currently running tasks when task in DAG fails.",
+    fail_stop: bool | None = Field(
+        default=None,
+        description=(
+            "Fails currently running tasks when task in DAG fails (This value "
+            "will revise to ``fail_fast`` in Airflow3)."
+        ),
     )
     default_args: DefaultArgs = Field(default_factory=DefaultArgs)
 
@@ -320,10 +323,16 @@ class Dag(BaseModel):
             #   default LR
             kw.update({"orientation": "LR"})
 
+            if self.fail_stop is not None:
+                kw.update({"fail_stop": self.fail_stop})
+
         if AIRFLOW_VERSION > [3, 0, 0]:
             # NOTE: The tags parameters change to mutable set instead of list
             if self.tags:
                 kw.update({"tags": set(self.tags)})
+
+            if self.fail_stop is not None:
+                kw.update({"fail_fast": self.fail_stop})
         return kw
 
     def build(
@@ -401,7 +410,6 @@ class Dag(BaseModel):
             on_failure_callback=on_failure_callback,
             owner_links=self.owner_links,
             # auto_register=...,
-            fail_fast=self.fail_stop,
             **self.dag_dynamic_kwargs(),
         )
 
