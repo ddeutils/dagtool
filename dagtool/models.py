@@ -28,9 +28,9 @@ from typing_extensions import Self
 from yaml import safe_load
 from yaml.parser import ParserError as YamlParserError
 
-from dagtool.conf import YamlConf
-from dagtool.tasks import AnyTask, Context
-from dagtool.utils import AIRFLOW_VERSION, set_upstream
+from .conf import YamlConf
+from .tasks import AnyTask, Context
+from .utils import AIRFLOW_VERSION, set_upstream
 
 if TYPE_CHECKING:
     from .utils import TaskMapped
@@ -135,7 +135,7 @@ class DefaultArgs(BaseModel):
         return self.model_dump(exclude_defaults=True)
 
 
-class DagModel(BaseModel):
+class Dag(BaseModel):
     """Base Dag Model for validate template config data support DagTool object.
     This model will include necessary field for Airflow DAG object and common
     field for DagTool object together.
@@ -401,7 +401,7 @@ class DagModel(BaseModel):
             on_failure_callback=on_failure_callback,
             owner_links=self.owner_links,
             # auto_register=...,
-            fail_stop=self.fail_stop,
+            fail_fast=self.fail_stop,
             **self.dag_dynamic_kwargs(),
         )
 

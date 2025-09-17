@@ -11,10 +11,10 @@ from jinja2 import Environment, Template, Undefined
 from jinja2.nativetypes import NativeEnvironment
 from pydantic import ValidationError
 
-from dagtool.conf import ASSET_DIR, YamlConf
-from dagtool.models import DagModel, pull_vars
-from dagtool.tasks import Context, ToolModel
-from dagtool.utils import FILTERS, clear_globals
+from .conf import ASSET_DIR, YamlConf
+from .models import Dag, pull_vars
+from .tasks import Context, ToolModel
+from .utils import FILTERS, clear_globals
 
 if TYPE_CHECKING:
     try:
@@ -81,6 +81,13 @@ class Factory:
         "vars",
     )
 
+    # NOTE: Excluded template fields for ignore render a Jinja template if its
+    #   key name exist in this sequence.
+    template_excluded_fields: ClassVar[Sequence[str]] = (
+        "tasks",
+        "raw_data",
+    )
+
     # NOTE: Builtin class variables for making common Factory by inherit.
     builtin_operators: ClassVar[dict[str, type[Operator]]] = {}
     builtin_tasks: ClassVar[dict[str, type[ToolModel]]] = {}
@@ -132,7 +139,7 @@ class Factory:
         self.path: Path = p.parent if (p := Path(path)).is_file() else p
         self.name: str | None = name
         self.docs: str | None = docs
-        self.conf: dict[str, DagModel] = {}
+        self.conf: dict[str, Dag] = {}
         self.yaml_loader = YamlConf(path=self.path)
 
         # NOTE: Set Extended Airflow params with necessary values.
@@ -161,13 +168,13 @@ class Factory:
     def refresh_conf(self) -> None:
         """Read config from the path argument and reload to the conf.
 
-            This method will render Jinja template to the DagModel fields raw
+            This method will render Jinja template to the Dag fields raw
         value that match key with the template_fields before start validate the
         model.
         """
         # NOTE: Reset previous if it exists.
         if self.conf:
-            self.conf: dict[str, DagModel] = {}
+            self.conf: dict[str, Dag] = {}
 
         env: Environment = self.get_template_env(
             user_defined_macros={"env": os.getenv} | self.user_defined_macros,
@@ -186,7 +193,10 @@ class Factory:
             )
             self.render_template(c, env=env)
             try:
-                model = DagModel.model_validate(c)
+                model = Dag.model_validate(
+                    obj=c,
+                    context={"jinja_env": env},
+                )
                 self.conf[name] = model
             except ValidationError:
                 continue
@@ -201,6 +211,9 @@ class Factory:
         Args:
             custom_vars (dict[str, Any]): A common variables.
             extras (dict[str, Any]): An extra parameters.
+
+        Returns:
+            Context: A building context data from the current factory arguments.
         """
         _vars: dict[str, Any] = custom_vars or {}
         _extras: dict[str, Any] = extras or {}
@@ -233,7 +246,10 @@ class Factory:
                 data[key] = self.render_template(data[key], env=env)
                 continue
 
-            if key in ("tasks", "raw_data") or key not in self.template_fields:
+            if (
+                key in self.template_excluded_fields
+                or key not in self.template_fields
+            ):
                 continue
 
             data[key] = self._render(data[key], env=env)
@@ -277,7 +293,7 @@ class Factory:
         jinja_environment_kwargs: dict[str, Any] | None = None,
     ) -> Environment:
         """Return Jinja Template Native Environment object for render template
-        to the DagModel parameters before create Airflow DAG.
+        to the Dag parameters before create Airflow DAG.
 
         Args:
             user_defined_filters (dict[str, Callable]): An user defined Jinja

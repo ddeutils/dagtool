@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Any, Final, TypedDict
+from typing import Any, Final, TypeAlias, TypedDict, Union
 
 try:
     from airflow.sdk.bases.operator import BaseOperator
@@ -18,13 +18,14 @@ from airflow.version import version as airflow_version
 from pendulum import DateTime
 
 Operator = BaseOperator | MappedOperator
+OperatorOrTaskGroup: TypeAlias = Union[Operator, TaskGroup]
 
 
 class TaskMapped(TypedDict):
     """Task Mapped dict typed."""
 
     upstream: list[str]
-    task: Operator | TaskGroup
+    task: OperatorOrTaskGroup
 
 
 def set_upstream(tasks: dict[str, TaskMapped]) -> None:

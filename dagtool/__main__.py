@@ -9,7 +9,7 @@ from airflow.configuration import conf
 from pydantic import TypeAdapter
 
 from .__about__ import __version__
-from .models import DagModel
+from .models import Dag
 
 
 @click.group()
@@ -101,9 +101,9 @@ def validate(value: str):
     help="A JSON schema file path that want to save.",
 )
 def build_json_schema(file: Path | None):
-    """Build JSON Schema file from the current DagModel model."""
+    """Build JSON Schema file from the current Dag model."""
     click.echo("Start generate JSON Schema file for DAG Template.")
-    json_schema: Any = TypeAdapter(DagModel).json_schema(by_alias=True)
+    json_schema: Any = TypeAdapter(Dag).json_schema(by_alias=True)
     with (file or Path("./json-schema.json")).open(mode="w") as f:
         json.dump(json_schema, f, indent=2)
         f.write("\n")

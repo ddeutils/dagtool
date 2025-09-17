@@ -4,7 +4,7 @@ import pytest
 from pendulum import date, timezone
 from yaml import safe_load
 
-from dagtool.models import DagModel
+from dagtool.models import Dag
 
 
 @pytest.fixture(scope="module")
@@ -13,20 +13,20 @@ def demo_data(test_path: Path):
 
 
 def test_model():
-    model = DagModel(name="test", type="dag")
+    model = Dag(name="test", type="dag")
     assert model.name == "test"
     assert model.start_date is None
     assert model.end_date is None
 
 
 def test_model_demo(demo_data):
-    model = DagModel.model_validate(demo_data)
+    model = Dag.model_validate(demo_data)
     assert model.name == "sales_dag"
     print(model)
 
 
 def test_model_convert_fields():
-    model = DagModel.model_validate(
+    model = Dag.model_validate(
         {
             "name": "dag_start_date",
             "type": "dag",
@@ -44,5 +44,5 @@ def test_model_example_stock(root_path: Path):
     )
     data["start_date"] = None
     data["max_active_runs"] = 1
-    model = DagModel.model_validate(data)
+    model = Dag.model_validate(data)
     print(model)

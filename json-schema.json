@@ -2239,6 +2239,6 @@
     "name",
     "type"
   ],
-  "title": "DagModel",
+  "title": "Dag",
   "type": "object"
 }

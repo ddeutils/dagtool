@@ -99,7 +99,7 @@ class TaskGroup(BaseTask):
 
 def any_task_discriminator(value: Any) -> str | None:
     """Any task discriminator function for AnyTask type that dynamic validate
-    with DagModel.
+    with Dag.
     """
     if isinstance(value, dict):
         if "group" in value:
