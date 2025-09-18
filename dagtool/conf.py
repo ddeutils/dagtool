@@ -1,15 +1,20 @@
 import logging
+import os
 from pathlib import Path
-from typing import Any, Final
+from typing import Any
 
+from pydantic import ValidationError
 from yaml import safe_load
 from yaml.parser import ParserError
 
-from dagtool.utils import hash_sha256
-
-DAG_FILENAME_PREFIX: Final[str] = "dag"
-VARIABLE_FILENAME: Final[str] = "variables"
-ASSET_DIR: Final[str] = "assets"
+from .const import (
+    ASSET_DIR,
+    DAG_FILENAME_PREFIX,
+    DAG_ID_KEY,
+    SYNC_DIR,
+    VARIABLE_FILENAME,
+)
+from .utils import hash_sha256
 
 logger = logging.getLogger("dagtool.conf")
 
@@ -22,10 +27,27 @@ class YamlConf:
     """
 
     def __init__(self, path: Path | str) -> None:
+        """Main initial construct method.
+
+        Args:
+            path (Path | str): A template config data.
+        """
         self.path: Path = Path(path)
 
     def read_vars(self) -> dict[str, Any]:
-        """Get Variable value with an input stage name."""
+        """Get Variable value with an input stage name.
+
+        Raises:
+            FileNotFoundError: If the variable file does not found in this
+                template path.
+            TypeError: If the type of variable content from parsing is list not
+                dict type.
+            ValueError: If the content data that read from file was emptied.
+
+        Returns:
+            dict[str, Any]: A mapping variable content that read with YAML file
+                format.
+        """
         search_files: list[Path] = list(
             self.path.rglob(f"{VARIABLE_FILENAME}.y*ml")
         )
@@ -49,15 +71,27 @@ class YamlConf:
         except ParserError:
             raise
 
-    def read_conf(self) -> list[dict[str, Any]]:
+    def read_dag_conf(
+        self,
+        pre_validate: bool = True,
+        only_one_dag: bool = False,
+    ) -> list[dict[str, Any]]:
         """Read DAG template config from the path argument and reload to the
         conf.
+
+        Args:
+            pre_validate (bool, default True):
+            only_one_dag (bool, default False): It will raise ValueError if the
+                template dag config data fetch more than one.
 
         Returns:
             list[dict[str, Any]]: A list of model data before validate step.
         """
+        from .models import Dag
+
         conf: list[dict[str, Any]] = []
         for file in self.path.rglob("*"):
+            logger.debug(f"Get object: {file}")
             if (
                 file.is_file()
                 and file.stem != VARIABLE_FILENAME
@@ -68,7 +102,7 @@ class YamlConf:
                     raw_data: str = file.read_text(encoding="utf-8")
                     data: dict[str, Any] | list[Any] = safe_load(raw_data)
                 except ParserError:
-                    logger.error(f"YAML file does not parsing, {file}.")
+                    logger.error(f"YAML file was not parsing, {file}.")
                     continue
                 except Exception as e:
                     logger.error(f"YAML file got error, {e}, {file}.")
@@ -81,7 +115,7 @@ class YamlConf:
 
                 try:
                     if (
-                        "name" not in data
+                        DAG_ID_KEY not in data
                         or data.get("type", "NOTSET") != "dag"
                     ):
                         continue
@@ -96,23 +130,66 @@ class YamlConf:
                         "raw_data_hash": hash_sha256(raw_data),
                         **data,
                     }
-                    logger.info(f"Load DAG Template data: {model['name']!r}")
+                    logger.info(
+                        f"Load DAG Template data: {model[DAG_ID_KEY]!r}"
+                    )
+
+                    # NOTE: Prevalidate DAG template data before keeping config.
+                    if pre_validate:
+                        Dag.model_validate(model)
+
                     conf.append(model)
-                except AttributeError:
+                except AttributeError as err:
                     # NOTE: Except case data is not be `dict` type.
+                    logger.error(f"Data does not read as dict.\n{err}")
                     continue
+                except ValidationError as err:
+                    logger.error(f"Prevalidate template data:\n{err}")
+                    raise
 
         if len(conf) == 0:
             logger.warning(
-                "Read config file from this domain path does not exists"
+                "Read config file from this template path does not exists"
+            )
+        if only_one_dag and len(conf) > 1:
+            logger.error(
+                f"DAG template data should contain only one DAG per folder:\n"
+                f"{conf}."
+            )
+            raise ValueError(
+                "DAG template data should contain only one DAG per folder."
             )
         return conf
 
     def read_assets(self, filename: str) -> str:
-        """Read the asset file from the template config path."""
+        """Read the asset file from the template config path.
+
+        Args:
+            filename (str): A specific filename that want to read from the
+                assets template path.
+
+        Returns:
+            str: A content data that reading from the target asset file.
+        """
         search_files: list[Path] = list(
             self.path.rglob(f"{ASSET_DIR}/{filename}")
         )
         if not search_files:
             raise FileNotFoundError(f"Asset file: {filename} does not found.")
         return search_files[0].read_text(encoding="utf-8")
+
+    def read_sync(self, env: str | None = None) -> dict[str, str | bytes]:
+        """Read Sync file mapping from the current template path.
+
+        Args:
+            env (str, default None):
+                An environment value that want to read sync files.
+        """
+        _env: str = (env or os.getenv("AIRFLOW_ENV")).lower()
+        search_files: list[Path] = list(self.path.rglob(f"{SYNC_DIR}/{_env}/*"))
+        if not search_files:
+            logger.warning("Sync files does not set.")
+            return {}
+        return {
+            path.name: path.read_text(encoding="utf-8") for path in search_files
+        }

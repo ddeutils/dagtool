@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Callable
 from datetime import datetime, timedelta
@@ -29,11 +30,11 @@ from yaml import safe_load
 from yaml.parser import ParserError as YamlParserError
 
 from .conf import YamlConf
-from .tasks import AnyTask, Context
+from .tasks import Context, TaskOrGroup
 from .utils import AIRFLOW_VERSION, set_upstream
 
 if TYPE_CHECKING:
-    from .utils import TaskMapped
+    pass
 
 
 class DefaultArgs(BaseModel):
@@ -136,12 +137,12 @@ class DefaultArgs(BaseModel):
 
 
 class Dag(BaseModel):
-    """Base Dag Model for validate template config data support DagTool object.
-    This model will include necessary field for Airflow DAG object and common
+    """Dag Model for validate template config data support DagTool object.
+    This model will include necessary field for Airflow DAG object and dp
     field for DagTool object together.
     """
 
-    name: str = Field(description="A DAG name.")
+    id: str = Field(description="A DAG ID.")
     type: Literal["dag"] = Field(description="A type of template config.")
     display_name: str | None = Field(
         default=None,
@@ -162,8 +163,14 @@ class Dag(BaseModel):
             "params can be overridden at the task level."
         ),
     )
-    vars: dict[str, str] = Field(default_factory=dict)
-    tasks: list[AnyTask] = Field(
+    vars: dict[str, str] = Field(
+        default_factory=dict,
+        description=(
+            "Custom Jinja macro variables that will use to prepare compound "
+            "variable to specific variable for shorten usage in the template."
+        ),
+    )
+    tasks: list[TaskOrGroup] = Field(
         default_factory=list,
         description="A list of any task, origin task or group task",
     )
@@ -193,20 +200,46 @@ class Dag(BaseModel):
 
     # NOTE: Airflow DAG parameters.
     owner: str = Field(default="dagtool", description="An owner name.")
-    tags: list[str] = Field(default_factory=list, description="A list of tags.")
-    schedule: str | None = Field(default=None)
-    start_date: datetime | str | None = Field(default=None)
-    end_date: datetime | str | None = Field(default=None)
-    concurrency: int | None = Field(
+
+    # NOTE: Allow passing Jinja template.
+    tags: list[str] = Field(
+        default_factory=list,
+        description="A list of tags. A tag value allow to pass Jinja template.",
+    )
+    schedule: str | None = Field(
         default=None,
         description=(
-            "A concurrency value that deprecate when upgrade to Airflow3."
+            "Defines the rules according to which DAG runs are scheduled. This "
+            "value allow to pass with a Jinja template."
         ),
     )
-    is_paused_upon_creation: bool = Field(default=True)
+    start_date: datetime | str | None = Field(
+        default=None,
+        description=(
+            "The timestamp from which the scheduler will attempt to backfill. "
+            "This value allow to pass with a Jinja template."
+        ),
+    )
+    end_date: datetime | str | None = Field(
+        default=None,
+        description=(
+            "A date beyond which your DAG won't run, leave to None for "
+            "open-ended scheduling. This value allow to pass with a Jinja "
+            "template."
+        ),
+    )
+    catchup: bool = Field(
+        default=False,
+        description=(
+            "Perform scheduler catchup (or only run latest)? This value allow "
+            "to pass with a Jinja template."
+        ),
+    )
     max_active_tasks: int = Field(
         default_factory=partial(
-            airflow_conf.getint, "core", "max_active_tasks_per_dag"
+            airflow_conf.getint,
+            "core",
+            "max_active_tasks_per_dag",
         ),
         description="the number of task instances allowed to run concurrently",
     )
@@ -217,9 +250,20 @@ class Dag(BaseModel):
         description=(
             "maximum number of active DAG runs, beyond this number of DAG "
             "runs in a running state, the scheduler won't create "
-            "new active DAG runs."
+            "new active DAG runs "
+            "(This field allow to pass a Jinja template)."
         ),
     )
+
+    # NOTE: Other Airflow parameters that do not pass Jinja template before
+    #   build a DAG object.
+    concurrency: int | None = Field(
+        default=None,
+        description=(
+            "A concurrency value that deprecate when upgrade to Airflow3."
+        ),
+    )
+    is_paused_upon_creation: bool = Field(default=True)
     dagrun_timeout_sec: int | None = Field(
         default=None,
         description="A DagRun timeout in second value.",
@@ -233,14 +277,17 @@ class Dag(BaseModel):
             '{"dag_owner": "https://airflow.apache.org/"}'
         ),
     )
-    fail_stop: bool | None = Field(
+    fail_stop: bool = Field(
         default=None,
+        description="Fails currently running tasks when task in DAG fails.",
+    )
+    default_args: DefaultArgs = Field(
+        default_factory=DefaultArgs,
         description=(
-            "Fails currently running tasks when task in DAG fails (This value "
-            "will revise to ``fail_fast`` in Airflow3)."
+            "A dictionary of default parameters to be used as constructor "
+            "keyword parameters when initialising operators."
         ),
     )
-    default_args: DefaultArgs = Field(default_factory=DefaultArgs)
 
     @field_validator(
         "start_date",
@@ -250,7 +297,7 @@ class Dag(BaseModel):
     )
     def __prepare_datetime(cls, data: Any) -> Any:
         """Prepare datetime if it passes with datetime string to
-        pendulum.Datetime object.
+        ``pendulum.Datetime`` object.
         """
         if data and isinstance(data, str):
             try:
@@ -258,6 +305,36 @@ class Dag(BaseModel):
             except ParserError:
                 return None
         return data
+
+    @field_validator(
+        "max_active_runs",
+        "max_active_tasks",
+        mode="before",
+        json_schema_input_type=int | str,
+    )
+    def __mark_int_json_schema_type(cls, data: Any) -> Any:
+        return data
+
+    @field_validator(
+        "catchup",
+        mode="before",
+        json_schema_input_type=bool | str,
+    )
+    def __mark_bool_json_schema_type(cls, data: Any) -> Any:
+        return data
+
+    @classmethod
+    def build_json_schema(
+        cls, filepath: Path | None = None
+    ) -> dict[str, Any] | None:
+        json_schema: Any = cls.model_json_schema(by_alias=True)
+        if not filepath:
+            return json_schema
+
+        with filepath.open(mode="w") as f:
+            json.dump(json_schema, f, indent=2)
+            f.write("\n")
+            return None
 
     def build_docs(self, docs: str | None = None) -> str:
         """Generated document string that merge between parent docs and template
@@ -270,9 +347,13 @@ class Dag(BaseModel):
         Returns:
             str: A document markdown string that prepared with parent docs.
         """
+        base_docs: str = self.docs.rstrip("\n")
+
         if docs:
             d: str = docs.rstrip("\n")
-            docs: str = f"{d}\n\n{self.docs}"
+            docs: str = f"{d}\n\n{base_docs}"
+        else:
+            docs: str = base_docs
 
         # NOTE: Exclude jinja template until upgrade Airflow >= 2.9.3, This
         #   version remove template render on the `doc_md` value.
@@ -292,8 +373,9 @@ class Dag(BaseModel):
         version.
 
         Notes:
-            default_view:
-            orientation:
+            default_view: This value does not set for Airflow major version more
+                than 3.
+            orientation: Default value is ``LR``.
 
         Returns:
             dict[str, Any]: A mapping kwargs parameters that depend on the
@@ -306,7 +388,6 @@ class Dag(BaseModel):
                 kw.update({"dag_display_name": self.display_name})
 
         if AIRFLOW_VERSION < [3, 0, 0]:
-
             # Reference: The 'DAG.concurrency' attribute is deprecated. Please
             #   use 'DAG.max_active_tasks'.
             if self.concurrency:
@@ -330,14 +411,12 @@ class Dag(BaseModel):
             # NOTE: The tags parameters change to mutable set instead of list
             if self.tags:
                 kw.update({"tags": set(self.tags)})
-
-            if self.fail_stop is not None:
-                kw.update({"fail_fast": self.fail_stop})
         return kw
 
     def build(
         self,
         prefix: str | None,
+        variables: dict[str, Any] | None = None,
         *,
         docs: str | None = None,
         default_args: dict[str, Any] | None = None,
@@ -353,6 +432,7 @@ class Dag(BaseModel):
 
         Args:
             prefix (str | None): A prefix of DAG name.
+            variables (dict[str, Any]): A variable mapping data.
             docs (str | None): A document string with Markdown syntax.
             default_args: (dict[str, Any]): An override default arguments to the
                 Airflow DAG object.
@@ -362,29 +442,33 @@ class Dag(BaseModel):
                 filters in Jinja template.
             template_searchpath (list[str], default None): An extended Jinja
                 template search path.
-            on_success_callback:
-            on_failure_callback:
-            context: A Factory context data that use on task building method.
+            on_success_callback (list[Any] | Any | None):
+                A list of callback function or a callback function that want to
+                trigger call from Airflow DAG after success event.
+            on_failure_callback (list[Any] | Any | None):
+                A list of callback function or a callback function that want to
+                trigger call from Airflow DAG after failure event.
+            context (Context): A Factory context data that use on
+                task building method.
 
         Returns:
             DAG: An Airflow DAG object.
         """
-        name: str = f"{prefix}_{self.name}" if prefix else self.name
-        variables: dict[str, Any] = pull_vars(
-            name=self.name, path=self.parent_dir, prefix=prefix
-        )
+        _id: str = f"{prefix}_{self.id}" if prefix else self.id
         macros: dict[str, Callable | str] = {
             "env": os.getenv,
             "vars": variables.get,
+            # NOTE: Allow to pass None value.
             "dag_id_prefix": prefix,
         }
         dag = DAG(
-            dag_id=name,
+            dag_id=_id,
             description=self.desc,
             doc_md=self.build_docs(docs),
             schedule=self.schedule,
             start_date=self.start_date,
             end_date=self.end_date,
+            catchup=self.catchup,
             max_active_runs=self.max_active_runs,
             max_active_tasks=self.max_active_tasks,
             dagrun_timeout=(
@@ -413,16 +497,12 @@ class Dag(BaseModel):
             **self.dag_dynamic_kwargs(),
         )
 
-        # NOTE: Build Tasks.
-        tasks: dict[str, TaskMapped] = {}
+        # NOTE: Build DAG Tasks mapping before set its upstream.
         for task in self.tasks:
-            tasks[task.iden] = {
-                "upstream": task.upstream,
-                "task": task.build(task_group=None, dag=dag, context=context),
-            }
+            task.handle_build(dag=dag, build_context=context)
 
         # NOTE: Set upstream for each task.
-        set_upstream(tasks)
+        set_upstream(context["tasks"])
 
         # NOTE: Set property for DAG object.
         dag.is_dag_auto_generated = True

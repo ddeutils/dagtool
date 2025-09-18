@@ -3,17 +3,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Annotated, Any, Literal, Union
 
 try:
-    from airflow.sdk.definitions.taskgroup import TaskGroup as AirflowTaskGroup
+    from airflow.sdk.definitions.taskgroup import TaskGroup as _TaskGroup
 except ImportError:
-    from airflow.utils.task_group import TaskGroup as AirflowTaskGroup
+    from airflow.utils.task_group import TaskGroup as _TaskGroup
 
 from pydantic import Discriminator, Field, Tag
 
-from ..utils import TaskMapped, set_upstream
 from .__abc import (
-    BaseTask,
+    BaseTaskOrTaskGroup,
     Context,
     Operator,
+    OperatorOrTaskGroup,
     TaskModel,
     ToolModel,
 )
@@ -48,7 +48,7 @@ Task = Annotated[
 ]
 
 
-class TaskGroup(BaseTask):
+class TaskGroup(BaseTaskOrTaskGroup):
     """Group of Task model that will represent Airflow Task Group object."""
 
     group: str = Field(description="A task group name.")
@@ -57,7 +57,7 @@ class TaskGroup(BaseTask):
         default="",
         description="A task group tooltip that will display on the UI.",
     )
-    tasks: list[AnyTask] = Field(
+    tasks: list[TaskOrGroup] = Field(
         default_factory=list,
         description="A list of Any Task model.",
     )
@@ -65,31 +65,23 @@ class TaskGroup(BaseTask):
     def build(
         self,
         dag: DAG,
-        task_group: AirflowTaskGroup | None = None,
+        task_group: _TaskGroup | None = None,
         context: Context | None = None,
-    ) -> AirflowTaskGroup:
+    ) -> _TaskGroup:
         """Build Airflow Task Group object."""
-        task_group = AirflowTaskGroup(
-            group_id=self.group,
-            prefix_group_id=False,
+        tg = _TaskGroup(
+            group_id=self.iden,
             tooltip=self.tooltip,
+            prefix_group_id=False,
+            add_suffix_on_collision=False,
             parent_group=task_group,
             dag=dag,
-            add_suffix_on_collision=False,
         )
-        tasks: dict[str, TaskMapped] = {}
+
         for task in self.tasks:
-            task_airflow: Operator | AirflowTaskGroup = task.build(
-                dag=dag,
-                task_group=task_group,
-                context=context,
-            )
-            tasks[task.iden] = {"upstream": task.upstream, "task": task_airflow}
+            task.handle_build(dag=dag, task_group=tg, context=context)
 
-        # NOTE: Set Stream for subtask that set in this group.
-        set_upstream(tasks)
-
-        return task_group
+        return tg
 
     @property
     def iden(self) -> str:
@@ -115,7 +107,7 @@ def any_task_discriminator(value: Any) -> str | None:
     return None
 
 
-AnyTask = Annotated[
+TaskOrGroup = Annotated[
     Union[
         Annotated[Task, Tag("Task")],
         Annotated[TaskGroup, Tag("Group")],

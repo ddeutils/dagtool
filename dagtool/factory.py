@@ -12,6 +12,7 @@ from jinja2.nativetypes import NativeEnvironment
 from pydantic import ValidationError
 
 from .conf import ASSET_DIR, YamlConf
+from .const import DAG_ID_KEY
 from .models import Dag, pull_vars
 from .tasks import Context, ToolModel
 from .utils import FILTERS, clear_globals
@@ -98,8 +99,8 @@ class Factory:
         *,
         name: str | None = None,
         docs: str | None = None,
-        operators: dict[str, type[Operator]] | None = None,
-        tasks: dict[str, type[ToolModel]] | None = None,
+        operators: dict[str, type[BaseOperator]] | None = None,
+        tools: dict[str, type[ToolModel]] | None = None,
         python_callers: dict[str, Callable] | None = None,
         template_searchpath: list[str | Path] | None = None,
         jinja_environment_kwargs: dict[str, Any] | None = None,
@@ -107,17 +108,20 @@ class Factory:
         user_defined_macros: dict[str, Callable | str] | None = None,
         on_success_callback: list[Any] | Any | None = None,
         on_failure_callback: list[Any] | Any | None = None,
+        only_one_dag: bool = True,
+        force_raise: bool = True,
     ) -> None:
         """Main construct method.
 
         Args:
             path (str | Path): A current filepath that can receive with string
                 value or Path object.
-            name (str, default None): A prefix name of final DAG ID.
+            name (str): A prefix name of any DAGs that exists in this path.
             docs (dict[str, Any]): A docs string for this Factory will use to
                 be the header of full docs.
-            operators (dict[str, type[ToolModel]]): A mapping of name and sub-model
-                of ToolModel model.
+            operators (dict[str, type[BaseOperator]]): A mapping of name and
+                sub-model of BaseOperator object.
+            tools (dict[str, type[ToolModel]]):
             python_callers (dict[str, Callable]): A mapping of name and function
                 that want to use with Airflow PythonOperator.
             template_searchpath (list[str | Path]): A list of Jinja template
@@ -130,6 +134,8 @@ class Factory:
                 to use on each DAG that was built from template path.
             on_failure_callback: An on failure event callback object that want
                 to use on each DAG that was built from template path.
+            only_one_dag (bool):
+            force_raise (bool):
 
         Notes:
             After set the Factory attributes, it will load template config data
@@ -140,6 +146,8 @@ class Factory:
         self.name: str | None = name
         self.docs: str | None = docs
         self.conf: dict[str, Dag] = {}
+        self.only_one_dag: bool = only_one_dag
+        self.force_raise: bool = force_raise
         self.yaml_loader = YamlConf(path=self.path)
 
         # NOTE: Set Extended Airflow params with necessary values.
@@ -153,12 +161,12 @@ class Factory:
         self.on_success_callback = on_success_callback
         self.on_failure_callback = on_failure_callback
 
-        # NOTE: Define tasks that able map to template.
-        self.operators: dict[str, type[Operator]] = self.builtin_operators | (
-            operators or {}
+        # NOTE: Define tools that able map to template.
+        self.operators: dict[str, type[BaseOperator]] = (
+            self.builtin_operators | (operators or {})
         )
-        self.tasks: dict[str, type[ToolModel]] = self.builtin_tasks | (
-            tasks or {}
+        self.tools: dict[str, type[ToolModel]] = self.builtin_tasks | (
+            tools or {}
         )
         self.python_callers: dict[str, Any] = python_callers or {}
 
@@ -183,8 +191,11 @@ class Factory:
         )
 
         # NOTE: For loop DAG config that store inside this template path.
-        for c in self.yaml_loader.read_conf():
-            name: str = c["name"]
+        for c in self.yaml_loader.read_dag_conf(
+            pre_validate=False,
+            only_one_dag=self.only_one_dag,
+        ):
+            name: str = c[DAG_ID_KEY]
 
             # NOTE: Override or add the vars macro to the current Jinja
             #   environment object.
@@ -220,7 +231,8 @@ class Factory:
         return {
             "path": self.path,
             "yaml_loader": self.yaml_loader,
-            "tasks": self.tasks,
+            "tasks": {},
+            "tools": self.tools,
             "operators": self.operators,
             "python_callers": self.python_callers,
             "vars": _vars,

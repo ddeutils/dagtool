@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, TypedDict, Union
 
 try:
     from airflow.sdk.bases.operator import BaseOperator
@@ -22,10 +22,13 @@ from airflow.utils.trigger_rule import TriggerRule
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.functional_validators import field_validator
 
+from ..utils import TaskMapped
+
 if TYPE_CHECKING:
     from dagtool.conf import YamlConf
 
 Operator = BaseOperator | MappedOperator
+OperatorOrTaskGroup: TypeAlias = Union[Operator, TaskGroup]
 
 
 class Context(TypedDict):
@@ -36,7 +39,8 @@ class Context(TypedDict):
     path: Path
     yaml_loader: YamlConf
     vars: dict[str, Any]
-    tasks: dict[str, type[ToolModel]]
+    tasks: dict[str, TaskMapped]
+    tools: dict[str, type[ToolModel]]
     operators: dict[str, type[Operator]]
     python_callers: dict[str, Callable]
     extras: dict[str, Any]
@@ -51,7 +55,7 @@ class ToolMixin(ABC):
         dag: DAG,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-    ) -> Operator | TaskGroup:
+    ) -> OperatorOrTaskGroup:
         """Build Any Airflow Task object. This method can return Operator or
         TaskGroup object.
 
@@ -76,7 +80,7 @@ class ToolModel(BaseModel, ToolMixin, ABC):
     """
 
 
-class BaseTask(ToolModel, ABC):
+class BaseTaskOrTaskGroup(ToolModel, ABC):
     """Base Task model that represent Airflow Task object."""
 
     desc: str | None = Field(
@@ -118,8 +122,55 @@ class BaseTask(ToolModel, ABC):
         for Airflow object.
         """
 
+    def handle_build(
+        self,
+        dag: DAG,
+        task_group: TaskGroup | None = None,
+        context: Context | None = None,
+    ) -> OperatorOrTaskGroup:
+        """Handle building method.
 
-class TaskModel(BaseTask, ABC):
+        This method will update tasks building context value before returning
+        result from building.
+
+        Args:
+            dag (DAG): An Airflow DAG object.
+            task_group (TaskGroup, default None): An Airflow TaskGroup object
+                if this task build under the task group.
+            context (Context, default None):
+                A Context data that was created from the DAG Generator object.
+        """
+
+        task_airflow: OperatorOrTaskGroup = self.build(
+            dag=dag,
+            task_group=task_group,
+            context=context,
+        )
+
+        # NOTE: Update task context.
+        if context is not None:
+            tasks: dict[str, Any] = context.get("tasks", {})
+
+            # NOTE: Support for duplicate ID for mapping upstream.
+            _id: str = (
+                task_airflow.group_id
+                if isinstance(task_airflow, TaskGroup)
+                else task_airflow.task_id
+            )
+
+            if _id in tasks:
+                raise NotImplementedError(
+                    f"Task ID was duplicate: {_id}. This template should "
+                    f"not allow to set the same ID because it force disable "
+                    f"``prefix_group_id`` and ``add_suffix_on_collision``."
+                )
+
+            tasks[_id] = {"upstream": self.upstream, "task": task_airflow}
+
+        return task_airflow
+
+
+class TaskModel(BaseTaskOrTaskGroup, ABC):
     """Base Task Model.
 
     This model will add necessary field that use with the Airflow BaseOperator
@@ -201,7 +252,7 @@ class TaskModel(BaseTask, ABC):
         dag: DAG,
         task_group: TaskGroup | None = None,
         context: Context | None = None,
-    ) -> Operator | TaskGroup:
+    ) -> OperatorOrTaskGroup:
         """Build the Airflow Operator or TaskGroup object from this model
         field.
 
