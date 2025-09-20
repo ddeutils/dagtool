@@ -61,7 +61,7 @@ def sync_airflow_variable(dags_folder: Path | None = None):
     sys.exit(1)
 
 
-@cli.command("sync-gcs")
+@cli.command("sync-files")
 @click.option(
     "--dags-folder",
     type=click.Path(

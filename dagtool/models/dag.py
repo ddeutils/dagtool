@@ -6,7 +6,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, overload
 
 try:
     from airflow.sdk.definitions.dag import DAG
@@ -219,6 +219,14 @@ class Dag(BaseModel):
     def __mark_bool_json_schema_type(cls, data: Any) -> Any:
         return data
 
+    @overload
+    @classmethod
+    def build_json_schema(cls, filepath: Path) -> None: ...
+
+    @overload
+    @classmethod
+    def build_json_schema(cls, filepath: None) -> dict[str, Any]: ...
+
     @classmethod
     def build_json_schema(
         cls,
@@ -230,7 +238,11 @@ class Dag(BaseModel):
             filepath (Path, default None):
                 An output filepath that want to save JSON schema content.
         """
-        json_schema: Any = cls.model_json_schema(by_alias=True)
+        json_schema: Any = cls.model_json_schema(by_alias=True) | {
+            "title": "DagTool",
+            "description": "a friendly airflow dag build tool",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+        }
         if not filepath:
             return json_schema
 

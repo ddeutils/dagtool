@@ -1,0 +1,10 @@
+type: sync
+sync:
+  - key: "dag-05-sync.yml"
+    stages:
+      dev:
+        type: local
+        path: "/{{ vars('bucket_name') }}/configs"
+      prod:
+        type: local
+        path: "/{{ vars('bucket_name') }}/configs"
