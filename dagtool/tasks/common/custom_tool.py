@@ -9,18 +9,18 @@ from dagtool.models.task import TaskModel
 if TYPE_CHECKING:
     from dagtool.models.task import (
         DAG,
-        Context,
-        Operator,
+        BuildContext,
+        OperatorOrTaskGroup,
         TaskGroup,
         ToolModel,
     )
 
 
-class CustomTask(TaskModel):
+class CustomToolTask(TaskModel):
     """Custom Task model."""
 
-    uses: Literal["custom_task"] = Field(description="A common task name.")
-    name: str = Field(description="A common building function name.")
+    uses: Literal["custom_tool"] = Field(description="A custom tool type.")
+    name: str = Field(description="A custom tool name.")
     params: dict[str, Any] = Field(
         default_factory=dict,
         description=(
@@ -33,22 +33,22 @@ class CustomTask(TaskModel):
         self,
         dag: DAG,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
-    ) -> Operator | TaskGroup:
-        """Build with Custom builder function.
+        build_context: BuildContext | None = None,
+    ) -> OperatorOrTaskGroup:
+        """Build with Custom tool builder method.
 
         Args:
             dag (DAG): An Airflow DAG object.
             task_group (TaskGroup, default None): An Airflow TaskGroup object
                 if this task build under the task group.
-            context (Context, default None): A Context data that was created
-                from the Factory.
+            build_context (BuildContext, default None):
+                A Context data that was created from the DAG Generator object.
         """
-        ctx: Context = context or {}
-        custom_tasks: dict[str, type[ToolModel]] = ctx["tasks"]
+        ctx: BuildContext = build_context or {}
+        custom_tasks: dict[str, type[ToolModel]] = ctx["tools"]
         if self.name not in custom_tasks:
             raise ValueError(
-                f"Custom task need to pass to `tasks` argument, {self.name}, "
+                f"Custom task need to pass to `tools` argument, {self.name}, "
                 f"first."
             )
         op: type[ToolModel] = custom_tasks[self.name]
@@ -56,5 +56,5 @@ class CustomTask(TaskModel):
         return model.build(
             dag=dag,
             task_group=task_group,
-            context=context | self.params,
+            build_context=build_context | self.params,
         )

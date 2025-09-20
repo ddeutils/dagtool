@@ -2,7 +2,7 @@ import pytest
 from pendulum import DateTime, parse, timezone
 from pendulum.parsing.exceptions import ParserError
 
-from dagtool.utils import parse_version
+from dagtool.utils import DotDict, parse_version
 
 
 def test_compare_version():
@@ -22,3 +22,27 @@ def test_parse_datetime():
     with pytest.raises(ParserError):
         data = "{{ vars('start_date') }}"
         parse(data).in_tz(timezone("Asia/Bangkok"))
+
+
+def test_dotdict():
+    data = DotDict({"foo": {"bar": {"baz": 1}}})
+
+    assert data.get("foo.bar.baz") == 1
+    assert data.get("foo?.bar.missing", 42) == 42
+    assert data.get("foo?.bar.missing") is None
+
+    assert data.get("foo.bar.missing", 42) == 42
+
+    data.set("foo.bar.baz", 99)
+    assert data["foo"]["bar"]["baz"] == 99
+    assert data.get("foo.bar.baz") == 99
+
+    # NOTE: strict set -> KeyError if path doesn't exist
+    try:
+        data.set("foo.buz.qux", 10)
+    except KeyError as e:
+        print(e)
+
+    # NOTE: safe set -> creates missing path
+    data.set("foo?.buz.qux", 10)
+    assert data.get("foo.buz.qux") == 10

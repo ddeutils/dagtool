@@ -13,7 +13,7 @@ from pydantic import Field
 from dagtool.models.task import TaskModel
 
 if TYPE_CHECKING:
-    from dagtool.models.task import DAG, Context, Operator
+    from dagtool.models.task import DAG, BaseOperator, BuildContext
 
 
 class BashTask(TaskModel):
@@ -37,16 +37,16 @@ class BashTask(TaskModel):
         self,
         dag: DAG,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
-    ) -> Operator:
-        """Build Airflow Bash Operator object.
+        build_context: BuildContext | None = None,
+    ) -> BaseOperator:
+        """Build Airflow Raise Operator object.
 
         Args:
             dag (DAG): An Airflow DAG object.
             task_group (TaskGroup, default None): An Airflow TaskGroup object
                 if this task build under the task group.
-            context (Context, default None): A Context data that was created
-                from the Factory.
+            build_context (BuildContext, default None):
+                A Context data that was created from the DAG Generator object.
         """
         return BashOperator(
             dag=dag,

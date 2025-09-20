@@ -7,7 +7,7 @@ from pydantic import Field
 from dagtool.models.task import TaskModel
 
 if TYPE_CHECKING:
-    from dagtool.models.task import DAG, Context, Operator, TaskGroup
+    from dagtool.models.task import DAG, BaseOperator, BuildContext, TaskGroup
 
 
 class OperatorTask(TaskModel):
@@ -28,8 +28,8 @@ class OperatorTask(TaskModel):
         self,
         dag: DAG,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
-    ) -> Operator:
+        build_context: BuildContext | None = None,
+    ) -> BaseOperator:
         """Build the Airflow Operator instance that match with name and operator
         mapping.
 
@@ -37,17 +37,17 @@ class OperatorTask(TaskModel):
             dag (DAG): An Airflow DAG object.
             task_group (TaskGroup, default None): An Airflow TaskGroup object
                 if this task build under the task group.
-            context (Context, default None): A Context data that was created
-                from the Factory.
+            build_context (BuildContext, default None):
+                A Context data that was created from the DAG Generator object.
         """
-        ctx: Context = context or {}
-        custom_opts: dict[str, type[Operator]] = ctx["operators"]
+        ctx: BuildContext = build_context or {}
+        custom_opts: dict[str, type[BaseOperator]] = ctx["operators"]
         if self.name not in custom_opts:
             raise ValueError(
                 f"Operator need to pass to `operators` argument, "
                 f"{self.name}, first."
             )
-        op: type[Operator] = custom_opts[self.name]
+        op: type[BaseOperator] = custom_opts[self.name]
         return op(
             dag=dag,
             task_group=task_group,

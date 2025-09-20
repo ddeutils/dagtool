@@ -94,7 +94,7 @@ class Dag(BaseModel):
     )
 
     # NOTE: Airflow DAG parameters.
-    owner: str = Field(default="dagtool", description="An owner name.")
+    owner: str = Field(default="common", description="An owner name.")
 
     # NOTE: Allow passing Jinja template.
     tags: list[str] = Field(

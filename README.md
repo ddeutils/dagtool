@@ -81,7 +81,7 @@ dags/
 ## 📦 Installation
 
 ```shell
-uv pip install -U dagtool
+uv pip install -U common
 ```
 
 ## 📍 Usage
@@ -150,7 +150,7 @@ via DuckDB engine.
 
 > This DAG is the temp DAG for ingest data to GCP.
 """
-from dagtool import Factory, ToolModel, Context
+from dagtool import Factory, ToolModel, BuildContext
 
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
@@ -166,16 +166,16 @@ def get_api_data(path: str) -> dict[str, list[str]]:
     return {"data": [f"src://{path}/table/1", f"src://{path}/table/2"]}
 
 # NOTE: Some common task that create any Airflow Task instance object.
-class WriteIceberg(ToolModel):
+class WriteIcebergTool(ToolModel):
     """Custom Task for user defined inside of template path."""
 
     path: str = Field(description="An Iceberg path.")
 
     def build(
         self,
-        dag: DAG | None = None,
+        dag: DAG,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
+        build_context: BuildContext | None = None,
     ) -> TaskGroup:
         with TaskGroup(
             group_id="write_iceberg",
@@ -194,7 +194,7 @@ factory = Factory(
     docs=__doc__,
     operators={"gcs_transform_data": MockGCSTransformData},
     python_callers={"get_api_data": get_api_data},
-    tasks={"write_iceberg": WriteIceberg},
+    tools={"write_iceberg": WriteIcebergTool},
 )
 factory.build_airflow_dags_to_globals(
     gb=globals(),

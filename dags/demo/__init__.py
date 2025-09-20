@@ -4,10 +4,10 @@ The demo DAGs that generate from template config file.
 """
 
 from dagtool import Factory
-from dagtool.tasks import DebugOperator
+from dagtool.providers.common.operators.debug import DebugOperator
 from dagtool.utils import days_ago
 
-from .utils import CustomTask, say_hi
+from .utils import CustomTool, say_hi
 
 factory = Factory(
     name="demo",
@@ -15,7 +15,7 @@ factory = Factory(
     docs=__doc__,
     user_defined_macros={"custom_macros": "foo"},
     operators={"import_debug": DebugOperator},
-    tasks={"demo_task": CustomTask},
+    tools={"demo": CustomTool},
     python_callers={"say_hi": say_hi},
 )
 factory.build_airflow_dags_to_globals(

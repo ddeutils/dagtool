@@ -25,7 +25,7 @@ from .const import (
 )
 from .utils import hash_sha256
 
-logger = logging.getLogger("dagtool.conf")
+logger = logging.getLogger("common.conf")
 
 
 class YamlConf:

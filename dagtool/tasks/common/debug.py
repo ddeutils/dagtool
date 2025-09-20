@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import Field
 
 from dagtool.models.task import TaskModel
-from dagtool.plugins.common.operators.debug import DebugOperator
-from dagtool.plugins.common.operators.error import RaiseOperator
+from dagtool.providers.common.operators.debug import DebugOperator
+from dagtool.providers.common.operators.error import RaiseOperator
 
 if TYPE_CHECKING:
-    from dagtool.models.task import DAG, Context, Operator, TaskGroup
+    from dagtool.models.task import DAG, BaseOperator, BuildContext, TaskGroup
 
 
 class RaiseTask(TaskModel):
@@ -23,16 +23,16 @@ class RaiseTask(TaskModel):
         self,
         dag: DAG,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
-    ) -> Operator:
+        build_context: BuildContext | None = None,
+    ) -> BaseOperator:
         """Build Airflow Raise Operator object.
 
         Args:
             dag (DAG): An Airflow DAG object.
             task_group (TaskGroup, default None): An Airflow TaskGroup object
                 if this task build under the task group.
-            context (Context, default None): A Context data that was created
-                from the Factory.
+            build_context (BuildContext, default None):
+                A Context data that was created from the DAG Generator object.
         """
         return RaiseOperator(
             message=self.message,
@@ -56,16 +56,16 @@ class DebugTask(TaskModel):
         self,
         dag: DAG,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
-    ) -> Operator:
-        """Build Airflow Debug Operator object.
+        build_context: BuildContext | None = None,
+    ) -> BaseOperator:
+        """Build Airflow Raise Operator object.
 
         Args:
             dag (DAG): An Airflow DAG object.
             task_group (TaskGroup, default None): An Airflow TaskGroup object
                 if this task build under the task group.
-            context (Context, default None): A Context data that was created
-                from the Factory.
+            build_context (BuildContext, default None):
+                A Context data that was created from the DAG Generator object.
         """
         return DebugOperator(
             task_group=task_group,

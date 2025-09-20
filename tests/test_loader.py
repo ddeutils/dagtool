@@ -4,7 +4,7 @@ from jinja2 import Environment
 from jinja2.nativetypes import NativeEnvironment
 
 from dagtool.loader import YamlConf
-from dagtool.models.dag import Variable
+from dagtool.models.variable import Variable
 
 
 def test_get_variable_stage(test_path: Path):
@@ -29,6 +29,6 @@ def test_pass_variable_with_jinja(test_path: Path):
 def test_yaml_conf_dags(test_path: Path):
     p: Path = test_path.parent / "dags/demo"
     yaml_loader = YamlConf(path=p)
-    conf = yaml_loader.read_conf()
+    conf = yaml_loader.read_dag_conf()
     assert len(conf) == 4
     print(conf[2])

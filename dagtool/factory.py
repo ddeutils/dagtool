@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     Operator = BaseOperator | MappedOperator
     T = TypeVar("T")
 
-logger = logging.getLogger("dagtool.factory")
+logger = logging.getLogger("common.factory")
 
 
 class Factory:
@@ -51,7 +51,7 @@ class Factory:
 
     Examples:
         Create the Custom factory that use standard with your operators.
-        >>> from dagtool import Factory
+        >>> from common import Factory
         >>> class CustomFactory(Factory):
         ...     builtin_operators = {
         ...         "some-operator-name": ...,

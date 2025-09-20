@@ -9,9 +9,9 @@ except ImportError:
 
 from pydantic import Field
 
-from .common.custom import CustomTask
+from .common.custom_tool import CustomToolTask
 from .common.debug import DebugTask, RaiseTask
-from .common.direct_operator import OperatorTask
+from .common.operator import OperatorTask
 from .standard.bash import BashTask
 from .standard.empty import EmptyTask
 from .standard.python import PythonTask
@@ -22,12 +22,12 @@ Task = Annotated[
         DebugTask,
         BashTask,
         PythonTask,
-        CustomTask,
+        CustomToolTask,
         OperatorTask,
         RaiseTask,
     ],
     Field(
         discriminator="uses",
-        description="All supported Operator Tasks.",
+        description="All supported tasks.",
     ),
 ]

@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 try:
     from airflow.providers.standard.operators.empty import EmptyOperator
@@ -12,7 +12,11 @@ except ImportError:
 
 from pydantic import Field
 
-from dagtool.tasks import Context, DebugOperator, ToolModel
+from dagtool.models.tool import ToolModel
+from dagtool.providers.common.operators.debug import DebugOperator
+
+if TYPE_CHECKING:
+    from dagtool.models.build_context import BuildContext
 
 
 def say_hi(name: Any) -> str:
@@ -26,8 +30,8 @@ def say_hi(name: Any) -> str:
     return name
 
 
-class CustomTask(ToolModel):
-    """Custom Task model."""
+class CustomTool(ToolModel):
+    """Custom Tool model."""
 
     name: str = Field(description="A name.")
 
@@ -35,7 +39,7 @@ class CustomTask(ToolModel):
         self,
         dag: DAG | None = None,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
+        build_context: BuildContext | None = None,
     ) -> TaskGroup:
         with TaskGroup(
             "custom_task_group",
