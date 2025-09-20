@@ -11,8 +11,9 @@ variables:
         start_date: "2022-06-16 00:00:00"
         max_active_runs: 1
         batch_size: 10000
-        transform_driver_request: 200m
-        transform_driver_limit: 600m
+        transform:
+          driver_request: 200m
+          driver_limit: 600m
         dp_pyspark_version: "v4.20.0-dev"
       prod:
         project_id: "stock-data-prod"
@@ -22,8 +23,9 @@ variables:
         start_date: "2025-01-16 00:00:00"
         max_active_runs: 1
         batch_size: 10000
-        transform_driver_request: 200m
-        transform_driver_limit: 600m
+        transform:
+          driver_request: 200m
+          driver_limit: 600m
         dp_pyspark_version: "v4.20.0"
 
   - key: "01_common"

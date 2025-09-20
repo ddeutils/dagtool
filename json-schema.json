@@ -43,18 +43,12 @@
           "const": "task",
           "default": "task",
           "description": "A task type.",
-          "enum": [
-            "task"
-          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "bash",
           "description": "An tool type for bash model.",
-          "enum": [
-            "bash"
-          ],
           "title": "Uses",
           "type": "string"
         },
@@ -171,6 +165,7 @@
         "executor_config": {
           "anyOf": [
             {
+              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -183,14 +178,7 @@
         "inlets": {
           "description": "A list of inlets or inlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Inlets",
           "type": "array"
@@ -198,14 +186,7 @@
         "outlets": {
           "description": "A list of outlets or outlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Outlets",
           "type": "array"
@@ -281,7 +262,7 @@
       "title": "BashTask",
       "type": "object"
     },
-    "CustomTask": {
+    "CustomToolTask": {
       "description": "Custom Task model.",
       "properties": {
         "desc": {
@@ -324,18 +305,12 @@
           "const": "task",
           "default": "task",
           "description": "A task type.",
-          "enum": [
-            "task"
-          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
-          "const": "custom_task",
-          "description": "A common task name.",
-          "enum": [
-            "custom_task"
-          ],
+          "const": "custom_tool",
+          "description": "A custom tool type.",
           "title": "Uses",
           "type": "string"
         },
@@ -452,6 +427,7 @@
         "executor_config": {
           "anyOf": [
             {
+              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -464,14 +440,7 @@
         "inlets": {
           "description": "A list of inlets or inlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Inlets",
           "type": "array"
@@ -479,24 +448,18 @@
         "outlets": {
           "description": "A list of outlets or outlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Outlets",
           "type": "array"
         },
         "name": {
-          "description": "A common building function name.",
+          "description": "A custom tool name.",
           "title": "Name",
           "type": "string"
         },
         "params": {
+          "additionalProperties": true,
           "description": "A mapping of parameters that want to pass to Custom Task model before build.",
           "title": "Params",
           "type": "object"
@@ -507,7 +470,60 @@
         "uses",
         "name"
       ],
-      "title": "CustomTask",
+      "title": "CustomToolTask",
+      "type": "object"
+    },
+    "Dataset": {
+      "description": "DataHub Dataset model.",
+      "properties": {
+        "platform": {
+          "description": "A platform type.",
+          "enum": [
+            "hive",
+            "gcs",
+            "hdfs",
+            "hana",
+            "iceberg",
+            "s3",
+            "kafka",
+            "kafka_connect",
+            "mongodb",
+            "mysql",
+            "openapi",
+            "postgres",
+            "oracle",
+            "tableau",
+            "mssql",
+            "bigquery",
+            "druid",
+            "file"
+          ],
+          "title": "Platform",
+          "type": "string"
+        },
+        "name": {
+          "description": "An entity name.",
+          "title": "Name",
+          "type": "string"
+        },
+        "platform_instance": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Platform Instance"
+        }
+      },
+      "required": [
+        "platform",
+        "name"
+      ],
+      "title": "Dataset",
       "type": "object"
     },
     "DebugTask": {
@@ -553,18 +569,12 @@
           "const": "task",
           "default": "task",
           "description": "A task type.",
-          "enum": [
-            "task"
-          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "debug",
           "description": "A debug task name.",
-          "enum": [
-            "debug"
-          ],
           "title": "Uses",
           "type": "string"
         },
@@ -681,6 +691,7 @@
         "executor_config": {
           "anyOf": [
             {
+              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -693,14 +704,7 @@
         "inlets": {
           "description": "A list of inlets or inlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Inlets",
           "type": "array"
@@ -708,19 +712,13 @@
         "outlets": {
           "description": "A list of outlets or outlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Outlets",
           "type": "array"
         },
         "params": {
+          "additionalProperties": true,
           "description": "A parameters that want to logging.",
           "title": "Params",
           "type": "object"
@@ -914,18 +912,12 @@
           "const": "task",
           "default": "task",
           "description": "A task type.",
-          "enum": [
-            "task"
-          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "empty",
           "description": "An empty task name.",
-          "enum": [
-            "empty"
-          ],
           "title": "Uses",
           "type": "string"
         },
@@ -1042,6 +1034,7 @@
         "executor_config": {
           "anyOf": [
             {
+              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -1054,14 +1047,7 @@
         "inlets": {
           "description": "A list of inlets or inlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Inlets",
           "type": "array"
@@ -1069,14 +1055,7 @@
         "outlets": {
           "description": "A list of outlets or outlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Outlets",
           "type": "array"
@@ -1132,18 +1111,12 @@
           "const": "task",
           "default": "task",
           "description": "A task type.",
-          "enum": [
-            "task"
-          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "operator",
           "description": "An operator task name.",
-          "enum": [
-            "operator"
-          ],
           "title": "Uses",
           "type": "string"
         },
@@ -1260,6 +1233,7 @@
         "executor_config": {
           "anyOf": [
             {
+              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -1272,14 +1246,7 @@
         "inlets": {
           "description": "A list of inlets or inlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Inlets",
           "type": "array"
@@ -1287,14 +1254,7 @@
         "outlets": {
           "description": "A list of outlets or outlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Outlets",
           "type": "array"
@@ -1305,6 +1265,7 @@
           "type": "string"
         },
         "params": {
+          "additionalProperties": true,
           "description": "A mapping of parameters that want to pass to Airflow Operator",
           "title": "Params",
           "type": "object"
@@ -1361,18 +1322,12 @@
           "const": "task",
           "default": "task",
           "description": "A task type.",
-          "enum": [
-            "task"
-          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "python",
           "description": "A Python task name.",
-          "enum": [
-            "python"
-          ],
           "title": "Uses",
           "type": "string"
         },
@@ -1489,6 +1444,7 @@
         "executor_config": {
           "anyOf": [
             {
+              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -1501,14 +1457,7 @@
         "inlets": {
           "description": "A list of inlets or inlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Inlets",
           "type": "array"
@@ -1516,14 +1465,7 @@
         "outlets": {
           "description": "A list of outlets or outlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Outlets",
           "type": "array"
@@ -1534,6 +1476,7 @@
           "type": "string"
         },
         "params": {
+          "additionalProperties": true,
           "description": "A parameters that will pass to the `op_kwargs` argument.",
           "title": "Params",
           "type": "object"
@@ -1590,18 +1533,12 @@
           "const": "task",
           "default": "task",
           "description": "A task type.",
-          "enum": [
-            "task"
-          ],
           "title": "Type",
           "type": "string"
         },
         "uses": {
           "const": "raise",
           "description": "A raise task name.",
-          "enum": [
-            "raise"
-          ],
           "title": "Uses",
           "type": "string"
         },
@@ -1718,6 +1655,7 @@
         "executor_config": {
           "anyOf": [
             {
+              "additionalProperties": true,
               "type": "object"
             },
             {
@@ -1730,14 +1668,7 @@
         "inlets": {
           "description": "A list of inlets or inlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Inlets",
           "type": "array"
@@ -1745,14 +1676,7 @@
         "outlets": {
           "description": "A list of outlets or outlet value.",
           "items": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "$ref": "#/$defs/Dataset"
           },
           "title": "Outlets",
           "type": "array"
@@ -1824,9 +1748,6 @@
         "type": {
           "const": "group",
           "default": "A group type.",
-          "enum": [
-            "group"
-          ],
           "title": "Type",
           "type": "string"
         },
@@ -1839,14 +1760,14 @@
         "tasks": {
           "description": "A list of Any Task model.",
           "items": {
-            "description": "An any task type that able operator task or group task.",
+            "description": "An any task type that able be task or task group model.",
             "oneOf": [
               {
-                "description": "All supported Operator Tasks.",
+                "description": "All supported tasks.",
                 "discriminator": {
                   "mapping": {
                     "bash": "#/$defs/BashTask",
-                    "custom_task": "#/$defs/CustomTask",
+                    "custom_tool": "#/$defs/CustomToolTask",
                     "debug": "#/$defs/DebugTask",
                     "empty": "#/$defs/EmptyTask",
                     "operator": "#/$defs/OperatorTask",
@@ -1869,7 +1790,7 @@
                     "$ref": "#/$defs/PythonTask"
                   },
                   {
-                    "$ref": "#/$defs/CustomTask"
+                    "$ref": "#/$defs/CustomToolTask"
                   },
                   {
                     "$ref": "#/$defs/OperatorTask"
@@ -1916,19 +1837,16 @@
       "type": "string"
     }
   },
-  "description": "Base Dag Model for validate template config data support DagTool object.\nThis model will include necessary field for Airflow DAG object and common\nfield for DagTool object together.",
+  "description": "Dag Model for validate template config data support DagGenerator object.\nThis model will include necessary field for Airflow DAG object and dp\nfield for DagGenerator object together.",
   "properties": {
-    "name": {
-      "description": "A DAG name.",
-      "title": "Name",
+    "id": {
+      "description": "A DAG ID.",
+      "title": "Id",
       "type": "string"
     },
     "type": {
       "const": "dag",
       "description": "A type of template config.",
-      "enum": [
-        "dag"
-      ],
       "title": "Type",
       "type": "string"
     },
@@ -1983,20 +1901,21 @@
       "additionalProperties": {
         "type": "string"
       },
+      "description": "Custom Jinja macro variables that will use to prepare compound variable to specific variable for shorten usage in the template.",
       "title": "Vars",
       "type": "object"
     },
     "tasks": {
       "description": "A list of any task, origin task or group task",
       "items": {
-        "description": "An any task type that able operator task or group task.",
+        "description": "An any task type that able be task or task group model.",
         "oneOf": [
           {
-            "description": "All supported Operator Tasks.",
+            "description": "All supported tasks.",
             "discriminator": {
               "mapping": {
                 "bash": "#/$defs/BashTask",
-                "custom_task": "#/$defs/CustomTask",
+                "custom_tool": "#/$defs/CustomToolTask",
                 "debug": "#/$defs/DebugTask",
                 "empty": "#/$defs/EmptyTask",
                 "operator": "#/$defs/OperatorTask",
@@ -2019,7 +1938,7 @@
                 "$ref": "#/$defs/PythonTask"
               },
               {
-                "$ref": "#/$defs/CustomTask"
+                "$ref": "#/$defs/CustomToolTask"
               },
               {
                 "$ref": "#/$defs/OperatorTask"
@@ -2119,13 +2038,13 @@
       "title": "Raw Data Hash"
     },
     "owner": {
-      "default": "dagtool",
+      "default": "dogdag",
       "description": "An owner name.",
       "title": "Owner",
       "type": "string"
     },
     "tags": {
-      "description": "A list of tags.",
+      "description": "A list of tags. A tag value allow to pass Jinja template.",
       "items": {
         "type": "string"
       },
@@ -2142,6 +2061,7 @@
         }
       ],
       "default": null,
+      "description": "Defines the rules according to which DAG runs are scheduled. This value allow to pass with a Jinja template.",
       "title": "Schedule"
     },
     "start_date": {
@@ -2158,6 +2078,7 @@
         }
       ],
       "default": null,
+      "description": "The timestamp from which the scheduler will attempt to backfill. This value allow to pass with a Jinja template.",
       "title": "Start Date"
     },
     "end_date": {
@@ -2174,7 +2095,45 @@
         }
       ],
       "default": null,
+      "description": "A date beyond which your DAG won't run, leave to None for open-ended scheduling. This value allow to pass with a Jinja template.",
       "title": "End Date"
+    },
+    "catchup": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": false,
+      "description": "Perform scheduler catchup (or only run latest)? This value allow to pass with a Jinja template.",
+      "title": "Catchup"
+    },
+    "max_active_tasks": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "the number of task instances allowed to run concurrently",
+      "title": "Max Active Tasks"
+    },
+    "max_active_runs": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "maximum number of active DAG runs, beyond this number of DAG runs in a running state, the scheduler won't create new active DAG runs (This field allow to pass a Jinja template).",
+      "title": "Max Active Runs"
     },
     "concurrency": {
       "anyOf": [
@@ -2193,16 +2152,6 @@
       "default": true,
       "title": "Is Paused Upon Creation",
       "type": "boolean"
-    },
-    "max_active_tasks": {
-      "description": "the number of task instances allowed to run concurrently",
-      "title": "Max Active Tasks",
-      "type": "integer"
-    },
-    "max_active_runs": {
-      "description": "maximum number of active DAG runs, beyond this number of DAG runs in a running state, the scheduler won't create new active DAG runs.",
-      "title": "Max Active Runs",
-      "type": "integer"
     },
     "dagrun_timeout_sec": {
       "anyOf": [
@@ -2226,17 +2175,18 @@
       "type": "object"
     },
     "fail_stop": {
-      "default": false,
+      "default": null,
       "description": "Fails currently running tasks when task in DAG fails.",
       "title": "Fail Stop",
       "type": "boolean"
     },
     "default_args": {
-      "$ref": "#/$defs/DefaultArgs"
+      "$ref": "#/$defs/DefaultArgs",
+      "description": "A dictionary of default parameters to be used as constructor keyword parameters when initialising operators."
     }
   },
   "required": [
-    "name",
+    "id",
     "type"
   ],
   "title": "Dag",

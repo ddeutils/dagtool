@@ -23,6 +23,7 @@ from pendulum.parsing.exceptions import ParserError
 from pydantic import BaseModel, Field
 from pydantic.functional_validators import field_validator
 
+from ..const import AIRFLOW_ENV
 from ..utils import AIRFLOW_VERSION, DotDict, set_upstream
 from .default_args import DefaultArgs
 from .task_group import TaskOrGroup
@@ -32,9 +33,9 @@ if TYPE_CHECKING:
 
 
 class Dag(BaseModel):
-    """Dag Model for validate template config data support DagTool object.
+    """Dag Model for validate template config data support DagGenerator object.
     This model will include necessary field for Airflow DAG object and dp
-    field for DagTool object together.
+    field for DagGenerator object together.
     """
 
     id: str = Field(description="A DAG ID.")
@@ -94,7 +95,7 @@ class Dag(BaseModel):
     )
 
     # NOTE: Airflow DAG parameters.
-    owner: str = Field(default="common", description="An owner name.")
+    owner: str = Field(default="dogdag", description="An owner name.")
 
     # NOTE: Allow passing Jinja template.
     tags: list[str] = Field(
@@ -220,8 +221,15 @@ class Dag(BaseModel):
 
     @classmethod
     def build_json_schema(
-        cls, filepath: Path | None = None
+        cls,
+        filepath: Path | None = None,
     ) -> dict[str, Any] | None:
+        """Build JSON Schema file for this Dag model.
+
+        Args:
+            filepath (Path, default None):
+                An output filepath that want to save JSON schema content.
+        """
         json_schema: Any = cls.model_json_schema(by_alias=True)
         if not filepath:
             return json_schema
@@ -351,7 +359,8 @@ class Dag(BaseModel):
         """
         _id: str = f"{prefix}_{self.id}" if prefix else self.id
         macros: dict[str, Callable | str] = {
-            "env": os.getenv,
+            "env": AIRFLOW_ENV,
+            "envs": os.getenv,
             "vars": DotDict(variables).get,
             # NOTE: Allow to pass None value.
             "dag_id_prefix": prefix,

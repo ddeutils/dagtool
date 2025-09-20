@@ -1,26 +1,28 @@
-import json
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 from textwrap import dedent
-from typing import Any
 
 import click
 from airflow.configuration import conf
-from pydantic import TypeAdapter
 
-from dagtool.models.dag import Dag
-
-from .__about__ import __version__
+# Import version from auto-generated file (managed by hatch + VCS)
+try:
+    from ._version import __version__
+except ImportError:
+    # Fallback for development environments without proper build
+    from . import __version__
 
 
 @click.group()
 def cli() -> None:
-    """Main DAG Tool CLI."""
+    """Main DAG Gen CLI."""
 
 
 @cli.command("version")
 def version() -> None:
-    """Return the current version of this DAG Tool package."""
+    """Return the current version of this DAG Gen package."""
     click.echo(__version__)
     sys.exit(0)
 
@@ -49,6 +51,37 @@ def sync_airflow_variable(dags_folder: Path | None = None):
             - Search Variable files reference the `.airflowignore` pattern.
             - Prepare variable with prefix name.
             - Sync to the target Airflow Variable.
+            """.strip(
+                "\n"
+            )
+        )
+    )
+    click.echo("NOTE:")
+    click.echo(f"DAGs Folder: {dags_folder or conf.get('core', 'dags_folder')}")
+    sys.exit(1)
+
+
+@cli.command("sync-gcs")
+@click.option(
+    "--dags-folder",
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+        readable=True,
+        path_type=Path,
+    ),
+    help="A DAGs folder.",
+)
+def sync_gcs_files(dags_folder: Path | None = None):
+    click.echo("Sync Files to GCS does not implement yet.")
+    click.echo(
+        dedent(
+            """
+            Steps:
+            - Search Sync files reference the `.airflowignore` pattern.
+            - Prepare files with prefix name.
+            - Sync to the target GCS.
             """.strip(
                 "\n"
             )
@@ -103,11 +136,11 @@ def validate(value: str):
 )
 def build_json_schema(file: Path | None):
     """Build JSON Schema file from the current Dag model."""
+    from dagtool.models.dag import Dag
+
     click.echo("Start generate JSON Schema file for DAG Template.")
-    json_schema: Any = TypeAdapter(Dag).json_schema(by_alias=True)
-    with (file or Path("./json-schema.json")).open(mode="w") as f:
-        json.dump(json_schema, f, indent=2)
-        f.write("\n")
+    Dag.build_json_schema(filepath=file or Path("./json-schema.json"))
+    sys.exit(0)
 
 
 if __name__ == "__main__":

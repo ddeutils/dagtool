@@ -1,4 +1,4 @@
-name: 03_template
+id: 03_template
 type: dag
 docs: |
   ## Template DAG
@@ -13,14 +13,15 @@ tags:
 vars:
   gcs_path: "gcs://{{ vars('project_id') }}/{{ vars('bucket_name') }}/data"
 tasks:
-  - task: start
-    uses: debug
+  - id: start
+    type: debug
     params:
+      current_env: "{{ env }}"
       custom_macros: "{{ custom_macros }}"
 
-  - task: macros
+  - id: macros
     upstream: start
-    uses: debug
+    type: debug
     params:
       variable_00: "{{ vars('project_id') }}"
       variable_01: "{{ vars('bucket_name') }}"
@@ -29,30 +30,31 @@ tasks:
       variable_04: "{{ vars('start_date') }}"
       variable_05: "{{ vars('max_active_runs') }}"
       variable_06: "{{ vars('batch_size') }}"
-      variable_07: "{{ vars('transform_driver_request') }}"
-      variable_08: "{{ vars('dp_pyspark_version') }}"
+      variable_07: "{{ vars('transform.driver_request') }}"
+      variable_08: "{{ vars('transform?.executor', 'default-executor') }}"
+      variable_09: "{{ vars('dp_pyspark_version') }}"
       variable_not_exists_01: "{{ vars('foo') }}"
       variable_not_exists_02: "{{ vars('foo', 'default') }}"
-      env_01: "{{ env('AIRFLOW_ENV') }}"
-      env_02: "{{ env('AIRFLOW_HOME') }}"
-      env_not_exists_01: "{{ env('FOO') }}"
-      env_not_exists_02: "{{ env('FOO', 'default') }}"
+      env_01: "{{ envs('AIRFLOW_ENV') }}"
+      env_02: "{{ envs('AIRFLOW_HOME') }}"
+      env_not_exists_01: "{{ envs('FOO') }}"
+      env_not_exists_02: "{{ envs('FOO', 'default') }}"
 
-  - task: combine_macros
+  - id: combine_macros
     upstream: macros
-    uses: debug
+    type: debug
     params:
       variable_combine: "{{ gcs_path }}"
 
-  - task: filter
+  - id: filter
     upstream: macros
-    uses: debug
+    type: debug
     params:
       convert_dt: "{{ data_interval_start.in_timezone('Asia/Bangkok').strftime('%Y-%m-%d %H:00:00%z') }}"
 
-  - task: custom_filter
+  - id: custom_filter
     upstream: filter
-    uses: debug
+    type: debug
     params:
       convert_dt_filter_01: "{{ data_interval_start | fmt('%Y-%m-%d %H:00:00%z') }}"
       convert_dt_filter_02: "{{ data_interval_start | fmt('%Y-%m-%d') }}"

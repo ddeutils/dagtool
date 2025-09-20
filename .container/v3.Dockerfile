@@ -26,6 +26,6 @@ RUN uv pip install "apache-airflow[google]==${AIRFLOW_VERSION}" \
 RUN uv pip install \
       "pydantic>=2.9.2"
 
-COPY ./dagtool /opt/airflow/plugins/dagtool
+COPY ./dagtool /opt/airflow/dagtool
 
 WORKDIR /opt/airflow

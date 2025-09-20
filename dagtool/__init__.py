@@ -1,7 +1,3 @@
-from models.build_context import BuildContext
-from models.task import TaskModel
-from models.tool import ToolModel
-
 from .__about__ import __version__
 from .factory import Factory
 from .loader import (
@@ -10,4 +6,7 @@ from .loader import (
     VARIABLE_FILENAME,
     YamlConf,
 )
+from .models.build_context import BuildContext
+from .models.task import TaskModel
+from .models.tool import ToolModel
 from .utils import TaskMapped, set_upstream

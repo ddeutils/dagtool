@@ -1,8 +1,16 @@
 # Build
 
-This is a building document for local testing when I want to develop features.
+This is an Airflow building document for local provisioning when we want to develop or
+testing.
 
-**Set `.env` file**:
+Support Versions:
+
+| Package | Version | Component |
+|---------|---------|-----------|
+
+## Prerequisite
+
+**Set dotenv, `.env`, file**:
 
 1. Create project dir value:
 
@@ -13,15 +21,14 @@ This is a building document for local testing when I want to develop features.
 2. Add other values:
 
     ```dotenv
-    AIRFLOW_UID=50000
-    AIRFLOW__CORE__UNIT_TEST_MODE=true
     AIRFLOW_ENV=dev
     ```
 
 > [!WARNING]
-> For Airflow3, you should set `AIRFLOW__API_AUTH__JWT_SECRET` in dotenv file.
+> For the Airflow3, you should set `AIRFLOW__API_AUTH__JWT_SECRET` in the dotenv
+> file before start because it needs this value.
 
-## Docker Image
+## Docker Image (Optional)
 
 Build only Docker image (Optional):
 
@@ -29,7 +36,7 @@ Build only Docker image (Optional):
 docker build --rm \
   --build-arg AIRFLOW_VERSION="2.7.1" \
   --build-arg PYTHON_VERSION="3.10" \
-  -f ./.container/Dockerfile \
+  -f ./.container/base.Dockerfile \
   -t airflow-local \
   .
 ```
@@ -40,15 +47,21 @@ Start provision Airflow application via Docker Compose file.
 
 ### Standalone
 
-1. Start provision Airflow Standalone:
+1. Create receive password file for standalone mode.
+
+    ```shell
+    touch ./standalone_admin_password.txt
+    ```
+
+2. Start provision Airflow Standalone:
 
     ```shell
     docker compose -f ./.container/docker-compose-local-standalone.yml --env-file .env up -d
     ```
 
-2. User & Password will show on the Docker Container console.
+3. User & Password will show on the Docker Container console.
 
-3. After finish, Down Airflow Standalone:
+4. After finish, Down Airflow Standalone:
 
     ```shell
     docker compose -f ./.container/docker-compose-local-standalone.yml --env-file .env down --rmi all
