@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable
 from functools import partial
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
 
 try:
     from airflow.sdk.bases.operator import BaseOperator
@@ -19,65 +17,17 @@ except ImportError:
 
 from airflow.configuration import conf as airflow_conf
 from airflow.utils.trigger_rule import TriggerRule
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 from pydantic.functional_validators import field_validator
 
-from ..utils import TaskMapped
+from .datahub import Dataset
+from .tool import ToolModel
 
 if TYPE_CHECKING:
-    from dagtool.conf import YamlConf
+    from .build_context import BuildContext
 
 Operator = BaseOperator | MappedOperator
 OperatorOrTaskGroup: TypeAlias = Union[Operator, TaskGroup]
-
-
-class Context(TypedDict):
-    """Context type dict that wat generated from the Factory object before start
-    building Airflow DAG from template config.
-    """
-
-    path: Path
-    yaml_loader: YamlConf
-    vars: dict[str, Any]
-    tasks: dict[str, TaskMapped]
-    tools: dict[str, type[ToolModel]]
-    operators: dict[str, type[Operator]]
-    python_callers: dict[str, Callable]
-    extras: dict[str, Any]
-
-
-class ToolMixin(ABC):
-    """Task Mixin Abstract class override the build method."""
-
-    @abstractmethod
-    def build(
-        self,
-        dag: DAG,
-        task_group: TaskGroup | None = None,
-        context: Context | None = None,
-    ) -> OperatorOrTaskGroup:
-        """Build Any Airflow Task object. This method can return Operator or
-        TaskGroup object.
-
-        Args:
-            dag (DAG): An Airflow DAG object.
-            task_group (TaskGroup, default None): An Airflow TaskGroup object
-                if this task build under the task group.
-            context (Context, default None): A Context data that was created
-                from the Factory.
-
-        Returns:
-            Operator | TaskGroup: This method can return depend on building
-                logic that already pass the DAG instance from the parent.
-        """
-
-
-class ToolModel(BaseModel, ToolMixin, ABC):
-    """Tool Model.
-
-    This model will use to be the abstract model for any Task model that it want
-    to use with a specific use case like CustomTask, etc.
-    """
 
 
 class BaseTaskOrTaskGroup(ToolModel, ABC):
@@ -115,18 +65,11 @@ class BaseTaskOrTaskGroup(ToolModel, ABC):
             return [data]
         return data
 
-    @property
-    @abstractmethod
-    def iden(self) -> str:
-        """Task identity Abstract method for making represent task_id or group_id
-        for Airflow object.
-        """
-
     def handle_build(
         self,
         dag: DAG,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
+        build_context: BuildContext | None = None,
     ) -> OperatorOrTaskGroup:
         """Handle building method.
 
@@ -137,19 +80,19 @@ class BaseTaskOrTaskGroup(ToolModel, ABC):
             dag (DAG): An Airflow DAG object.
             task_group (TaskGroup, default None): An Airflow TaskGroup object
                 if this task build under the task group.
-            context (Context, default None):
-                A Context data that was created from the DAG Generator object.
+            build_context (BuildContext, default None):
+                A Context data that was created from the DAG Factory object.
         """
 
         task_airflow: OperatorOrTaskGroup = self.build(
             dag=dag,
             task_group=task_group,
-            context=context,
+            build_context=build_context,
         )
 
         # NOTE: Update task context.
-        if context is not None:
-            tasks: dict[str, Any] = context.get("tasks", {})
+        if build_context is not None:
+            tasks: dict[str, Any] = build_context.get("tasks", {})
 
             # NOTE: Support for duplicate ID for mapping upstream.
             _id: str = (
@@ -237,11 +180,11 @@ class TaskModel(BaseTaskOrTaskGroup, ABC):
     retry_delay: dict[str, int] | None = Field(default=None)
     retry_exponential_backoff: bool = Field(default=False)
     executor_config: dict[str, Any] | None = Field(default=None)
-    inlets: list[dict[str, Any] | str] = Field(
+    inlets: list[Dataset] = Field(
         default_factory=list,
         description="A list of inlets or inlet value.",
     )
-    outlets: list[dict[str, Any] | str] = Field(
+    outlets: list[Dataset] = Field(
         default_factory=list,
         description="A list of outlets or outlet value.",
     )
@@ -251,7 +194,7 @@ class TaskModel(BaseTaskOrTaskGroup, ABC):
         self,
         dag: DAG,
         task_group: TaskGroup | None = None,
-        context: Context | None = None,
+        build_context: BuildContext | None = None,
     ) -> OperatorOrTaskGroup:
         """Build the Airflow Operator or TaskGroup object from this model
         field.
@@ -260,8 +203,8 @@ class TaskModel(BaseTaskOrTaskGroup, ABC):
             dag (DAG): An Airflow DAG object.
             task_group (TaskGroup, default None): An Airflow TaskGroup object
                 if this task build under the task group.
-            context (Context, default None): A Context data that was created
-                from the Factory.
+            build_context (BuildContext, default None):
+                A Context data that was created from the DAG Factory object.
         """
 
     @property
@@ -271,11 +214,21 @@ class TaskModel(BaseTaskOrTaskGroup, ABC):
         """
         return self.task
 
-    def task_kwargs(self) -> dict[str, Any]:
-        """Prepare the Airflow BaseOperator kwargs from TaskModel fields.
+    def task_kwargs(self, excluded: list[str] | None = None) -> dict[str, Any]:
+        """Prepare the Airflow BaseOperator kwargs from BaseTask fields.
 
             This method will make key when any field was pass to model and do
         avoid if it is None or default value.
+
+        Notes:
+            For the inlets and outlets fields, it will abstract these fields with
+        custom Pydantic model. So, they need to use build method before passing
+        to the task kwargs.
+
+        Args:
+            excluded (list[str], default None):
+                An exclude key of task parameters that already mapping from this
+                model.
         """
         kws: dict[str, Any] = {
             "task_id": self.iden,
@@ -285,9 +238,21 @@ class TaskModel(BaseTaskOrTaskGroup, ABC):
         if self.desc:
             kws.update({"doc": self.desc})
         if self.inlets:
-            kws.update({"inlets": self.inlets})
+            inlets: list[Any] = []
+            for inlet in self.inlets:
+                try:
+                    inlets.append(inlet.build())
+                except ImportError:
+                    continue
+            kws.update({"inlets": inlets})
         if self.outlets:
-            kws.update({"outlets": self.outlets})
+            outlets: list[Any] = []
+            for outlet in self.inlets:
+                try:
+                    outlets.append(outlet.build())
+                except ImportError:
+                    continue
+            kws.update({"outlets": outlets})
         if self.executor_config:
             kws.update({"executor_config": self.executor_config})
         if self.retries:
@@ -300,4 +265,10 @@ class TaskModel(BaseTaskOrTaskGroup, ABC):
             kws.update({"pill": self.pool})
         if self.pool_slots:
             kws.update({"pool_slots": self.pool_slots})
+
+        # NOTE: Remove exclude keys.
+        for key in excluded or []:
+            if key in kws:
+                kws.pop(key)
+
         return kws

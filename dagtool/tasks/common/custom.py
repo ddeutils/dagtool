@@ -4,10 +4,16 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field
 
-from dagtool.tasks.__abc import TaskModel
+from dagtool.models.task import TaskModel
 
 if TYPE_CHECKING:
-    from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup, ToolModel
+    from dagtool.models.task import (
+        DAG,
+        Context,
+        Operator,
+        TaskGroup,
+        ToolModel,
+    )
 
 
 class CustomTask(TaskModel):

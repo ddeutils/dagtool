@@ -4,7 +4,7 @@ import pytest
 from pendulum import date, timezone
 from yaml import safe_load
 
-from dagtool.models import Dag
+from dagtool.models.dag import Dag
 
 
 @pytest.fixture(scope="module")

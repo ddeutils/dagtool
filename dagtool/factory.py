@@ -7,15 +7,13 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 
-from jinja2 import Environment, Template, Undefined
-from jinja2.nativetypes import NativeEnvironment
 from pydantic import ValidationError
 
-from .conf import ASSET_DIR, YamlConf
-from .const import DAG_ID_KEY
-from .models import Dag, pull_vars
-from .tasks import Context, ToolModel
-from .utils import FILTERS, clear_globals
+from .const import AIRFLOW_ENV, DAG_ID_KEY
+from .loader import ASSET_DIR, YamlConf, pull_vars
+from .models.dag import Dag
+from .renderer import JinjaRender
+from .utils import FILTERS, DotDict, clear_globals
 
 if TYPE_CHECKING:
     try:
@@ -26,6 +24,9 @@ if TYPE_CHECKING:
         from airflow.models.baseoperator import BaseOperator
         from airflow.models.dag import DAG
         from airflow.models.mappedoperator import MappedOperator
+
+    from .models.build_context import BuildContext
+    from .models.tool import ToolModel
 
     Operator = BaseOperator | MappedOperator
     T = TypeVar("T")
@@ -184,12 +185,18 @@ class Factory:
         if self.conf:
             self.conf: dict[str, Dag] = {}
 
-        env: Environment = self.get_template_env(
-            user_defined_macros={"env": os.getenv} | self.user_defined_macros,
+        renderer = JinjaRender(
+            template_fields=self.template_fields,
+            user_defined_macros={
+                "envs": os.getenv,
+                "env": AIRFLOW_ENV,
+            }
+            | self.user_defined_macros,
             user_defined_filters=self.user_defined_filters,
             jinja_environment_kwargs=self.jinja_environment_kwargs,
         )
 
+        logger.info(f"Start read template from {self.path}")
         # NOTE: For loop DAG config that store inside this template path.
         for c in self.yaml_loader.read_dag_conf(
             pre_validate=False,
@@ -199,24 +206,28 @@ class Factory:
 
             # NOTE: Override or add the vars macro to the current Jinja
             #   environment object.
-            env.globals.update(
-                {"vars": pull_vars(name, self.path, prefix=self.name).get},
+            renderer.set_globals(
+                {
+                    "vars": DotDict(
+                        pull_vars(name, self.path, prefix=self.name)
+                    ).get
+                },
             )
-            self.render_template(c, env=env)
+            renderer.render_template(c)
             try:
-                model = Dag.model_validate(
-                    obj=c,
-                    context={"jinja_env": env},
-                )
+                model = Dag.model_validate(c)
                 self.conf[name] = model
-            except ValidationError:
+            except ValidationError as err:
+                logger.error(str(err))
+                if self.force_raise:
+                    raise
                 continue
 
     def set_context(
         self,
         custom_vars: dict[str, Any] | None = None,
         extras: dict[str, Any] | None = None,
-    ) -> Context:
+    ) -> BuildContext:
         """Set context data that bypass to the build method.
 
         Args:
@@ -224,7 +235,8 @@ class Factory:
             extras (dict[str, Any]): An extra parameters.
 
         Returns:
-            Context: A building context data from the current factory arguments.
+            BuildContext: A building context data from the current factory
+                arguments.
         """
         _vars: dict[str, Any] = custom_vars or {}
         _extras: dict[str, Any] = extras or {}
@@ -239,135 +251,46 @@ class Factory:
             "extras": _extras,
         }
 
-    def render_template(self, data: Any, env: Environment) -> Any:
-        """Render template to the value of key that exists in the
-        `template_fields` class variable.
-
-        Args:
-            data (Any): Any data that want to render Jinja template.
-            env (Environment): A Jinja environment.
-        """
-        if not isinstance(data, dict):
-            return self._render(data, env=env)
-
-        for key in data:
-
-            # NOTE: Start nested render the Jinja template the key equal
-            #   `default_args` value.
-            if key == "default_args":
-                data[key] = self.render_template(data[key], env=env)
-                continue
-
-            if (
-                key in self.template_excluded_fields
-                or key not in self.template_fields
-            ):
-                continue
-
-            data[key] = self._render(data[key], env=env)
-        return data
-
-    def _render(self, value: Any, env: Environment) -> Any:
-        """Render Jinja template to any value with the current Jinja environment.
-
-            This private method will check the type of value before make Jinja
-        template and render it before returning.
-
-        Args:
-            value (Any): An any value.
-            env (Environment): A Jinja environment object.
-
-        Returns:
-            Any: The value that was rendered if it is string type.
-        """
-        if isinstance(value, str):
-            template: Template = env.from_string(value)
-            return template.render()
-
-        if value.__class__ is tuple:
-            return tuple(self._render(element, env) for element in value)
-        elif isinstance(value, tuple):
-            return value.__class__(*(self._render(el, env) for el in value))
-        elif isinstance(value, list):
-            return [self._render(element, env) for element in value]
-        elif isinstance(value, dict):
-            return {k: self._render(v, env) for k, v in value.items()}
-        elif isinstance(value, set):
-            return {self._render(element, env) for element in value}
-
-        return value
-
-    def get_template_env(
-        self,
-        *,
-        user_defined_filters: dict[str, Callable] | None = None,
-        user_defined_macros: dict[str, Callable | str] | None = None,
-        jinja_environment_kwargs: dict[str, Any] | None = None,
-    ) -> Environment:
-        """Return Jinja Template Native Environment object for render template
-        to the Dag parameters before create Airflow DAG.
-
-        Args:
-            user_defined_filters (dict[str, Callable]): An user defined Jinja
-                template filters that will add to Jinja environment.
-            user_defined_macros (dict[str, Callable | str]): An user defined
-                Jinja template macros that will add to Jinja environment.
-            jinja_environment_kwargs: Additional configuration options to be
-                passed to Jinja `Environment` for template rendering.
-
-        Returns:
-            Environment: A Jinja Environment object.
-        """
-        jinja_env_options: dict[str, Any] = {
-            "undefined": Undefined,
-            "extensions": ["jinja2.ext.do"],
-            "cache_size": 0,
-        }
-        env: Environment = NativeEnvironment(
-            **(jinja_env_options | (jinja_environment_kwargs or {}))
-        )
-        udf_macros: dict[str, Any] = self.user_defined_macros | (
-            user_defined_macros or {}
-        )
-        if udf_macros:
-            env.globals.update(udf_macros)
-        udf_filters: dict[str, Any] = self.user_defined_filters | (
-            user_defined_filters or {}
-        )
-        if udf_filters:
-            env.filters.update(udf_macros)
-        return env
-
     def build(
         self,
         default_args: dict[str, Any] | None = None,
-        context_extras: dict[str, Any] | None = None,
+        build_context_extras: dict[str, Any] | None = None,
     ) -> list[DAG]:
         """Build Airflow DAGs from template files.
 
         Args:
             default_args (dict[str, Any]): A mapping of default arguments that
                 want to override on the template config data.
-            context_extras (dict[str, Any]): A context extras.
+            build_context_extras (dict[str, Any]): A context extras.
 
         Returns:
             list[DAG]: A list of Airflow DAG object.
         """
         logger.info("Start build DAG from Template config data.")
         dags: list[DAG] = []
-        context: Context = self.set_context(extras=context_extras)
+        build_context: BuildContext = self.set_context(
+            extras=build_context_extras
+        )
         for i, (name, model) in enumerate(self.conf.items(), start=1):
+            variables: dict[str, Any] = pull_vars(
+                name=name, path=self.path, prefix=self.name
+            )
             dag: DAG = model.build(
                 prefix=self.name,
+                variables=variables,
                 docs=self.docs,
                 default_args=default_args,
+                # NOTE: Update the model `vars` to the Jinja environment global.
                 user_defined_macros=self.user_defined_macros | model.vars,
                 user_defined_filters=self.user_defined_filters,
                 template_searchpath=self.template_searchpath,
                 on_success_callback=self.on_success_callback,
                 on_failure_callback=self.on_failure_callback,
-                # NOTE: Copy the Context data and add the current common vars.
-                context=context | {"vars": model.vars},
+                # NOTE:
+                #   - Copy the building context data and add the current
+                #     custom vars.
+                #   - Reset tasks mapping.
+                build_context=build_context | {"vars": model.vars, "tasks": {}},
             )
             logger.info(f"({i}) Building DAG: {name}")
             dags.append(dag)
@@ -378,7 +301,7 @@ class Factory:
         gb: dict[str, Any],
         *,
         default_args: dict[str, Any] | None = None,
-        context_extras: dict[str, Any] | None = None,
+        build_context_extras: dict[str, Any] | None = None,
     ) -> None:
         """Build Airflow DAG object and set to the globals for Airflow Dag Processor
         can discover them.
@@ -390,7 +313,7 @@ class Factory:
         Args:
             gb (dict[str, Any]): A globals object.
             default_args (dict[str, Any]): An override default args value.
-            context_extras (dict[str, Any]): A context extras.
+            build_context_extras (dict[str, Any]): A context extras.
         """
         if gb:
             logger.debug("DEBUG: The current globals variables before build.")
@@ -398,6 +321,6 @@ class Factory:
 
         for dag in self.build(
             default_args=default_args,
-            context_extras=context_extras,
+            build_context_extras=build_context_extras,
         ):
             gb[dag.dag_id] = dag

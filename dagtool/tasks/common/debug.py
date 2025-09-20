@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field
 
+from dagtool.models.task import TaskModel
 from dagtool.plugins.common.operators.debug import DebugOperator
 from dagtool.plugins.common.operators.error import RaiseOperator
-from dagtool.tasks.__abc import TaskModel
 
 if TYPE_CHECKING:
-    from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup
+    from dagtool.models.task import DAG, Context, Operator, TaskGroup
 
 
 class RaiseTask(TaskModel):

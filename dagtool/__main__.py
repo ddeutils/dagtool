@@ -8,8 +8,9 @@ import click
 from airflow.configuration import conf
 from pydantic import TypeAdapter
 
+from dagtool.models.dag import Dag
+
 from .__about__ import __version__
-from .models import Dag
 
 
 @click.group()

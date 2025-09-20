@@ -9,10 +9,10 @@ except ImportError:
 
 from pydantic import Field
 
-from dagtool.tasks.__abc import TaskModel
+from dagtool.models.task import TaskModel
 
 if TYPE_CHECKING:
-    from dagtool.tasks.__abc import DAG, Context, Operator, TaskGroup
+    from dagtool.models.task import DAG, Context, Operator, TaskGroup
 
 
 class PythonTask(TaskModel):

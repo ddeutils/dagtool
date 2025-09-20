@@ -6,134 +6,29 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal
 
 try:
     from airflow.sdk.definitions.dag import DAG
-    from airflow.sdk.definitions.variable import Variable as AirflowVariable
     from airflow.sdk.exceptions import AirflowRuntimeError
 except ImportError:
-    from airflow.models import Variable as AirflowVariable
     from airflow.models.dag import DAG
 
     # NOTE: Mock AirflowRuntimeError with RuntimeError.
     AirflowRuntimeError = RuntimeError
 
 from airflow.configuration import conf as airflow_conf
-from airflow.utils.trigger_rule import TriggerRule
 from pendulum import parse, timezone
 from pendulum.parsing.exceptions import ParserError
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, Field
 from pydantic.functional_validators import field_validator
-from typing_extensions import Self
-from yaml import safe_load
-from yaml.parser import ParserError as YamlParserError
 
-from .conf import YamlConf
-from .tasks import Context, TaskOrGroup
-from .utils import AIRFLOW_VERSION, set_upstream
+from ..utils import AIRFLOW_VERSION, DotDict, set_upstream
+from .default_args import DefaultArgs
+from .task_group import TaskOrGroup
 
 if TYPE_CHECKING:
-    pass
-
-
-class DefaultArgs(BaseModel):
-    """Default Args Model that will use with the `default_args` field with the
-    Airflow DAG object. These field reference arguments from the BaseOperator
-    object.
-    """
-
-    model_config = ConfigDict(use_enum_values=True)
-
-    owner: str | None = Field(default=None, description="An owner name.")
-    depends_on_past: bool = Field(default=False, description="")
-    start_date: datetime | None = None
-    end_date: datetime | None = None
-    email: str | list[str] | None = Field(
-        default=None,
-        description=(
-            "the 'to' email address(es) used in email alerts. This can be a "
-            "single email or multiple ones. Multiple addresses can be "
-            "specified as a comma or semicolon separated string or by passing "
-            "a list of strings."
-        ),
-    )
-    email_on_failure: bool = Field(
-        default_factory=partial(
-            airflow_conf.getboolean,
-            "email",
-            "default_email_on_failure",
-            fallback=True,
-        ),
-        description=(
-            "Indicates whether email alerts should be sent when a task failed"
-        ),
-    )
-    email_on_retry: bool = Field(
-        default_factory=partial(
-            airflow_conf.getboolean,
-            "email",
-            "default_email_on_retry",
-            fallback=True,
-        ),
-    )
-    retries: int = Field(
-        default_factory=partial(
-            airflow_conf.getint,
-            "core",
-            "default_task_retries",
-            fallback=0,
-        ),
-        description="A retry count number.",
-    )
-    retry_delay: dict[str, int] | None = Field(
-        default_factory=partial(
-            timedelta,
-            seconds=airflow_conf.getint(
-                "core",
-                "default_task_retry_delay",
-                fallback=300,
-            ),
-        ),
-        description="A retry time delay before start the next retry process.",
-    )
-    retry_exponential_backoff: bool = Field(
-        default=False,
-        description=(
-            "allow progressively longer waits between retries by using "
-            "exponential backoff algorithm on retry delay (delay will be "
-            "converted into seconds)."
-        ),
-    )
-    max_retry_delay: float | None = None
-    # queue = ...
-    # pool = ...
-    # priority_weight = ...
-    # weight_rule = ...
-    # wait_for_downstream = ...
-    trigger_rule: TriggerRule = Field(
-        default=TriggerRule.ALL_SUCCESS,
-        description=(
-            "Task trigger rule. Read more detail, "
-            "https://www.astronomer.io/blog/understanding-airflow-trigger-rules-comprehensive-visual-guide/"
-        ),
-    )
-    # execution_timeout = ...
-    # on_failure_callback = ...
-    # on_success_callback = ...
-    # on_retry_callback = ...
-    sla: Any | None = Field(default=None)
-    # sla_miss_callback = ...
-    # executor_config = ...
-    do_xcom_push: bool = Field(default=True)
-
-    def to_dict(self) -> dict[str, Any]:
-        """Making Python dict object without field that use default value.
-
-        Returns:
-            dict[str, Any]: A mapping of this default args values.
-        """
-        return self.model_dump(exclude_defaults=True)
+    from .build_context import BuildContext
 
 
 class Dag(BaseModel):
@@ -425,7 +320,7 @@ class Dag(BaseModel):
         template_searchpath: list[str] | None = None,
         on_success_callback: list[Any] | Any | None = None,
         on_failure_callback: list[Any] | Any | None = None,
-        context: Context | None = None,
+        build_context: BuildContext | None = None,
     ) -> DAG:
         """Build Airflow DAG object from the current model field values that
         passing from template and render via Jinja with variables.
@@ -448,7 +343,7 @@ class Dag(BaseModel):
             on_failure_callback (list[Any] | Any | None):
                 A list of callback function or a callback function that want to
                 trigger call from Airflow DAG after failure event.
-            context (Context): A Factory context data that use on
+            build_context (BuildContext): A Factory context data that use on
                 task building method.
 
         Returns:
@@ -457,7 +352,7 @@ class Dag(BaseModel):
         _id: str = f"{prefix}_{self.id}" if prefix else self.id
         macros: dict[str, Callable | str] = {
             "env": os.getenv,
-            "vars": variables.get,
+            "vars": DotDict(variables).get,
             # NOTE: Allow to pass None value.
             "dag_id_prefix": prefix,
         }
@@ -499,125 +394,12 @@ class Dag(BaseModel):
 
         # NOTE: Build DAG Tasks mapping before set its upstream.
         for task in self.tasks:
-            task.handle_build(dag=dag, build_context=context)
+            task.handle_build(dag=dag, build_context=build_context)
 
         # NOTE: Set upstream for each task.
-        set_upstream(context["tasks"])
+        set_upstream(build_context["tasks"])
 
         # NOTE: Set property for DAG object.
         dag.is_dag_auto_generated = True
 
         return dag
-
-
-Primitive = Union[str, int, float, bool]
-ValueType = Union[Primitive, list[Primitive], dict[Union[str, int], Primitive]]
-
-
-class Key(BaseModel):
-    """Key Model that use to store multi-stage variable with a specific key."""
-
-    key: str = Field(
-        description="A key name that will equal with the DAG name.",
-    )
-    desc: str | None = Field(
-        default=None,
-        description="A description of this variable.",
-    )
-    stages: dict[str, dict[str, ValueType]] = Field(
-        default=dict,
-        description="A stage mapping with environment and its pair of variable",
-    )
-
-
-class Variable(BaseModel):
-    """Variable Model."""
-
-    type: Literal["variable"] = Field(description="A type of this variable.")
-    variables: list[Key] = Field(description="A list of Key model.")
-
-    @classmethod
-    def from_path(cls, path: Path) -> Self:
-        return cls.model_validate(YamlConf(path=path).read_vars())
-
-    @classmethod
-    def from_path_with_key(cls, path: Path, key: str) -> dict[str, Any]:
-        """Get Variable stage from path.
-
-        Args:
-            path (Path): A template path.
-            key (str): A key name that want to get from Variable model.
-
-        Returns:
-            dict[str, Any]: A mapping of variables that set on the current stage.
-                It will return empty dict if it raises FileNotFoundError and
-                ValueError exceptions.
-        """
-        try:
-            return (
-                cls.from_path(path=path)
-                .get_key(key)
-                .stages.get(os.getenv("AIRFLOW_ENV", "NOTSET"), {})
-            )
-        except FileNotFoundError:
-            return {}
-        except YamlParserError:
-            raise
-        except ValidationError:
-            raise
-        except ValueError:
-            return {}
-
-    def get_key(self, name: str) -> Key:
-        """Get the Key model with an input specific key name.
-
-        Args:
-            name (str): A key name.
-
-        Raises:
-            ValueError: If the key does not exist on this Variable model.
-
-        Returns:
-            Key: A Key model.
-        """
-        for k in self.variables:
-            if name == k.key:
-                return k
-        raise ValueError(f"A key: {name} does not set on this variables.")
-
-
-def pull_vars(name: str, path: Path, prefix: str | None) -> dict[str, Any]:
-    """Pull Variable. This method try to pull variable from Airflow Variable
-    first. If it does not exist it will load from local file instead.
-
-    Args:
-        name (str): A name.
-        path (Path): A template path that want to search variable file.
-        prefix (str, default None): A prefix name that use to combine with name.
-
-    Returns:
-        dict[str, Any]: A variable mapping. This method will return empty dict
-            if it gets any exceptions.
-    """
-    try:
-        _name: str = f"{prefix}_{name}" if prefix else name
-        raw_var: str = AirflowVariable.get(_name, deserialize_json=False)
-        var: dict[str, Any] = safe_load(raw_var)
-        return var
-    except (
-        KeyError,
-        # NOTE: Raise from Airflow version >= 3.0.0 instead of KeyError.
-        AirflowRuntimeError,
-    ):
-        pass
-    except ImportError as err:  # NOTE: Raise from Airflow version >= 3.0.0
-        if "cannot import name 'SUPERVISOR_COMMS'" not in str(err):
-            raise
-        pass
-
-    try:
-        return Variable.from_path_with_key(path, key=name)
-    except YamlParserError:
-        return {}
-    except ValidationError:
-        return {}

@@ -10,10 +10,10 @@ except ImportError:
 from airflow.utils.task_group import TaskGroup
 from pydantic import Field
 
-from dagtool.tasks.__abc import TaskModel
+from dagtool.models.task import TaskModel
 
 if TYPE_CHECKING:
-    from dagtool.tasks.__abc import DAG, Context, Operator
+    from dagtool.models.task import DAG, Context, Operator
 
 
 class BashTask(TaskModel):

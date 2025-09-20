@@ -3,8 +3,8 @@ from pathlib import Path
 from jinja2 import Environment
 from jinja2.nativetypes import NativeEnvironment
 
-from dagtool.conf import YamlConf
-from dagtool.models import Variable
+from dagtool.loader import YamlConf
+from dagtool.models.dag import Variable
 
 
 def test_get_variable_stage(test_path: Path):

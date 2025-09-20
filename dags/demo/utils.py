@@ -12,8 +12,7 @@ except ImportError:
 
 from pydantic import Field
 
-from dagtool.tasks import Context, ToolModel
-from dagtool.tasks.common.debug import DebugOperator
+from dagtool.tasks import Context, DebugOperator, ToolModel
 
 
 def say_hi(name: Any) -> str:
