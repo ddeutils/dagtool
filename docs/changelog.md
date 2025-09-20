@@ -2,6 +2,35 @@
 
 ## Latest Changes
 
+## 0.0.12
+
+### :sparkles: Features
+
+- :dart: revise set upstream logic.
+- :dart: add support model context.
+- :dart: revise abstract model name.
+
+### :bug: Bug fixes
+
+- :gear: change dynamic for fail_stop argument.
+
+### :black_nib: Code Changes
+
+- :art: revise import and example on readme file.
+- :construction: change package file structure.
+- :art: change to relative import.
+
+### :package: Build & Workflow
+
+- :toolbox: change mount path from plugin to airflow home.
+
+### :book: Documentations
+
+- :page_facing_up: update json schema and edit readme file.
+- :page_facing_up: update design docs.
+- :page_facing_up: update docs files.
+- :page_facing_up: update design docs.
+
 ## 0.0.11
 
 ### :sparkles: Features
