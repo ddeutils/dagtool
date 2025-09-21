@@ -10,19 +10,9 @@ Support Versions:
 
 ## Prerequisite
 
-**Set dotenv, `.env`, file**:
-
-1. Create project dir value:
-
-    ```shell
-    echo -e "AIRFLOW_PROJ_DIR=$(pwd)" > .env
-    ```
-
-2. Add other values:
-
-    ```dotenv
-    AIRFLOW_ENV=dev
-    ```
+```shell
+./script/setup.sh
+```
 
 > [!WARNING]
 > For the Airflow3, you should set `AIRFLOW__API_AUTH__JWT_SECRET` in the dotenv
