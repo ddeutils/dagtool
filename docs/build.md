@@ -56,7 +56,7 @@ Start provision Airflow application via Docker Compose file.
 2. Start provision Airflow Standalone:
 
     ```shell
-    docker compose -f ./.container/docker-compose-local-standalone.yml --env-file .env up -d
+    docker compose -f ./.container/docker-compose-local-standalone.base.yml --env-file .env up -d
     ```
 
 3. User & Password will show on the Docker Container console.
@@ -64,7 +64,7 @@ Start provision Airflow application via Docker Compose file.
 4. After finish, Down Airflow Standalone:
 
     ```shell
-    docker compose -f ./.container/docker-compose-local-standalone.yml --env-file .env down --rmi all
+    docker compose -f ./.container/docker-compose-local-standalone.base.yml --env-file .env down --rmi all
     ```
 
 ### LocalExecutor

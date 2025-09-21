@@ -32,12 +32,6 @@ dev = [
     "pre-commit>=4.0.0",
     "pytest>=8.4.0",
     "coverage>=7.10.0",
-    "dagtool[base]",
-]
-base = [
-    "pendulum<3.0.0",
-    "pydantic==2.9.2",
-    "apache-airflow[google]==2.7.1",
 ]
 
 [project.scripts]
