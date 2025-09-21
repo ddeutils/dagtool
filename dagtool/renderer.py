@@ -18,6 +18,8 @@ class JinjaRender:
     def __init__(
         self,
         template_fields: Sequence[str],
+        template_excluded_fields: Sequence[str] | None = None,
+        template_nested_fields: Sequence[str] | None = None,
         jinja_environment_kwargs: dict[str, Any] | None = None,
         user_defined_filters: dict[str, Callable] | None = None,
         user_defined_macros: dict[str, Callable | str] | None = None,
@@ -27,6 +29,11 @@ class JinjaRender:
         Args:
             template_fields (Sequence[str]): A sequence of fields that want to
                 pass a Jinja template.
+            template_excluded_fields (Sequence[str]): A sequence of fields that
+                want to not pass a Jinja template.
+            template_nested_fields (Sequence[str]): A sequence of fields that
+                pass nested Jinja template again with the same template fields
+                setting sequence.
             jinja_environment_kwargs:
             user_defined_filters (dict[str, Callable]): An user defined Jinja
                 template filters that will add to Jinja environment.
@@ -34,6 +41,12 @@ class JinjaRender:
                 Jinja template macros that will add to Jinja environment.
         """
         self.template_fields: Sequence[str] = template_fields
+        self.template_excluded_fields: Sequence[str] = (
+            template_excluded_fields or []
+        )
+        self.template_nested_fields: Sequence[str] = (
+            template_nested_fields or []
+        )
         self.user_defined_filters = user_defined_filters or {}
         self.user_defined_macros = user_defined_macros or {}
 
@@ -70,13 +83,16 @@ class JinjaRender:
             return self._render(data, env=env or self.env)
 
         for key in data:
-            # NOTE: Start nested render the Jinja template the key equal
-            #   `default_args` value.
-            if key == "default_args":
+            # NOTE: Start nested render the Jinja template for the specific key
+            #   such as `default_args` value.
+            if key in self.template_nested_fields:
                 data[key] = self.render_template(data[key], env=env or self.env)
                 continue
 
-            if key in ("tasks", "raw_data") or key not in self.template_fields:
+            if (
+                key in self.template_excluded_fields
+                or key not in self.template_fields
+            ):
                 continue
 
             data[key] = self._render(data[key], env=env or self.env)

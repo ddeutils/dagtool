@@ -28,8 +28,15 @@ def test_dotdict():
     data = DotDict({"foo": {"bar": {"baz": 1}}})
 
     assert data.get("foo.bar.baz") == 1
+    assert data["foo.bar.baz"] == 1
     assert data.get("foo?.bar.missing", 42) == 42
     assert data.get("foo?.bar.missing") is None
+
+    with pytest.raises(KeyError):
+        assert data["foo?.bar.missing"]
+
+    with pytest.raises(KeyError):
+        assert data["foo.bar.missing"]
 
     assert data.get("foo.bar.missing", 42) == 42
 

@@ -5,7 +5,7 @@ import uuid
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Final, TypeAlias, TypedDict, Union
+from typing import Any, ClassVar, Final, TypeAlias, TypedDict, Union
 
 try:
     from airflow.sdk.bases.operator import BaseOperator
@@ -31,8 +31,8 @@ def set_upstream(tasks: dict[str, TaskMapped]) -> None:
     """Set Upstream Task for each tasks in mapping.
 
     Args:
-        tasks (dict[str, TaskMapped]): A mapping of task ID and TaskMapped dict
-            object.
+        tasks (dict[str, TaskMapped]):
+            A mapping of task ID and TaskMapped dict object.
     """
     for task in tasks:
         task_mapped: TaskMapped = tasks[task]
@@ -64,6 +64,7 @@ def format_dt(
 
 
 def random_str(n: int = 6) -> str:
+    """Random charactor with specific length."""
     return uuid.uuid4().hex[:n].lower()
 
 
@@ -140,20 +141,42 @@ class DotDict(dict):
         - Safe mode: use '?' to skip missing keys
     """
 
-    def get(self, key, default: Any | None = None) -> Any | None:
-        """Getter dict method."""
+    char_safe_mode: ClassVar[str] = "?"
+
+    def __getitem__(self, item) -> Any:
+        if not isinstance(item, str):
+            return super().__getitem__(item)
+
+        if "." not in item:
+            return super().__getitem__(item)
+
+        return self.get(key=item.replace("?", ""), strict=True)
+
+    def get(
+        self,
+        key,
+        default: Any | None = None,
+        strict: bool = False,
+    ) -> Any | None:
+        """Getter dict method override to the ``get`` method on parent dict
+        object.
+
+        Args:
+            key:
+            default:
+            strict:
+        """
 
         if not isinstance(key, str):
             return super().get(key, default)
 
         if "." not in key:
-            return super().get(key, default)
+            return super().get(key.replace("?", ""), default)
 
         keys: list[str] = key.split(".")
         value = self
         # Archive: Disable strict mode.
         # strict: bool = True
-        strict: bool = False
 
         for k in keys:
             safe: bool = k.endswith("?")
@@ -177,7 +200,7 @@ class DotDict(dict):
             return
 
         if "." not in key:
-            self[key] = value
+            self[key.replace("?", "")] = value
             return
 
         keys: list[str] = key.split(".")
@@ -210,7 +233,7 @@ class DotDict(dict):
         d[last_key] = value
 
 
-def need_install(flag: bool, package: str):
+def need_install(flag: bool, package: str) -> Any:
     """Checking needed deps before call building method.
 
     Args:
@@ -219,9 +242,9 @@ def need_install(flag: bool, package: str):
         package (str): A package name that need to install.
     """
 
-    def decorator(method):
+    def decorator(method) -> Any:
         @wraps(method)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(self, *args, **kwargs) -> Any:
             if flag:
                 return method(self, *args, **kwargs)
 

@@ -17,7 +17,19 @@ if TYPE_CHECKING:
 
 
 class CustomToolTask(TaskModel):
-    """Custom Task model."""
+    """Custom Tool Task model.
+
+    Examples:
+        >>> CustomToolTask.model_validate(
+        ...     {
+        ...         "task": "custom_tool_task_id",
+        ...         "uses": "custom_tool",
+        ...         "name": "some-implemented-tool",
+        ...         "params": {"name": "Foo"},
+        ...     }
+        ... )
+
+    """
 
     uses: Literal["custom_tool"] = Field(description="A custom tool type.")
     name: str = Field(description="A custom tool name.")
@@ -36,6 +48,14 @@ class CustomToolTask(TaskModel):
         build_context: BuildContext | None = None,
     ) -> OperatorOrTaskGroup:
         """Build with Custom tool builder method.
+
+        It will get a tool name from building context that match with the ``name``
+        field.
+
+        Warnings:
+            A result that returning from tool building method can not handle
+        building method. That mean it does not allow to set upstream outside
+        before returning.
 
         Args:
             dag (DAG): An Airflow DAG object.

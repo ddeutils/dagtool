@@ -51,7 +51,7 @@ class Factory:
 
     Examples:
         Create the Custom factory that use standard with your operators.
-        >>> from common import Factory
+        >>> from dagtool import Factory
         >>> class CustomFactory(Factory):
         ...     builtin_operators = {
         ...         "some-operator-name": ...,
@@ -89,6 +89,8 @@ class Factory:
         "tasks",
         "raw_data",
     )
+
+    template_nested_fields: ClassVar[Sequence[str]] = ("default_args",)
 
     # NOTE: Builtin class variables for making common Factory by inherit.
     builtin_operators: ClassVar[dict[str, type[Operator]]] = {}
@@ -135,8 +137,10 @@ class Factory:
                 to use on each DAG that was built from template path.
             on_failure_callback: An on failure event callback object that want
                 to use on each DAG that was built from template path.
-            only_one_dag (bool):
-            force_raise (bool):
+            only_one_dag (bool): A reading config will raise error if template
+                config dag set more than one if this value set to True.
+            force_raise (bool): Force raise error if a template config dag failed
+                on the validation step.
 
         Notes:
             After set the Factory attributes, it will load template config data
@@ -187,9 +191,12 @@ class Factory:
 
         renderer = JinjaRender(
             template_fields=self.template_fields,
+            template_excluded_fields=self.template_excluded_fields,
+            template_nested_fields=self.template_nested_fields,
             user_defined_macros={
                 "envs": os.getenv,
                 "env": AIRFLOW_ENV,
+                "dag_id_prefix": self.name,
             }
             | self.user_defined_macros,
             user_defined_filters=self.user_defined_filters,
@@ -284,6 +291,7 @@ class Factory:
                 user_defined_macros=self.user_defined_macros | model.vars,
                 user_defined_filters=self.user_defined_filters,
                 template_searchpath=self.template_searchpath,
+                jinja_environment_kwargs=self.jinja_environment_kwargs,
                 on_success_callback=self.on_success_callback,
                 on_failure_callback=self.on_failure_callback,
                 # NOTE:
