@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import os
-from typing import Literal
+from abc import ABC, abstractmethod
+from typing import Any, Literal
 from unittest.mock import MagicMock
 
 try:
@@ -58,11 +59,18 @@ PLATFORM_MAPS: dict[Platform, str] = {
 }
 
 
-class Dataset(BaseModel):
-    """DataHub Dataset model."""
-
+class BaseDataset(BaseModel, ABC):
     platform: Platform = Field(description="A platform type.")
     name: str = Field(description="An entity name.")
+
+    @abstractmethod
+    def build(self) -> Any:
+        """Build Dataset object from these fields."""
+
+
+class Dataset(BaseDataset):
+    """DataHub Dataset model."""
+
     platform_instance: str | None = Field(default=None)
 
     @need_install(

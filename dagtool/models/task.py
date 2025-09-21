@@ -20,6 +20,7 @@ from airflow.utils.trigger_rule import TriggerRule
 from pydantic import ConfigDict, Field
 from pydantic.functional_validators import field_validator
 
+from ..utils import get_id
 from .datahub import Dataset
 from .tool import ToolModel
 
@@ -84,7 +85,7 @@ class BaseTaskOrTaskGroup(ToolModel, ABC):
                 A Context data that was created from the DAG Factory object.
         """
 
-        task_airflow: OperatorOrTaskGroup = self.build(
+        rs: OperatorOrTaskGroup = self.build(
             dag=dag,
             task_group=task_group,
             build_context=build_context,
@@ -94,13 +95,11 @@ class BaseTaskOrTaskGroup(ToolModel, ABC):
         if build_context is not None:
             tasks: dict[str, Any] = build_context.get("tasks", {})
 
-            # NOTE: Support for duplicate ID for mapping upstream.
-            _id: str = (
-                task_airflow.group_id
-                if isinstance(task_airflow, TaskGroup)
-                else task_airflow.task_id
-            )
-
+            # NOTE:
+            #   Support duplicate ID that will use mapping upstream if the
+            #   result be task in the task group object that allow ``prefix_group_id``
+            #   or ``add_suffix_on_collision`` parameters.
+            _id: str = get_id(rs)
             if _id in tasks:
                 raise NotImplementedError(
                     f"Task ID was duplicate: {_id}. This template should "
@@ -108,13 +107,13 @@ class BaseTaskOrTaskGroup(ToolModel, ABC):
                     f"``prefix_group_id`` and ``add_suffix_on_collision``."
                 )
 
-            tasks[_id] = {"upstream": self.upstream, "task": task_airflow}
+            tasks[_id] = {"upstream": self.upstream, "task": rs}
 
-        return task_airflow
+        return rs
 
 
 class TaskModel(BaseTaskOrTaskGroup, ABC):
-    """Base Task Model.
+    """Task Model.
 
     This model will add necessary field that use with the Airflow BaseOperator
     object.
@@ -237,6 +236,8 @@ class TaskModel(BaseTaskOrTaskGroup, ABC):
         }
         if self.desc:
             kws.update({"doc": self.desc})
+
+        # NOTE: Start set Dataset for ``inlets`` and ``outlets`` fields.
         if self.inlets:
             inlets: list[Any] = []
             for inlet in self.inlets:

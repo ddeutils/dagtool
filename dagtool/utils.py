@@ -47,6 +47,15 @@ def set_upstream(tasks: dict[str, TaskMapped]) -> None:
                     ) from e
 
 
+def get_id(obj: OperatorOrTaskGroup) -> str:
+    """Return task ID if it does not be TaskGroup instance otherwise group ID.
+
+    Args:
+        obj: Any Airflow Operator or TaskGroup object.
+    """
+    return obj.group_id if isinstance(obj, TaskGroup) else obj.task_id
+
+
 def change_tz(dt: DateTime | None, tz: str = "UTC") -> DateTime | None:
     """Change timezone to pendulum.DateTime object."""
     if dt is None:

@@ -54,7 +54,7 @@ class TaskGroup(BaseTaskOrTaskGroup):
             TaskGroup: An Airflow TaskGroup instance.
         """
         tg = _TaskGroup(
-            group_id=self.id,
+            group_id=self.group,
             tooltip=self.tooltip,
             prefix_group_id=False,
             add_suffix_on_collision=False,
