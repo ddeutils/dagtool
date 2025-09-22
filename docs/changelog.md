@@ -2,6 +2,27 @@
 
 ## Latest Changes
 
+## 0.0.13
+
+### :sparkles: Features
+
+- :dart: create setup file that use before build.
+- :dart: support getitem method on utils dotdict object.
+- :dart: update sync feature for locate config file to object storage.
+
+### :black_nib: Code Changes
+
+- :art: change format code for datahub model.
+
+### :package: Build & Workflow
+
+- :toolbox: focus on multiversion support.
+
+### :book: Documentations
+
+- :page_facing_up: update docs on design.
+- :page_facing_up: update readme file.
+
 ## 0.0.12
 
 ### :sparkles: Features
