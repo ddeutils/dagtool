@@ -94,3 +94,18 @@ DAG: { module-dags }-{ name-2 }
 1. (Best Practice) Keep it on the Airflow variables
 2. Keep it on Object Storage
 3. Keep it on the Current DAG folder
+
+> [!NOTE]
+> Variable design
+> ```yaml
+> variables:
+>   - key:
+>     stages:
+>       dev:
+>         schedule: "..."
+>         max_active_runs: 1
+>         <group>:
+>           <task_params>: "..."
+>           <nested_group>:
+>             <task_params>: "..."
+> ```
