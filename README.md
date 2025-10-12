@@ -37,7 +37,7 @@ maintain with the same standard when we want to scale up and out the Airflow app
 support 10 to 1000 DAGs.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ddeutils/dagtool/refs/heads/main/docs/img/overview.png" width="720" height="560">
+  <img src="https://raw.githubusercontent.com/ddeutils/dagtool/refs/heads/main/docs/img/overview.png" width="710" height="530">
 </p>
 
 **File Structure**:
